@@ -1,0 +1,24 @@
+{
+  "code": "CCAR-P",
+  "name": "Claude Certified Architect – Professional",
+  "storage": "ccarp",
+  "questions": 63,
+  "minutes": 120,
+  "passScore": 720,
+  "scaleMin": 100,
+  "scaleMax": 1000,
+  "passRate": 0.72,
+  "format": "単一・複数",
+  "types": ["single", "multi"],
+  "weightNote": "配点は、2026年12月6日までの試験に対応する公式試験ガイド（v1.0・v1.1）の比率です。12月7日からの試験は、問題数と分野の配点が変わります。受験する日に合った試験ガイドを確認してください。",
+  "domains": [
+    { "code": "D1", "name": "ソリューション設計とアーキテクチャ", "en": "Solution Design & Architecture", "weight": 17 },
+    { "code": "D2", "name": "Claude モデル、プロンプト作成、コンテキストエンジニアリング", "en": "Claude Models, Prompting & Context Engineering", "weight": 13 },
+    { "code": "D3", "name": "統合", "en": "Integration", "weight": 19 },
+    { "code": "D4", "name": "評価、テスト、最適化", "en": "Evaluation, Testing & Optimization", "weight": 16 },
+    { "code": "D5", "name": "ガバナンス、安全性、リスク管理", "en": "Governance, Safety & Risk Management", "weight": 14 },
+    { "code": "D6", "name": "ステークホルダーとのコミュニケーションとライフサイクル管理", "en": "Stakeholder Communication & Lifecycle Management", "weight": 14 },
+    { "code": "D7", "name": "開発者の生産性と運用支援", "en": "Developer Productivity & Operational Enablement", "weight": 7 }
+  ],
+  "_artifact": "https://claude.ai/artifact/AJ4QZssfXENcqJkzx2Y63R"
+}

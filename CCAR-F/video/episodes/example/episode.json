@@ -1,0 +1,149 @@
+{
+  "number": 1,
+  "title": "HTTP ステータスコード",
+  "subtitle": "3桁の数字で、結果の種類がわかる",
+  "thumbnail": {"headline": "3桁で\nわかる", "sub": "HTTP ステータスコード"},
+  "scenes": [
+    {
+      "id": "open",
+      "type": "title",
+      "chapter": "オープニング",
+      "lines": [
+        {"text": "ネットワーク基礎講座、第1回です。"},
+        {"text": "今回は、HTTP ステータスコードを整理します。"},
+        {"text": "3桁の数字の、最初の1桁に注目するのがコツです。"}
+      ]
+    },
+    {
+      "id": "numbers",
+      "type": "stats",
+      "chapter": "コードの形",
+      "props": {
+        "heading": "ステータスコードは3桁の数字",
+        "lead": "サーバーが、リクエストの結果を数字で返す",
+        "items": [
+          {"value": 3, "unit": "桁", "label": "コードの長さ", "note": "100 から 599 までの範囲"},
+          {"value": 5, "unit": "種類", "label": "分類", "note": "最初の1桁で分ける"}
+        ]
+      },
+      "lines": [
+        {"text": "ステータスコードは、3桁の数字です。", "step": 1},
+        {"text": "そして、最初の1桁で、5種類に分かれます。", "step": 2, "mark": 1}
+      ]
+    },
+    {
+      "id": "classes",
+      "type": "points",
+      "props": {
+        "heading": "最初の1桁で分類する",
+        "items": [
+          {"label": "1xx", "mono": true, "desc": "情報。処理が続いている"},
+          {"label": "2xx", "mono": true, "desc": "成功"},
+          {"label": "3xx", "mono": true, "desc": "リダイレクト。別の場所へ案内する"},
+          {"label": "4xx", "mono": true, "desc": "クライアントエラー。送る側の問題"},
+          {"label": "5xx", "mono": true, "desc": "サーバーエラー。受ける側の問題"}
+        ]
+      },
+      "lines": [
+        {"text": "`1xx` は、情報です。", "step": 1},
+        {"text": "`2xx` は、成功。", "step": 2},
+        {"text": "`3xx` は、リダイレクト。", "step": 3},
+        {"text": "`4xx` は、クライアントエラー。", "step": 4},
+        {"text": "`5xx` は、サーバーエラーです。", "step": 5},
+        {"text": "試験でよく問われるのは、`4xx` と `5xx` の違いです。", "mark": 3}
+      ]
+    },
+    {
+      "id": "versus",
+      "type": "compare",
+      "chapter": "4xx と 5xx",
+      "props": {
+        "heading": "どちらに原因があるか",
+        "left": {
+          "title": "4xx 送る側",
+          "items": [
+            {"label": "400 Bad Request", "mono": true, "desc": "リクエストの形式が正しくない"},
+            {"label": "404 Not Found", "mono": true, "desc": "指定した場所に何もない"}
+          ]
+        },
+        "right": {
+          "title": "5xx 受ける側",
+          "items": [
+            {"label": "500 Internal Server Error", "mono": true, "desc": "サーバーの処理が失敗した"},
+            {"label": "503 Service Unavailable", "mono": true, "desc": "一時的に応答できない"}
+          ]
+        }
+      },
+      "lines": [
+        {"text": "`4xx` は、送る側に原因があります。リクエストを直さないと、何度送っても失敗します。", "step": 1},
+        {"text": "`5xx` は、受ける側、つまりサーバーに原因があります。", "step": 2}
+      ]
+    },
+    {
+      "id": "exchange",
+      "type": "flow",
+      "chapter": "コードが届くまで",
+      "props": {
+        "heading": "やり取りの流れ",
+        "nodes": [
+          {"label": "リクエスト", "desc": "ブラウザが URL を指定して送る"},
+          {"label": "処理", "desc": "サーバーが内容を調べる"},
+          {"label": "レスポンス", "desc": "先頭にステータスコードが付く"}
+        ]
+      },
+      "lines": [
+        {"text": "ブラウザが、リクエストを送ります。", "step": 1},
+        {"text": "サーバーが、それを処理します。", "step": 2},
+        {"text": "そして、ステータスコードを付けたレスポンスを返します。", "step": 3}
+      ]
+    },
+    {
+      "id": "response",
+      "type": "code",
+      "props": {
+        "heading": "レスポンスの1行目を見る",
+        "lang": "http",
+        "code": "HTTP/1.1 404 Not Found\nContent-Type: text/html\n\n<h1>Not Found</h1>",
+        "focus": [[1]],
+        "notes": ["ここがステータスコード"]
+      },
+      "lines": [
+        {"text": "実際のレスポンスです。"},
+        {"text": "1行目に、ステータスコードが書かれています。", "step": 1}
+      ]
+    },
+    {
+      "id": "quiz",
+      "type": "quiz",
+      "chapter": "ミニクイズ",
+      "props": {
+        "question": "ページが恒久的に移転したことを表すステータスコードは、どれでしょうか。",
+        "options": ["`200`", "`301`", "`404`", "`503`"],
+        "answer": 1,
+        "explain": "`301` は Moved Permanently。`3xx` はリダイレクトを表す。"
+      },
+      "lines": [
+        {"text": "ここで、ミニクイズです。"},
+        {"text": "ページが恒久的に移転したことを表すステータスコードは、どれでしょうか。", "step": 1},
+        {"wait": 4, "step": 2},
+        {"text": "正解は B、`301` です。", "read": "正解は、ビー。さんびゃくいち、です。", "step": 3},
+        {"text": "`3xx` は、リダイレクトを表すのでした。", "step": 4}
+      ]
+    },
+    {
+      "id": "wrap",
+      "type": "summary",
+      "chapter": "まとめ",
+      "props": {
+        "items": ["最初の1桁で、結果の種類がわかる", "`4xx` は送る側、`5xx` は受ける側"],
+        "next": "HTTP メソッド"
+      },
+      "lines": [
+        {"text": "今回のまとめです。"},
+        {"text": "最初の1桁で、結果の種類がわかります。", "step": 1},
+        {"text": "`4xx` は送る側、`5xx` は受ける側の問題です。", "step": 2},
+        {"text": "次回は、HTTP メソッドを取り上げます。", "step": 3}
+      ]
+    }
+  ]
+}

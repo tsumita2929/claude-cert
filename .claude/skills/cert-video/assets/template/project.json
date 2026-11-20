@@ -1,0 +1,16 @@
+{
+  "series": "ネットワーク基礎講座",
+  "exam": {
+    "short": "",
+    "full": ""
+  },
+  "disclaimer": "見本の動画です",
+  "episodes": 3,
+  "voice": {
+    "engine": "voicevox",
+    "speaker": 11,
+    "speed": 1.08
+  },
+  "credit": "VOICEVOX:玄野武宏",
+  "captions": true
+}

@@ -1,0 +1,132 @@
+{
+  "number": 2,
+  "title": "stop_reason の読み方",
+  "subtitle": "止まった理由で、次の動きが決まる",
+  "thumbnail": {"headline": "止まった\n理由は？", "sub": "stop_reason の読み方"},
+  "scenes": [
+    {
+      "id": "open",
+      "type": "title",
+      "chapter": "オープニング",
+      "lines": [
+        {"text": "CCDV-F キャッチアップ講座、第2回です。"},
+        {"text": "今回は、レスポンスの `stop_reason` の読み方です。"},
+        {"text": "止まった理由ごとに、アプリが次にやることを押さえます。"}
+      ]
+    },
+    {
+      "id": "what",
+      "type": "code",
+      "chapter": "stop_reason とは",
+      "props": {
+        "heading": "`content` の前に `stop_reason` を見る",
+        "lead": "レスポンスの抜粋",
+        "lang": "json",
+        "code": "{\n  \"content\": [\n    {\"type\": \"text\", \"text\": \"返品は30日以内です。\"}\n  ],\n  \"stop_reason\": \"end_turn\"\n}",
+        "focus": [[5], [2, 3, 4]],
+        "notes": ["なぜ止まったか", "読むのは確認のあと"]
+      },
+      "lines": [
+        {"text": "成功したレスポンスには、必ず `stop_reason` が入っています。"},
+        {"text": "`stop_reason` は、モデルがなぜ生成を止めたかを伝えます。", "step": 1},
+        {"text": "`content` を読む前に、まず `stop_reason` を確認します。", "step": 2}
+      ]
+    },
+    {
+      "id": "values",
+      "type": "points",
+      "chapter": "止まり方の種類",
+      "props": {
+        "heading": "止まった理由で、次の動きが決まる",
+        "items": [
+          {"label": "end_turn", "mono": true, "desc": "自然に答え終えた"},
+          {"label": "max_tokens", "mono": true, "desc": "出力が上限で打ち切られた。完成品として扱わない"},
+          {"label": "stop_sequence", "mono": true, "desc": "指定した停止文字列が出た"},
+          {"label": "tool_use", "mono": true, "desc": "ツールの実行を求めている。実行して結果を返す"}
+        ]
+      },
+      "lines": [
+        {"text": "まず、4つの値を見ます。"},
+        {"text": "`end_turn` は、自然に答え終えた状態です。", "step": 1},
+        {"text": "`max_tokens` は、出力が上限で打ち切られた状態です。", "step": 2, "mark": 1},
+        {"text": "出力は途中で切れているので、完成品として扱ってはいけません。"},
+        {"text": "`stop_sequence` は、指定した停止文字列が出て止まった状態です。", "step": 3},
+        {"text": "`tool_use` は、Claude がツールの実行を求めている状態です。", "step": 4},
+        {"text": "アプリがツールを実行して、結果を返します。"}
+      ]
+    },
+    {
+      "id": "special",
+      "type": "compare",
+      "chapter": "pause_turn と refusal",
+      "props": {
+        "heading": "エラーではない、2つの止まり方",
+        "left": {
+          "title": "続きがある",
+          "items": [
+            {"label": "pause_turn", "mono": true, "desc": "サーバーツールの繰り返しが上限に達した"},
+            {"label": "次の動き", "desc": "応答をそのまま送り返すと再開する"}
+          ]
+        },
+        "right": {
+          "title": "応答を断った",
+          "items": [
+            {"label": "refusal", "mono": true, "desc": "Claude が応答の生成を断った"},
+            {"label": "返り方", "desc": "HTTP 200 の通常のレスポンスで返る"}
+          ]
+        }
+      },
+      "lines": [
+        {"text": "あと2つ、覚えておきたい値があります。"},
+        {"text": "`pause_turn` は、ウェブ検索などのサーバーツールの処理が、繰り返しの上限に達した状態です。", "step": 1},
+        {"text": "返ってきた応答を、そのまま `messages` に足してもう一度送ると、続きから再開します。"},
+        {"text": "`refusal` は、Claude が応答の生成を断った状態です。", "step": 2},
+        {"text": "これもエラーではなく、HTTP 200 の通常のレスポンスとして返ります。", "read": "これもエラーではなく、エイチティーティーピー二百の、通常のレスポンスとして返ります。"}
+      ]
+    },
+    {
+      "id": "quiz",
+      "type": "quiz",
+      "chapter": "ミニクイズ",
+      "props": {
+        "question": "`stop_reason` が `max_tokens` のレスポンスが返ってきました。`content` の文章の扱いとして、正しいのは？",
+        "options": [
+          "完成した文章として、そのまま表示する",
+          "途中で切れた文章として扱う",
+          "エラーなので、`content` は読まない",
+          "ツールを実行して、結果を返す"
+        ],
+        "answer": 1,
+        "explain": "`max_tokens` は、出力が上限で打ち切られた状態。エラーではない。"
+      },
+      "lines": [
+        {"text": "ここで、ミニクイズです。"},
+        {"text": "`stop_reason` が `max_tokens` のレスポンスが返ってきました。"},
+        {"text": "`content` の文章の扱いとして、正しいのはどれでしょうか。", "step": 1},
+        {"wait": 4, "step": 2},
+        {"text": "正解は B。途中で切れた文章として扱う、です。", "read": "正解は、ビー。途中で切れた文章として扱う、です。", "step": 3},
+        {"text": "`max_tokens` はエラーではありません。ただし、出力は上限で打ち切られています。", "step": 4}
+      ]
+    },
+    {
+      "id": "wrap",
+      "type": "summary",
+      "chapter": "まとめ",
+      "props": {
+        "items": [
+          "`content` の前に `stop_reason` を見る",
+          "`max_tokens` は途中で切れている",
+          "`pause_turn` と `refusal` はエラーではない"
+        ],
+        "next": "ストリーミングの基本"
+      },
+      "lines": [
+        {"text": "今回のまとめです。"},
+        {"text": "`content` を読む前に、`stop_reason` を確認する。", "step": 1},
+        {"text": "`max_tokens` は、出力が途中で切れている。", "step": 2},
+        {"text": "`pause_turn` と `refusal` は、エラーではない。", "step": 3},
+        {"text": "次回は、ストリーミングを見ていきます。", "step": 4}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "series": "CCDV-F キャッチアップ講座",
+  "exam": {
+    "short": "CCDV-F",
+    "full": "Claude Certified Developer – Foundations"
+  },
+  "disclaimer": "非公式の学習用教材です。受験前に公式の試験ガイドを確認してください",
+  "episodes": 8,
+  "voice": {
+    "engine": "aivis",
+    "speaker": 1878365376
+  },
+  "credit": "AivisSpeech（コハク）",
+  "captions": true
+}

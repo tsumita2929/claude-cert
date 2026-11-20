@@ -1,0 +1,24 @@
+{
+  "code": "CCAO-F",
+  "name": "Claude Certified Associate – Foundations",
+  "storage": "ccaof",
+  "questions": 60,
+  "minutes": 120,
+  "passScore": 720,
+  "scaleMin": 100,
+  "scaleMax": 1000,
+  "passRate": 0.72,
+  "format": "単一・複数",
+  "types": ["single", "multi"],
+  "weightNote": "配点は、2026年12月6日までの試験に対応する公式試験ガイド（v1.0・v1.1）の比率です。12月7日からの試験は、問題数と分野の配点が変わります。受験する日に合った試験ガイドを確認してください。",
+  "domains": [
+    { "code": "D1", "name": "プロンプト作成とタスク実行", "en": "Prompting and Task Execution", "weight": 14 },
+    { "code": "D2", "name": "出力の評価と検証", "en": "Output Evaluation and Validation", "weight": 21 },
+    { "code": "D3", "name": "製品とモデルの選択", "en": "Product and Model Selection", "weight": 12 },
+    { "code": "D4", "name": "ワークフロー統合とソリューション設計", "en": "Workflow Integration and Solution Design", "weight": 16 },
+    { "code": "D5", "name": "設定とナレッジ管理", "en": "Configuration and Knowledge Management", "weight": 12 },
+    { "code": "D6", "name": "ガバナンス、リスク、責任ある利用", "en": "Governance, Risk, and Responsible Use", "weight": 15 },
+    { "code": "D7", "name": "トラブルシューティングと最適化", "en": "Troubleshooting and Optimization", "weight": 10 }
+  ],
+  "_artifact": "https://claude.ai/artifact/KXFSqbm4HqJViXVHJq4EkK"
+}

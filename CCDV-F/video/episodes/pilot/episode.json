@@ -1,0 +1,97 @@
+{
+  "number": 1,
+  "title": "Messages API の基本",
+  "subtitle": "必須パラメータと system の渡し方",
+  "thumbnail": {"headline": "必須は\n3つだけ", "sub": "Messages API の基本"},
+  "scenes": [
+    {
+      "id": "open",
+      "type": "title",
+      "chapter": "オープニング",
+      "lines": [
+        {"text": "CCDV-F キャッチアップ講座、第1回です。"},
+        {"text": "今回は、すべての土台になる Messages API の基本を押さえます。"},
+        {"text": "必須パラメータと、システムプロンプトの渡し方。まず押さえたい2点です。"}
+      ]
+    },
+    {
+      "id": "params",
+      "type": "points",
+      "chapter": "必須パラメータ",
+      "props": {
+        "heading": "必須パラメータは3つ",
+        "lead": "どれか1つでも欠けると、リクエストは受け付けられない",
+        "items": [
+          {"label": "model", "mono": true, "desc": "使うモデルの ID"},
+          {"label": "max_tokens", "mono": true, "desc": "1回の応答で生成する出力の上限"},
+          {"label": "messages", "mono": true, "desc": "`user` と `assistant` が並ぶ、会話の中身"}
+        ]
+      },
+      "lines": [
+        {"text": "リクエストの必須パラメータは、3つです。"},
+        {"text": "使うモデルを表す、`model`。", "step": 1},
+        {"text": "出力の上限を決める、`max_tokens`。", "step": 2},
+        {"text": "そして、会話の中身である、`messages` です。", "step": 3},
+        {"text": "この3つは、必ず覚えてください。"}
+      ]
+    },
+    {
+      "id": "system",
+      "type": "code",
+      "chapter": "system の渡し方",
+      "props": {
+        "heading": "`system` はトップレベルで渡す",
+        "lead": "`messages` の配列には入れない",
+        "lang": "json",
+        "code": "{\n  \"model\": \"claude-sonnet-5-5\",\n  \"max_tokens\": 1024,\n  \"system\": \"あなたは丁寧なサポート担当です。\",\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"返品方法を教えて\"}\n  ]\n}",
+        "focus": [[4], [5, 6, 7]],
+        "notes": ["システムプロンプトはここ", "ここは会話だけ"]
+      },
+      "lines": [
+        {"text": "システムプロンプトの渡し方にも、決まりがあります。"},
+        {"text": "システムプロンプトは、トップレベルの `system` パラメータで渡します。", "step": 1},
+        {"text": "`messages` の配列に入れるのは、会話だけです。", "step": 2},
+        {"text": "他社の API から移植するとき、`role` が `system` のメッセージを先頭に入れてしまうのは、典型的な間違いです。"}
+      ]
+    },
+    {
+      "id": "quiz",
+      "type": "quiz",
+      "chapter": "ミニクイズ",
+      "props": {
+        "question": "`messages` の先頭に `role: \"system\"` のメッセージを入れたら、400 エラーになりました。正しい直し方は？",
+        "options": [
+          "`role` を `developer` に変える",
+          "最初の `assistant` メッセージとして送る",
+          "トップレベルの `system` パラメータに移す",
+          "`max_tokens` を省略する"
+        ],
+        "answer": 2,
+        "explain": "`developer` というロールはない。`max_tokens` は必須なので省略できない。"
+      },
+      "lines": [
+        {"text": "ここで、ミニクイズです。"},
+        {"text": "`messages` の先頭に、`role` が `system` のメッセージを入れたら、400 エラーになりました。"},
+        {"text": "正しい直し方は、どれでしょうか。", "step": 1},
+        {"wait": 4, "step": 2},
+        {"text": "正解は C。トップレベルの `system` パラメータに移す、です。", "read": "正解は、シー。トップレベルのシステムパラメータに移す、です。", "step": 3},
+        {"text": "`developer` というロールはなく、`max_tokens` は必須なので省略できません。", "step": 4}
+      ]
+    },
+    {
+      "id": "wrap",
+      "type": "summary",
+      "chapter": "まとめ",
+      "props": {
+        "items": ["必須は `model`・`max_tokens`・`messages`", "`system` はトップレベルで渡す"],
+        "next": "`stop_reason` の読み方"
+      },
+      "lines": [
+        {"text": "今回のまとめです。"},
+        {"text": "必須パラメータは、`model`、`max_tokens`、`messages` の3つ。", "step": 1},
+        {"text": "システムプロンプトは、トップレベルの `system` で渡す。", "step": 2},
+        {"text": "次回は、`stop_reason` の読み方を見ていきます。", "step": 3}
+      ]
+    }
+  ]
+}

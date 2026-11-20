@@ -1,0 +1,9 @@
+{
+  "name": "catchup-slides",
+  "private": true,
+  "description": "キャッチアップ講座のスライド（pptx）を作るための共通部品",
+  "dependencies": {
+    "jszip": "^3.10.2",
+    "pptxgenjs": "^4.0.1"
+  }
+}

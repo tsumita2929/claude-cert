@@ -1,0 +1,15 @@
+{
+  "series": "CCAR-P キャッチアップ講座",
+  "exam": {
+    "short": "CCAR-P",
+    "full": "Claude Certified Architect – Professional"
+  },
+  "disclaimer": "非公式の学習用教材です。受験前に公式の試験ガイドを確認してください",
+  "episodes": 8,
+  "voice": {
+    "engine": "aivis",
+    "speaker": 1878365376
+  },
+  "credit": "AivisSpeech（コハク）",
+  "captions": true
+}

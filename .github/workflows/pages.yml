@@ -1,0 +1,53 @@
+# 問題集を GitHub Pages に公開する。
+# サイトに載るのは shared/site/build.py が書き出すもの（入口のページと、各試験の問題集）だけで、
+# リポジトリのほかのファイル（公式の試験ガイド、音声、スライド、動画）はサイトには載らない。
+#
+# リポジトリの Settings → Pages → Build and deployment の Source は「GitHub Actions」にしてある。
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*/data/**"
+      - "*/exam.json"
+      - "shared/quiz/**"
+      - "shared/site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 公開の途中で次の push が来ても、進行中の公開は止めない
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # 音声などの大きなファイルは取ってこない。サイトの素材だけを取り出す
+      - uses: actions/checkout@v7
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /shared/site/
+            /shared/quiz/
+            /*/exam.json
+            /*/data/
+      - name: サイトを組み立てる
+        run: python3 shared/site/build.py _site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v5

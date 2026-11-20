@@ -1,0 +1,15 @@
+{
+  "series": "CCAO-F キャッチアップ講座",
+  "exam": {
+    "short": "CCAO-F",
+    "full": "Claude Certified Associate – Foundations"
+  },
+  "disclaimer": "非公式の学習用教材です。受験前に公式の試験ガイドを確認してください",
+  "episodes": 8,
+  "voice": {
+    "engine": "aivis",
+    "speaker": 1878365376
+  },
+  "credit": "AivisSpeech（コハク）",
+  "captions": true
+}

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Claude 認定資格 問題集（非公式）</title>
+<meta name="description" content="Anthropic の Claude 認定資格（__CODES__）の、非公式の日本語の練習問題集です。練習モードと模擬試験で学べます。Anthropic が作成・公認したものではありません。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* 入口のページ。問題集（shared/quiz/app.html）と同じ答案用紙の見た目で、試験をマークシートの選択肢として並べる。
+   色と書体の値は app.html の :root と同じにしておく */
+:root {
+  --bg: #eef1f4;
+  --sheet: #ffffff;
+  --ink: #18202b;
+  --muted: #586473;
+  --line: #d5dbe3;
+  --print: #1b6b83;
+  --print-soft: #e2eff3;
+  --graphite: #262b33;
+  --graphite-ink: #ffffff;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+    --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+}
+h1, h2 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--print); outline-offset: 2px; }
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 72px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: .12em; color: var(--print);
+}
+.hero { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.hero h1 { font-weight: 900; font-size: clamp(32px, 7vw, 52px); line-height: 1.15; letter-spacing: .01em; }
+.hero .lead { max-width: 40em; color: var(--muted); }
+
+.sheet {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px clamp(16px, 4vw, 32px) 28px;
+  display: flex; flex-direction: column; gap: 18px; min-width: 0;
+}
+.sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.sheet-head h2 { font-size: 22px; font-weight: 900; }
+.sheet-head span { font-size: 13px; color: var(--muted); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+.opts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 18px 16px 14px; border-radius: 8px;
+  border: 1px solid var(--line); text-decoration: none;
+  transition: border-color .15s;
+}
+.bubble {
+  flex: none; width: 24px; height: 34px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 1.5px solid var(--print); color: var(--print);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+  transition: background-color .15s, border-color .15s, color .15s;
+}
+/* 選ぶと、鉛筆で楕円を塗りつぶす */
+.opt:hover, .opt:focus-visible { border-color: var(--graphite); }
+.opt:hover .bubble, .opt:focus-visible .bubble {
+  background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink);
+}
+.opt-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.opt-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; }
+.opt-code { font-family: var(--font-display); font-weight: 900; font-size: 26px; line-height: 1.25; letter-spacing: .01em; }
+.opt-name { font-size: 14px; color: var(--muted); text-wrap: balance; }
+.nb { white-space: nowrap; }
+.facts { display: flex; flex-wrap: wrap; gap: 2px 20px; font-size: 13px; color: var(--muted); }
+.facts .k { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--print); margin-right: 6px; }
+.facts b { font-family: var(--font-mono); font-weight: 500; font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.opt-go { flex: none; font-size: 14px; font-weight: 700; color: var(--print); white-space: nowrap; }
+
+.foot { display: flex; flex-direction: column; gap: 10px; font-size: 14px; color: var(--muted); }
+
+@media (max-width: 680px) {
+  .opt { align-items: flex-start; gap: 14px; }
+  .bubble { margin-top: 1px; }
+  .opt-go { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .opt, .bubble { transition: none; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="hero">
+    <p class="eyebrow">非公式の学習教材</p>
+    <h1>Claude <span class="nb">認定資格</span> <span class="nb">問題集</span></h1>
+    <p class="lead">Anthropic の Claude 認定資格の試験に向けた、日本語の練習問題集です。1問ずつ解説を確かめる練習モードと、本番と同じ問題数・時間で通して解く模擬試験があります。</p>
+  </header>
+
+  <section class="sheet" aria-labelledby="pick">
+    <div class="sheet-head">
+      <h2 id="pick">学習する試験を選んでください</h2>
+      <span><span class="num">__EXAM_COUNT__</span> 試験・計 <span class="num">__QUESTION_COUNT__</span> 問</span>
+    </div>
+    <ul class="opts">
+__EXAMS__
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <p>非公式の学習用問題集です。Anthropic が作成・公認したものではなく、公式の問題でもありません。出題範囲と配点は公開されている公式の試験ガイドをもとにしていて、どの版に基づくかは各問題集の「出題範囲と学習状況」に書いてあります。受験前に、公式の試験ガイドで最新の内容を確認してください。</p>
+    <p>学習記録は、お使いのブラウザの中にだけ保存されます。</p>
+  </footer>
+</main>
+</body>
+</html>

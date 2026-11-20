@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CCAR-P 問題集</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: 一枚の答案用紙。中央1カラムの問題冊子、選択肢はマークシートの楕円、採点は赤ペンの丸付け */
+:root {
+  --bg: #eef1f4;
+  --sheet: #ffffff;
+  --ink: #18202b;
+  --muted: #586473;
+  --line: #d5dbe3;
+  --print: #1b6b83;        /* マークシートの印刷インク */
+  --print-soft: #e2eff3;
+  --graphite: #262b33;     /* 鉛筆で塗った楕円 */
+  --graphite-ink: #ffffff;
+  --pen: #d03a3a;          /* 採点用の赤ペン */
+  --pen-soft: #fbeaea;
+  --ok: #1d7650;
+  --ok-soft: #e5f2ea;
+  --code-bg: #f2f4f7;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+    --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+    --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+  --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+  --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  font-feature-settings: "palt" 0;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px;
+  padding: .05em .35em; overflow-wrap: anywhere;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--print); outline-offset: 2px; }
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 72px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.wrap-wide { max-width: 920px; }
+
+/* ---------- 共通部品 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--sheet); color: var(--ink);
+  font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-primary:hover:not(:disabled) { background: var(--print); border-color: var(--print); color: var(--sheet); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover:not(:disabled) { border-color: transparent; color: var(--ink); }
+.btn-small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
+.btn-danger { background: var(--pen); border-color: var(--pen); color: var(--sheet); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--print);
+}
+.muted { color: var(--muted); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- ホーム ---------- */
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: var(--print-soft); border: 1px solid var(--print);
+}
+.banner > span { min-width: 0; }
+.banner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.hero { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.hero h1 { font-weight: 900; font-size: clamp(36px, 8vw, 56px); line-height: 1.1; letter-spacing: .01em; }
+.hero .lead { max-width: 40em; color: var(--muted); }
+
+.spec {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0; border: 1.5px solid var(--print); border-radius: 8px; overflow: hidden;
+  background: var(--sheet);
+}
+.spec > div { padding: 12px 16px; border-left: 1px solid var(--print); min-width: 0; }
+.spec > div:first-child { border-left: none; }
+.spec dt { font-size: 12px; letter-spacing: .08em; color: var(--print); font-weight: 700; }
+.spec dd { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.3; }
+.spec dd small { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--muted); }
+
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.panel {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
+}
+.panel h2 { font-size: 22px; font-weight: 900; }
+.panel-head { display: flex; flex-direction: column; gap: 4px; }
+.panel-head p { color: var(--muted); font-size: 14px; }
+.panel-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.panel-foot .count { font-size: 14px; color: var(--muted); }
+.panel-foot .count b { color: var(--ink); font-family: var(--font-mono); }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.field-label button { border: none; background: none; padding: 0; color: var(--print); font-size: 12px; font-weight: 700; cursor: pointer; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
+select {
+  font: inherit; font-size: 14px; width: 100%; min-height: 40px;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--sheet); color: var(--ink);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+}
+.chip-btn b { font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
+.chip-btn[aria-pressed="true"] { background: var(--print-soft); border-color: var(--print); color: var(--ink); }
+.ticks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.ticks li { display: flex; gap: 10px; }
+.ticks li::before {
+  content: ""; flex: none; width: 12px; height: 16px; margin-top: 5px;
+  border: 1.5px solid var(--print); border-radius: 50%;
+}
+
+.section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+.section-head h2 { font-size: 22px; font-weight: 900; }
+.section-head p { color: var(--muted); font-size: 14px; }
+.bp { display: flex; flex-direction: column; }
+.bp-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 150px 110px auto;
+  align-items: center; gap: 8px 14px; padding: 12px 0; border-top: 1px solid var(--line);
+}
+.bp-row:last-child { border-bottom: 1px solid var(--line); }
+.bp-code { font-family: var(--font-mono); font-weight: 500; color: var(--print); }
+.bp-name { min-width: 0; line-height: 1.45; }
+.bp-name b { display: block; font-weight: 700; }
+.bp-name small { color: var(--muted); font-size: 12px; }
+.meter { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.meter-track { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.meter-track span { display: block; height: 100%; background: var(--print); }
+.meter-track.acc span { background: var(--ink); }
+.meter .num { color: var(--ink); }
+
+.foot { display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--muted); }
+.foot-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.foot-stats b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.foot-stats .spacer { flex: 1; }
+.confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--ink); }
+
+/* ---------- 上部バー ---------- */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.bar-inner {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 8px;
+  display: flex; align-items: center; gap: 8px 12px;
+}
+.bar-mid { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.bar-mode { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--print); }
+.bar-count { font-family: var(--font-mono); font-size: 14px; color: var(--muted); white-space: nowrap; }
+.bar-count b { color: var(--ink); font-size: 16px; }
+.bar-right { display: flex; align-items: center; gap: 6px; }
+.timer {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px;
+  padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap;
+}
+.timer.is-low { color: var(--pen); border-color: var(--pen); }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 8px; border: 1px solid transparent;
+  background: transparent; cursor: pointer; font-size: 20px; line-height: 1; color: var(--muted);
+}
+.icon-btn:hover { border-color: var(--line); }
+.icon-btn[aria-pressed="true"] { color: var(--pen); }
+.bar-progress { height: 3px; background: var(--line); }
+.bar-progress span { display: block; height: 100%; background: var(--print); transition: width .25s; }
+
+/* ---------- 問題 ---------- */
+.sheet {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px clamp(16px, 4vw, 32px) 28px;
+  display: flex; flex-direction: column; gap: 18px; min-width: 0;
+}
+.q-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; color: var(--muted); }
+.q-num { font-family: var(--font-display); font-weight: 900; font-size: 24px; color: var(--ink); line-height: 1; }
+.q-num small { font-size: 14px; margin-right: 2px; }
+.q-dom { border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+.q-dom b { font-family: var(--font-mono); font-weight: 500; color: var(--print); margin-right: 4px; }
+.q-id { font-family: var(--font-mono); font-size: 12px; margin-left: auto; }
+.q-text { font-size: 17px; line-height: 1.9; }
+.code {
+  margin: 0; padding: 14px 16px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; overflow-x: auto; white-space: pre; tab-size: 2;
+}
+.code code { background: none; border: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.q-instr { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; font-size: 14px; font-weight: 700; }
+.q-instr .num { font-weight: 500; color: var(--muted); }
+.hint { font-size: 14px; color: var(--pen); }
+.scn {
+  border-left: 3px solid var(--print); background: var(--print-soft); border-radius: 0 8px 8px 0;
+  padding: 10px 14px; font-size: 14px; line-height: 1.75;
+}
+.scn b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--print); }
+
+.opts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 16px; width: 100%; text-align: left;
+  padding: 12px 16px 12px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; line-height: 1.7;
+}
+.opt:hover { border-color: var(--print); }
+.opt.is-chosen { border-color: var(--graphite); }
+.opt[aria-disabled="true"] { cursor: default; }
+.opt[aria-disabled="true"]:hover { border-color: var(--line); }
+.opt.is-right, .opt.is-right:hover { background: var(--ok-soft); border-color: var(--ok); }
+.opt.is-wrong, .opt.is-wrong:hover { background: var(--pen-soft); border-color: var(--pen); }
+.bubble {
+  position: relative; flex: none; width: 24px; height: 34px; margin-top: -3px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 1.5px solid var(--print); color: var(--print);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+}
+.opt.is-chosen .bubble { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.opt-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.opt-note { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.tag {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 0 8px; border-radius: 999px; margin-right: 6px; line-height: 1.8; vertical-align: 1px;
+}
+.tag-right { background: var(--ok); color: var(--sheet); }
+.tag-wrong { background: var(--pen); color: var(--sheet); }
+
+.pen {
+  position: absolute; left: 50%; top: 50%; width: 46px; height: 56px;
+  transform: translate(-50%, -50%) rotate(-10deg); overflow: visible; pointer-events: none;
+}
+.pen path, .vmark path {
+  fill: none; stroke: var(--pen); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 260; stroke-dashoffset: 0; animation: draw .6s ease-out both;
+}
+.pen-check { width: 40px; height: 44px; transform: translate(-30%, -60%) rotate(-4deg); }
+@keyframes draw { from { stroke-dashoffset: 260; } }
+
+.verdict { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 8px; }
+.verdict.ok { background: var(--ok-soft); }
+.verdict.ng { background: var(--pen-soft); }
+.vmark { width: 48px; height: 48px; flex: none; overflow: visible; }
+.verdict-title { font-family: var(--font-display); font-weight: 900; font-size: 24px; line-height: 1.2; }
+.verdict-sub { font-size: 14px; color: var(--muted); }
+.explain { display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.explain h3 { font-size: 15px; font-weight: 900; color: var(--print); letter-spacing: .06em; }
+.explain p { line-height: 1.9; }
+.ref { font-size: 13px; color: var(--muted); }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.actions .grow { flex: 1; }
+.keys { font-size: 12px; color: var(--muted); text-align: center; }
+.keys kbd {
+  font-family: var(--font-mono); font-size: 11px; padding: 0 5px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--sheet);
+}
+
+.navbox { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.navbox summary { cursor: pointer; font-weight: 700; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.navbox summary span { font-weight: 400; color: var(--muted); font-size: 13px; }
+.nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin-top: 12px; }
+.nav button {
+  position: relative; height: 36px; border-radius: 6px; border: 1px solid var(--line);
+  background: transparent; cursor: pointer; font-family: var(--font-mono); font-size: 13px;
+}
+.nav button.answered { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.nav button.current { outline: 2px solid var(--print); outline-offset: 1px; }
+.nav button.flagged::after {
+  content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--pen);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); }
+.legend .l-ans { background: var(--graphite); border-color: var(--graphite); }
+.legend .l-flag { background: var(--pen); border-color: var(--pen); border-radius: 50%; }
+.finish-box {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--pen); background: var(--pen-soft);
+}
+
+/* ---------- 結果 ---------- */
+.score-head { display: flex; flex-direction: column; gap: 14px; }
+.score-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; }
+.score { font-family: var(--font-display); font-weight: 900; font-size: clamp(56px, 14vw, 88px); line-height: .95; }
+.score small { font-size: .4em; margin-left: 4px; }
+.score-sub { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; font-size: 14px; color: var(--muted); }
+.score-sub b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.gauge { position: relative; height: 10px; border-radius: 5px; background: var(--line); margin-top: 18px; }
+.gauge > span { display: block; height: 100%; border-radius: 5px; background: var(--ink); }
+.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 2px; background: var(--pen); }
+.gauge .mark::before {
+  content: attr(data-label); position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--pen); white-space: nowrap; font-weight: 700;
+}
+.score-msg { font-weight: 700; }
+.score-note { font-size: 13px; color: var(--muted); }
+
+.dom-list { display: flex; flex-direction: column; gap: 10px; }
+.dom-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 72px; gap: 4px 14px; align-items: center; font-size: 14px; }
+.dom-row .meter-track { grid-column: 2 / 3; }
+.dom-row .num { text-align: right; }
+.res-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.res-list button {
+  width: 100%; display: grid; grid-template-columns: 28px 52px 40px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px; padding: 10px 4px; border: none; border-bottom: 1px solid var(--line);
+  background: transparent; text-align: left; cursor: pointer; font-size: 14px;
+}
+.res-list button:hover { background: var(--sheet); }
+.res-mark { font-size: 20px; line-height: 1; font-weight: 700; text-align: center; }
+.res-mark.ok { color: var(--pen); }
+.res-mark.ng { color: var(--muted); }
+.res-topic { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-go { color: var(--print); font-size: 13px; font-weight: 700; }
+
+@media (max-width: 680px) {
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec > div:nth-child(3) { border-left: none; }
+  .spec > div:nth-child(n+3) { border-top: 1px solid var(--print); }
+  .modes { grid-template-columns: minmax(0, 1fr); }
+  .bp-row { grid-template-columns: 36px minmax(0, 1fr) auto; }
+  .bp-row .meter { grid-column: 2 / 3; }
+  .bp-row .bp-go { grid-column: 3; grid-row: 1; }
+  .res-list button { grid-template-columns: 24px 44px 34px minmax(0, 1fr); }
+  .res-go { display: none; }
+  .q-id { margin-left: 0; }
+  .keys { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen path, .vmark path { animation: none; }
+  .bar-progress span { transition: none; }
+}
+</style>
+
+<div id="app"></div>
+<noscript><p style="padding:24px">この問題集は JavaScript を使います。ブラウザの設定で JavaScript を有効にしてください。</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+const QUESTIONS = [{"id":"D1-01","domain":"D1","topic":"役割の3分割","type":"single","question":"ある大学の経理課が、教員から出される研究費の精算の審査に Claude を使う計画を立てています。申請には、教員が自由に書いた支出の目的と、領収書の画像が付きます。費目ごとに精算できる額は会計システムに登録された規則で一意に決まり、精算を確定させる判断は経理担当者が行うと学内規程で決まっています。役割の分け方として最も適切なものはどれですか。","options":["Claude に規程の全文と領収書を渡して精算額を計算させ、可否も判断させて、審査を最後まで自動で完結させる","Claude が目的の記述と領収書から費目の候補と両者の食い違いを挙げ、精算額は会計システムが出し、確定は担当者が行う","Claude は教員への差し戻しの連絡文を下書きするだけにし、記述と領収書の読み取りから精算額の算出までは担当者が行う","精算額も Claude に計算させ、会計システムの規則どおりになるよう手順と例をプロンプトに詳しく書き、確定は担当者が行う"],"answer":[1],"notes":["規則で一意に決まる計算を確率的な出力に任せると、同じ申請でも額がぶれるおそれがあります。規程で担当者が行うと決まっている確定まで自動化しており、統制も満たしません。","正解。意味の理解が要る自由記述と領収書の読み取り（費目の候補と、記述と領収書の食い違いの指摘）は Claude、規則で決まる計算は既存の会計システム、規程で責任が求められる確定は人、と仕事の性質に合わせて分けています。","Claude に向く自由記述の読み取りを人に残しており、審査の手間の大部分が減りません。統制を守ることと、Claude の得意な部分を使うことは両立できます。","人による確定は守っていますが、会計システムが一意に出せる計算を確率的な出力に置き換えています。手順を詳しく書いても、規則どおりの額になる保証はありません。"],"explanation":"ビジネス課題を落とし込むときは、仕事を「Claude がやること」「既存システムがやること」「人がやること」に分けます。Claude に向くのは、形の決まっていない文章や画像を意味で読み取って判断する仕事です。規則で一意に決まる計算や記録の正本は既存のシステムに残し、規程や責任のうえで人の判断が要る箇所には人を置きます。3つのどれを取り違えても、正確さ、統制、効果のどれかが欠けます。","ref":"試験ガイド 分野1 タスク 1.1（ビジネス課題を Claude ベースの AI ソリューションに落とし込む）／ Claude Docs: Ticket routing（Define whether to use Claude）"},{"id":"D1-02","domain":"D1","topic":"変わる値と検索","type":"single","question":"家電量販チェーンが、店舗の在庫と注文の配送状況に答えるチャットアシスタントを計画しています。開発チームは、在庫と注文の状況を毎晩ベクトルデータベースに書き出し、商品マニュアルや返品規定と同じく検索（RAG）で答えさせる案を出しました。在庫は日中に何度も変わり、「店に行ったのに在庫がなかった」という苦情を減らすことが目的です。最も適切な提案はどれですか。","options":["書き出しの間隔を毎晩から1時間ごとに縮め、検索用のインデックスを日中も休まずこまめに作り直す","全店舗の在庫の一覧をシステムプロンプトに入れ、会話のたびに最新の一覧を取り直して送る","回答の末尾に「在庫は変わることがあります」と添えるよう、システムプロンプトで指示する","在庫と注文は回答のたびに各システムの API をツールで呼んで取り、検索は文書だけに使う"],"answer":[3],"notes":["間隔を縮めても、日中の変化とのずれは残ります。症状を小さくするだけで、刻々と変わる値を検索に担わせているという設計の誤りは直りません。","一覧が大きいほどトークンと費用がかさみ、送った時点からまた古くなります。必要な1件を必要なときに取りに行くほうが的確です。","注意書きは、苦情の原因（古い在庫を答えていること）を取り除きません。モデルに言わせて済ませる対応です。","正解。刻々と変わる値は正本を持つシステムにその場で問い合わせ、変わりにくい文書は検索で補う、という役割分担です。"],"explanation":"拡張LLM の補強には、検索とツールがあります。検索は、規定やマニュアルのように変わりにくい文書を引くのに向き、在庫や残高のように刻々と変わる値は、正本を持つシステムにツールで問い合わせるのが基本です。本来はライブの状態が担うべき役割を検索に担わせていないかは、設計の最初に確かめる点です。インデックスの更新を速めるのは症状への対処で、原因は残ります。","ref":"試験ガイド 分野1 タスク 1.1（ビジネス課題を Claude ベースの AI ソリューションに落とし込む）／ Anthropic: Building effective agents（The augmented LLM）"},{"id":"D1-03","domain":"D1","topic":"原因に当てる","type":"single","question":"ある市役所では、市民からの問い合わせへの回答に平均5日かかっています。業務を調べると、遅れの大半は、問い合わせを読んで担当課を決め、回すまでの待ち時間でした。回答の内容には行政としての責任があり、担当課の職員が確認してから出すと決まっています。Claude を使う最初の解決策として最も適切なものはどれですか。","options":["Claude が問い合わせを読んで担当課を判定し、要約を添えて既存の案件管理システムに登録し、回答は担当課が作る","よくある質問だけは Claude が規則集から回答を作って自動で返信し、残りは今までどおりの手順で担当課に回す","Claude が市の規則集を検索して回答の下書きを作り、担当課の職員が確認して直してから市民へ返信する","担当課の判定から回答の下書きまでを行うエージェント型の構成を新しく作り、既存の案件管理システムと置き換える"],"answer":[0],"notes":["正解。遅れの原因である振り分けに Claude を当て、記録は既存のシステム、責任のある回答は職員、という分担です。","よくある質問に限っても、職員が確認してから出すという決まりを破ります。残りの問い合わせは、遅れの原因である振り分けの待ち時間がそのままです。","職員の確認という決まりは守っていますが、遅れの大半を占める振り分けの待ち時間は減りません。目立つ回答作成に手を当てた、別の問題を解く手です。","作り込みすぎです。原因は振り分けの待ち時間で、動いている既存のシステムを置き換える理由がありません。最初の一手としては大きすぎ、効果が出るまでの時間も延びます。"],"explanation":"課題を落とし込むときは、まず今の業務がどう回っていて、どこで時間や失敗が生じているかを調べ、その原因に Claude の得意な仕事を当てます。自由な文面の問い合わせを意味で分類して振り分ける仕事は Claude に向き、Anthropic のチケット振り分けのガイドもこの使い方を例にしています。目立つ「回答の自動作成」に飛びつかず、制約（職員の確認）を守ったまま、原因に効く部分から始めます。","ref":"試験ガイド 分野1 タスク 1.1（ビジネス課題を Claude ベースの AI ソリューションに落とし込む）／ Claude Docs: Ticket routing"},{"id":"D1-04","domain":"D1","topic":"改善のループ","type":"multi","question":"銀行の法人営業部が、顧客との面談の文字起こしから面談記録の下書きを Claude で作り、担当者が手直ししてから顧客管理システムに登録する仕組みを本番で運用しています。入力から出力までは動いていますが、担当者の手直しの量が減らず、プロンプトを変えても良くなったのか悪くなったのかが分かりません。フィードバックループを閉じるために取るべき対応はどれですか。（2つ選択）","options":["下書きごとに、入力、使ったプロンプトとモデルの版、担当者が直した後の文面をひも付けて記録する","Claude に下書きごとの確信度を自己申告させ、確信度の低いものだけを担当者の確認に回す","これまでの担当者の手直しをすべてシステムプロンプトの末尾に書き足し、モデルに学ばせる","手直しが大きかった事例を評価データセットに加え、プロンプトやモデルを変える前に必ずその評価を通す","担当者の手直しを毎週自動でファインチューニングに回し、できたモデルをそのまま本番に出す"],"answer":[0,3],"notes":["正解。どの版のプロンプトとモデルで、何がどう直されたかが残って初めて、本番の結果を改善に戻せます。","モデルの自己申告の確信度は、品質の目安として当てになりません。手直しが減らない原因の分析にもつながりません。","手直しが増えるほどプロンプトが長くなり、費用がかさみ、注意も分散します。変更の効果を測る仕組みもありません。","正解。実際の失敗を評価データセットに加えて変更の関門にすることで、良くなったか悪くなったかを測れるようになります。","作り込みすぎで、評価の関門もないまま本番のモデルを入れ替えています。悪くなっても気づけません。"],"explanation":"エンドツーエンドの設計は、入力、処理、出力に加え、本番の結果を改善に戻すフィードバックループまでを含みます。ループを閉じるには、(1) 何がどう直されたかを版とひも付けて残すこと、(2) その失敗を評価データセットに加えて、変更のたびに通す関門にすることが要ります。成功基準と評価を先に置き、そのうえでプロンプトを直すのが基本の循環です。","ref":"試験ガイド 分野1 タスク 1.2（エンドツーエンドのアーキテクチャを設計する）／ Claude Docs: Define success criteria and build evaluations"},{"id":"D1-05","domain":"D1","topic":"出力の検証段","type":"single","question":"病院のシステム部門が、紹介状の PDF から診断名、処方、紹介元などを Claude で抜き出し、電子カルテに登録する仕組みを作っています。出力は構造化出力で JSON スキーマに沿っていますが、ときどき、紹介元の医療機関コードが院内のマスタにない記録や、用量の単位を取り違えた記録（mg と g など）が登録され、後から医師が見つけています。出力の段の設計として最も適切なものはどれですか。","options":["システムプロンプトに「コードはマスタにあるものだけを使い、単位は必ず確かめること」と強い表現で書き加える","登録された記録を医師が毎日抜き取りで点検し、見つかった誤りの件数を月ごとに集計して改善に使う","登録前に出力をマスタと業務ルールでコード検証し、不合格は理由を返して直させ、直らなければ人に回す","抜き出しに使うモデルを最も性能の高いものに切り替え、読み取りの誤りが出る割合そのものを下げる"],"answer":[2],"notes":["確率的な手で、必ず守らせたい条件を解こうとしています。誤りは減っても、マスタにないコードが登録の前に止まる保証はありません。","誤った記録がカルテに入ってから見つける発見的な統制で、登録の前に止める段がありません。抜き取りなので見逃しも残ります。","正解。マスタとの照合や用量の範囲のような決まったルールは、コードで確かめるのが最も確実です。不合格の理由を返して直させ、直らないものだけを人に回せば、人の負担も抑えられます。","規模で解決しようとしています。割合は下がるかもしれませんが、誤った記録を登録の前に止める段がない点は変わりません。"],"explanation":"出力の段では、結果を渡す前に「渡してよいか」を確かめる仕組みを設計します。構造化出力は JSON の形と必須の項目を保証しますが、値がマスタにあるか、業務上ありうる範囲かまでは保証しません。こうした明確なルールで判定できるものは、コードによる検証が最も確かなフィードバックです。不合格を理由とともにモデルに返して直させ、それでも直らないものを人に回すと、確実さと人の負担を両立できます。","ref":"試験ガイド 分野1 タスク 1.2（エンドツーエンドのアーキテクチャを設計する）／ Anthropic: Building agents with the Claude Agent SDK（Verify your work）／ Claude Docs: Structured outputs"},{"id":"D1-06","domain":"D1","topic":"拡張LLMで足りる","type":"single","question":"会計ソフトの会社が、ヘルプセンターの記事をもとに利用者の質問に答える機能を作ります。質問の多くは「請求書の締め日を変えるには」のような1回で答えられるもので、答えは記事のどれかに書いてあります。応答は3秒以内に返したく、1件あたりの費用も抑える必要があります。チームの一人は「将来に備えて最初からエージェント型にしよう」と言っています。最も適切な設計はどれですか。","options":["関連する記事を検索して添えた1回のモデル呼び出しで答え、評価で不足が見えた部分にだけ手を足す","エージェント型にして、検索の回数や順序をモデルに決めさせ、答えが十分だと判断するまで調べさせる","計画、検索、回答の担当を分けたマルチエージェントの構成にし、それぞれを別々のモデルで動かす","すべての回答を評価役のモデルに採点させ、基準を満たすまで回答役のモデルに書き直させる"],"answer":[0],"notes":["正解。答えが記事にある1回きりの質問は、検索で補強した1回の呼び出し（拡張LLM）で足ります。速さと費用の制約にも合います。","必要な手順の数が読めない問題ではないので、エージェントの柔軟さは要りません。呼び出しが増え、3秒以内と費用の制約に反しがちです。","トークンの消費とレイテンシが大きく増え、この単純な質問応答には見合いません。","毎回の採点と書き直しで、レイテンシと費用が何倍にもなります。評価者・最適化者は、反復で測れるほど良くなる場面のための手です。"],"explanation":"Building effective agents は、できるだけ単純な解決策から始め、必要なときだけ複雑さを足すよう勧め、多くの用途では検索や例で補強した1回の呼び出しで足りるとしています。拡張LLM、ワークフロー、エージェント型の順に柔軟さは増しますが、引き換えにレイテンシとコストも増えます。「将来に備えて」ではなく、今の要件と評価の結果で構成を決めます。","ref":"試験ガイド 分野1 タスク 1.3（適切なアーキテクチャパターンを選択する）／ Anthropic: Building effective agents（When and when not to use agents）"},{"id":"D1-07","domain":"D1","topic":"エージェント型の出番","type":"single","question":"クラウドサービスの運用チームが、障害の一次調査を Claude で自動化しています。最初は「ログ検索→メトリクス確認→要約」の固定の手順で作りましたが、障害の約半分は既知のどの型にも当てはまらず、何を調べるべきかが途中の発見で変わるため、原因にたどり着けませんでした。調査の結果は担当者が見てから復旧の操作を行います。最も適切な設計の変更はどれですか。","options":["考えられる分岐をすべて洗い出し、固定の手順に条件分岐を足し続けることで、対応できる障害の範囲を少しずつ広げる","障害を既知の型に分類し、型ごとにあらかじめ用意した固定の手順へ振り分けるルーティングの構成にする","読み取り専用のツールを持つエージェント型にし、呼び出し回数の上限などの停止条件を設け、結果を担当者に渡す","関係しそうなログとメトリクスをすべて1回の呼び出しに入れ、障害の原因をまとめて推定させる"],"answer":[2],"notes":["次の一手が途中の発見で決まる問題では、分岐が際限なく増えます。半分が未知の型という事実に、固定の経路は合いません。","既知の型には効きますが、どの型にも当てはまらない半分の障害には振り分け先がありません。","正解。必要な手順の数を前もって読めない、オープンエンドな問題はエージェント型の出番です。読み取り専用のツール、停止条件、人による確認で、自律性のコストとリスクを抑えています。","すべてを1回に詰め込むとコンテキストが膨らみ、途中の発見に応じて調べ直すこともできません。"],"explanation":"エージェント型は、必要な手順の数を前もって予測できない問題に向きます。その代わりに、コストの増加と誤りの積み重なりという代償があるため、停止条件、権限の小さいツール、人が確認する地点を合わせて設計します。「エージェントは常に過剰」でも「常に高度で正しい」でもなく、問題の形で選びます。この場面では、未知の型が半分あるという事実が決め手です。","ref":"試験ガイド 分野1 タスク 1.3（適切なアーキテクチャパターンを選択する）／ Anthropic: Building effective agents（Agents）"},{"id":"D1-08","domain":"D1","topic":"決まった手順を固定","type":"single","question":"EC モールの運営会社が、出店者が登録した商品ページの審査に Claude を使っています。手順は「商品情報から必要な項目を抜き出す→禁止品目と表示の基準に照らして判定する→判定の理由を出店者向けに書く」で毎回同じです。いまは1つのエージェントが自分の判断で手順を進めており、似た商品でも照合の段を飛ばすことがあり、1件あたりの処理時間とトークン数も大きくばらつきます。出店者からの異議に備え、どの段で何を判断したかを示せる必要があります。最も適切な見直しはどれですか。","options":["3つの段を1つの長いプロンプトにまとめ、1回の呼び出しで抜き出しから判定、理由の作成までを済ませる","3つの段をコードで決めた順に呼ぶプロンプトチェーンにし、段の間のチェックと各段の入出力の記録を置く","エージェントの構成はそのままにし、すべてのツール呼び出しを記録して、段を飛ばした事例を月ごとに点検する","エージェントのシステムプロンプトに、3つの段を必ずこの順に踏むよう強い表現で書き、守らなかった例も添える"],"answer":[1],"notes":["構成は単純になりますが、段が分かれていないため段の間のチェックを置けず、どの段で何を判断したかも示せません。","正解。決まった順のサブタスクに分けられる業務にはワークフローが向きます。経路をコードで固定すれば段を飛ばさなくなり、段ごとのチェックと記録で判断の根拠も示せます。","段を飛ばしたことを後から見つける発見的な統制で、飛ばすこと自体は防げません。処理時間とトークン数のばらつきも残ります。","確率的な手で、毎回必ず守らせたい手順を解こうとしています。飛ばす割合は減っても、なくなる保証はありません。"],"explanation":"ワークフローは、モデルとツールをあらかじめコードで決めた経路で動かすため、手順の決まったタスクで予測しやすさと一貫性が得られます。エージェント型は、手順をモデルが自分で決める柔軟さと引き換えに、経路、レイテンシ、コストがばらつきます。手順が毎回同じで、どの段で何をしたかを示す必要がある業務では、その柔軟さは要らず、代償だけが残ります。パターンは「エージェントのほうが高度か」ではなく、柔軟さが本当に要る問題の形かで選びます。","ref":"試験ガイド 分野1 タスク 1.3（適切なアーキテクチャパターンを選択する）／ Anthropic: Building effective agents（Workflow: Prompt chaining、Agents）"},{"id":"D1-09","domain":"D1","topic":"マルチエージェント","type":"single","question":"投資銀行の M&A 部門が、買収候補の企業について、競合、規制、特許、経営陣の経歴、訴訟歴を調べる下調べを Claude で行いたいと考えています。調べる方向はそれぞれほぼ独立で、どの方向でも、何をどこまで調べるかは途中で見つかった事実によって変わります。集める情報の量は1つのコンテキストウィンドウに収まりません。1件の調査は案件の判断に直結する価値の高い仕事で、トークンの費用が増えることは許容されています。最も適切な構成はどれですか。","options":["1つのエージェントに全方向の調査を順に任せ、コンテキストが一杯になったら古い内容を捨てて調査を続けさせる","5つの方向を固定の順に1つずつ調べるプロンプトチェーンにし、前の段の結果をすべて次の段に渡す","同じ調査を複数のエージェントに並列で行わせ、多数決で最終的な結論を決めて報告にまとめる","リードのエージェントが方向ごとにサブエージェントへ任せ、各自が自分のコンテキストで並列に調べ要点を返す"],"answer":[3],"notes":["1つのコンテキストに収まらない点を、捨てながら進めることで乗り切ろうとしており、必要な情報を失います。独立な方向を並列にできる利点も使っていません。","独立な方向を直列にしているので時間がかかり、前の結果をすべて渡すため後の段ほどコンテキストが膨らみます。途中の発見に応じて調べ方を変えることもできません。","投票は同じ判定の信頼性を上げる手です。異なる方向を手分けして調べる問題は解けません。","正解。独立な方向が多く、1つのコンテキストに収まらず、費用に見合う価値がある、というマルチエージェントの向く条件がそろっています。"],"explanation":"Anthropic の調査システムは、リードのエージェントが計画を立て、サブエージェントがそれぞれのコンテキストウィンドウで並列に調べる、オーケストレーター・ワーカー型です。マルチエージェントは、並列にしやすく、1つのコンテキストに収まらない情報を扱う、価値の高い仕事で力を発揮します。この場面では、方向ごとの調べ方も途中の発見で変わるため、各方向を固定の手順ではなくエージェントに任せる意味があります。トークンの消費は大きいので、費用に見合う価値があるかが採用の条件になります。","ref":"試験ガイド 分野1 タスク 1.4（マルチエージェントシステムとオーケストレーション戦略を設計する）／ Anthropic: How we built our multi-agent research system"},{"id":"D1-10","domain":"D1","topic":"任せ方の指示","type":"single","question":"ある省庁の政策調査チームが、リードのエージェントがサブエージェントに調査を任せる仕組みを試しています。ログを見ると、リードは「再生可能エネルギーの補助制度を調べて」のような短い指示だけを渡しており、複数のサブエージェントが同じ資料を重ねて調べる一方で、地方自治体の制度は誰も調べていませんでした。最も適切な改善はどれですか。","options":["リードが任せるときに、目的、出力の形式、使う情報源とツール、担当の範囲と境界を指示に含める","サブエージェントの数を増やし、重複があっても全体としては抜けが出にくいようにしておく","サブエージェントを性能の高いモデルに替え、自分の担当の範囲を周りの状況から判断できるようにする","サブエージェントどうしが調査の途中で直接やり取りし、担当をその場で調整できるようにする"],"answer":[0],"notes":["正解。重複と抜けの原因は、任せ方のあいまいさです。目的、形式、情報源、境界を渡せば、サブエージェントは自分の範囲を正しく知れます。","規模で解決しようとしています。境界が決まっていないままでは重複が増えるだけで、抜けがなくなる保証もありません。","ほかの担当が何を調べるかは、各サブエージェントからは見えません。モデルを替えても、指示にない境界は判断できません。","エージェントどうしがリアルタイムに調整し合うことは、まだ得意ではなく、調整のためのトークンも増えます。原因は上流の指示にあります。"],"explanation":"オーケストレーションでは、任せ方が品質を決めます。Anthropic の調査システムは、各サブエージェントに目的、出力の形式、ツールと情報源の目安、はっきりした担当の境界を渡す必要があり、詳しい指示がないと重複や抜けが出ると報告しています。下流のサブエージェントを強くするより、上流の指示を直すのが原因に効く手です。","ref":"試験ガイド 分野1 タスク 1.4（マルチエージェントシステムとオーケストレーション戦略を設計する）／ Anthropic: How we built our multi-agent research system"},{"id":"D1-11","domain":"D1","topic":"結果の返し方","type":"multi","question":"製薬会社の医学部門が、臨床試験の論文を調べるマルチエージェントの仕組みを運用しています。サブエージェントは調べた内容の全文をそのままリードに返しており、リードのコンテキストがすぐに一杯になります。また、リードが最終報告をまとめ直す途中で、表の数値や引用元の細部が抜け落ちることがあります。この2つの問題に対して取るべき対応はどれですか。（2つ選択）","options":["リードのモデルを、より大きなコンテキストウィンドウを持つものに替え、全文を受け取れるようにする","サブエージェントには、決めた形式に沿った要点の要約だけをリードに返させる","全員が1つの会話履歴を共有するようにし、サブエージェントの作業をすべてリードから見えるようにする","サブエージェントの数を増やし、1つあたりがリードに返す量を小さくする","表の数値や引用の一覧などの成果物はサブエージェントが外部の保存先に書き出し、リードには参照だけを渡す"],"answer":[1,4],"notes":["規模で解決しようとしています。コンテキストが長くなるほど注意は分散しやすく、まとめ直しで細部が落ちる問題も残ります。","正解。サブエージェントは自分のコンテキストで調べ、要点に絞って返すことで、リードのコンテキストを守れます。","サブエージェントごとにコンテキストを分ける利点がなくなり、リードのコンテキストはかえって膨らみます。","返す総量は変わらず、受け取るリードの負担は減りません。まとめ直しで細部が落ちる問題にも効きません。","正解。細部を伝言で受け渡さず、保存先に残して参照で渡せば、まとめ直しで情報が劣化するのを防げ、トークンも減らせます。"],"explanation":"サブエージェントの利点は、それぞれが自分のコンテキストで作業し、要点だけを返せることです。全文を返すと、この利点が消えます。一方で、細かい数値や引用まで要約で受け渡すと、伝言ゲームのように情報が劣化します。Anthropic の調査システムは、サブエージェントが成果物を外部に保存し、軽い参照だけをリードに返す方法を紹介しています。「要約で返すもの」と「保存して参照で渡すもの」を分けて設計します。","ref":"試験ガイド 分野1 タスク 1.4（マルチエージェントシステムとオーケストレーション戦略を設計する）／ Anthropic: How we built our multi-agent research system ／ Anthropic: Effective context engineering for AI agents"},{"id":"D1-12","domain":"D1","topic":"文脈で分ける","type":"single","question":"ソフトウェア会社が、機能追加を自動で進めるマルチエージェントを試作しています。仕事の種類で分け、設計担当、実装担当、テスト作成担当、レビュー担当の4つのエージェントが順に成果物を受け渡しています。ログを見ると、テスト担当は実装の意図を知らずに的外れなテストを書き、やり取りのためのトークンが実作業より多くなっていました。最も適切な分解の見直しはどれですか。","options":["各担当に渡す引き継ぎの文書を長く詳しくし、前の担当の会話履歴もすべて添付して渡す","担当をさらに細かく分け、テストの設計担当とテストの実装担当を別々のエージェントにして受け渡す","1つの機能の実装とテストは同じエージェントが担い、別のエージェントは完成物を外から試す検証役に絞る","担当どうしの受け渡しの回数を増やし、疑問があればその都度ほかの担当のエージェントに確かめさせる"],"answer":[2],"notes":["引き継ぎを厚くするほどトークンが増え、それでも受け渡しのたびに文脈は失われます。分け方そのものの問題が残ります。","仕事の種類でさらに分けると受け渡しが増え、文脈の欠落と調整の負担が悪化します。","正解。同じ文脈を必要とする仕事は1つのエージェントにまとめ、検証のように作業の経緯を知らなくてもできる仕事だけを分けています。","調整の手間とトークンがさらに増えます。エージェントどうしがその場で細かく調整し合うことは、まだ得意ではありません。"],"explanation":"分解は、仕事の種類ではなく、必要な文脈の境界で行うのが基本です。仕事の種類で分けると、受け渡しのたびに文脈が失われ、調整の負担が実作業を上回ることがあります。実装とテストのように同じ文脈を要する仕事はまとめ、完成物を外から試すだけでよい検証は別のエージェントに任せられます。そもそも1つのエージェントで足りるなら、そこから始めます。","ref":"試験ガイド 分野1 タスク 1.5（複雑な問題解決のために分解の手法を適用する）／ Claude Blog: Building multi-agent systems: when and how to use them"},{"id":"D1-13","domain":"D1","topic":"検査と回答の分離","type":"single","question":"アパレルの EC サイトが、接客チャットの1つのプロンプトで、商品の質問への回答と、不適切な依頼（ほかの客の個人情報を求めるなど）の検出を同時に行っています。検出の指示を強めると回答の質が下がり、回答の指示を整えると検出の漏れが増える、ということを繰り返しています。最も適切な分解はどれですか。","options":["回答と検出の指示を、1つのプロンプトの中で章立てし直し、どちらを優先するかを明確に書き分ける","入力を検査する呼び出しと回答を作る呼び出しを分けて並列に動かし、検査で問題が出たら回答を出さない","より性能の高いモデルに替え、1つのプロンプトのまま回答と検出の両方を高い水準でこなせるようにする","不適切な依頼の例を数十件 few-shot として足し、1つのプロンプトのまま検出の精度を上げる"],"answer":[1],"notes":["同じ呼び出しが両方を担う限り、一方への調整がもう一方に響く構造は変わりません。","正解。性質の違う仕事を別の呼び出しに分けると、それぞれに絞った指示で個別に調整できます。並列なのでレイテンシもほとんど増えません。","規模で解決しようとしています。1つの呼び出しに性質の違う仕事を背負わせる構造が原因で、モデルを替えても調整のぶつかり合いは残ります。","確率的な手を足すだけで、1つの呼び出しが両方を担う構造は同じです。プロンプトが長くなり、回答の質にも響きえます。"],"explanation":"Building effective agents は、並列化（セクショニング）の例として、ある呼び出しが利用者の質問を処理し、別の呼び出しが不適切な内容や依頼を検査する形を挙げ、同じ呼び出しで両方を扱うより性能が出やすいとしています。互いに干渉する関心事は、別の呼び出しに分けて個別に最適化します。分解の目安は「1つの呼び出しが、性質の違う仕事をいくつ抱えているか」です。","ref":"試験ガイド 分野1 タスク 1.5（複雑な問題解決のために分解の手法を適用する）／ Anthropic: Building effective agents（Workflow: Parallelization）"},{"id":"D1-14","domain":"D1","topic":"章ごとに分ける","type":"single","question":"ある大学が、300ページを超える認証評価の基準書を、学内の各部署向けの確認項目の一覧に変える作業を Claude で行っています。基準書の全体を1回の呼び出しに渡して一覧を作らせると、後半の章の項目がしばしば抜け落ち、どの章が抜けたかを担当者が手で突き合わせています。最も適切な分解はどれですか。","options":["より長いコンテキストウィンドウを持つモデルに替え、基準書の全体をこれまでどおり1回の呼び出しで処理させる","プロンプトに「すべての章を漏れなく扱うこと」と書き加え、章の一覧も添えて重ねて念を押す","1回で作った一覧を別の呼び出しに渡し、抜けた章がないかを、基準書の全体と照らしてモデルに確かめさせる","章ごとに項目を抜き出す呼び出しを並列に行い、全章の結果がそろったかをコードで確かめてからまとめる"],"answer":[3],"notes":["規模で解決しようとしています。入力が長いほど注意は分散しやすく、全章を扱えたことを確かめる仕組みもありません。","確率的な手で網羅を守らせようとしています。抜けが減っても、なくなったと確かめられません。","確かめ役のモデルも300ページの全体と照らすため、同じ長い入力で同じ見落としが起こりえます。全章がそろったかは章の番号で決まるので、モデルの判断ではなくコードで確実に確かめられます。","正解。章という独立した単位に分けると各呼び出しの仕事が易しくなり、全章がそろったかは章の番号でコードが確実に確かめられます。"],"explanation":"大きな仕事は、独立した単位に分けて並列に処理し（セクショニング）、最後にまとめます。分けた単位に番号や識別子があれば、全部そろったかをコードで確かめる関門を置けます。長いコンテキストや念押しは、抜けの割合を下げるかもしれませんが、網羅を保証しません。分解の利点は、各呼び出しを易しくすることと、確かめられる区切りを作ることの2つです。","ref":"試験ガイド 分野1 タスク 1.5（複雑な問題解決のために分解の手法を適用する）／ Anthropic: Building effective agents（Parallelization）／ Anthropic: Effective context engineering for AI agents"},{"id":"D1-15","domain":"D1","topic":"費用の見積もり","type":"single","question":"通信教育の大手が、受講者から届く学習の質問に答えるアシスタントを計画しています。質問は月に約40万件で、事業の目的は、質問1件あたりの対応費用を、今の外部の講師への委託の費用より下げることです。試作したマルチエージェントの構成は回答の質が高く評価されましたが、1件の処理で十数回のモデル呼び出しを行っています。本番の構成を決める前に行うこととして最も適切なものはどれですか。","options":["回答の質が高く評価されたので、まず全件で稼働させ、費用は毎月の請求額を見ながら後で構成を調整する","Console で月の支出の上限を予算に合わせて設定し、上限に達するまでの範囲で質問を受け付ける","試作で測った1件あたりの呼び出し回数とトークン数から月の費用を見積もり、目標の単価と比べて構成を決める","繰り返し送る前置きにプロンプトキャッシングを設定すれば費用は十分に下がるとみて、そのまま本番に移す"],"answer":[2],"notes":["目的がコストの削減なのに、目標を満たせるかを確かめないまま全件に広げています。マルチエージェントはトークンの消費が大きく、気づいたときには費用が膨らんでいるおそれがあります。","支出の上限は使いすぎを止める安全装置で、上限に達すれば受講者への応答が止まります。1件あたりの費用が目標に収まるかという問いには答えません。","正解。試作の実測から呼び出し量、トークン消費、月の費用を見積もれば、コストの柱の目標を満たせるかを構成を決める前に判断できます。足りなければ、より単純な構成と比べる根拠にもなります。","キャッシュは繰り返す前置きの費用を下げますが、1件で十数回呼び出す構成の費用がどこまで下がるかは、見積もらなければ分かりません。"],"explanation":"コストの柱を狙う案件では、構成を決める前に、呼び出し量、トークン消費、費用を見積もり、目標に照らして実現できるかを評価します。Anthropic の調査システムの記事では、マルチエージェントの構成はふつうのチャットの約15倍のトークンを使うと報告され、費用に見合う価値の高い仕事に向くとされています。品質の高い試作でも、狙う柱の目標を満たせなければ解決策になりません。見積もりは、より単純な構成と比べるときの根拠にもなります。","ref":"試験ガイド 分野1 タスク 1.6（ソリューションをビジネス価値の柱に整合させる）／ Anthropic: How we built our multi-agent research system ／ Claude Docs: Rate limits（Spend limits）"},{"id":"D1-16","domain":"D1","topic":"SLA と経路の分離","type":"single","question":"ある病院が、外来の診察中に、医師の画面へ患者の過去の診療記録の要点を表示する機能を作っています。診療部門との合意では、医師が患者を選んでから表示までを2秒以内に収めることがサービスの条件です。試作は、エージェントが過去の記録を何度も検索して要点を練り上げる設計で、質は高く評価されたものの平均12秒かかっています。外来は予約制で、診察する患者と、要点に使う前日までの記録は前の晩に確定しています。最も適切な見直しはどれですか。","options":["エージェントの設計はそのままにし、プロンプトで「できるだけ短く、速くまとめること」と強く指示する","予約の患者の要点は前の晩にエージェントで作っておき、診察中は作っておいた要点を表示するだけにする","エージェントの検索の回数に上限を設け、2秒に収まる回数で打ち切って、その時点の要点を表示する","要点の質を優先し、表示までの条件を15秒に緩めるよう、試作の結果を根拠に診療部門へ申し入れる"],"answer":[1],"notes":["何度も検索する構造が遅さの原因で、短くまとめさせても呼び出しの回数は減りません。条件を満たす保証もありません。","正解。時間のかかるエージェントの処理を、診察中の経路から前の晩に移しています。対象の患者と記録が前もって確定しているので、質を保ったまま表示の条件を満たせます。","停止条件を置くこと自体は大事ですが、2秒で打ち切ると調べられる量がわずかになり、評価された要点の質が保てません。時間をかけてよい処理を、急ぐ経路に残したままです。","SLA はサービスの条件として合意済みで、緩めれば診察中に使うという価値が失われます。設計で満たす手があるうちに取る手ではありません。"],"explanation":"パフォーマンス SLA は、構成を選ぶときの制約そのものです。エージェント型はレイテンシとコストを払って性能を得るため、厳しいレイテンシが求められる経路にそのまま置くと条件を満たせません。速さが要る経路と時間をかけてよい経路を分け、前もって分かる仕事は先に済ませておくなど、それぞれに合った置き方をします。SLA を緩める交渉や、質を削る打ち切りは、設計で満たす手を検討してからです。","ref":"試験ガイド 分野1 タスク 1.6（ソリューションをビジネス価値の柱に整合させる）／ Anthropic: Building effective agents（Agents のレイテンシとコスト）"},{"id":"D1-17","domain":"D1","topic":"柱と成功基準","type":"multi","question":"証券会社のリサーチ部門が、アナリストが書く企業レポートの下書きを Claude で作る仕組みを導入します。経営層が掲げる目的は「アナリストが文書作成に使う時間を減らし、企業への取材や分析に使う時間を増やすこと」で、レポートの数値や事実の正確さを損なわないことが前提です。導入の成否を判断する基準として設定すべきものはどれですか。（2つ選択）","options":["1か月のあいだに Claude が作成した下書きの件数と、前の月からの伸び","下書き1件あたりにかかる API の費用と、月ごとの費用の合計","アナリストが1本のレポートを仕上げるまでにかかる時間の、導入の前後での差","公開前の審査で、数値や事実の重要な誤りの修正が必要だったレポートの割合","Claude が下書きごとに出す、内容の正確さについての自己評価の平均"],"answer":[2,3],"notes":["作った件数やその伸びは、アナリストの時間が減ったかどうかを示しません。使われずに書き直されていても件数は増えます。","費用は管理すべき数値ですが、経営層が掲げた目的（アナリストの時間）とは別の柱の指標です。","正解。目的である担当者の時間（生産性）を、前後で比べられる具体的な数値にしています。","正解。正確さを損なわないという前提を、測れる基準にしています。時間の短縮と合わせて見ることで、確認を省いたことによる見かけの改善を防げます。","モデルの自己申告は当てになる目安ではなく、実際の誤りの割合を測る代わりにはなりません。"],"explanation":"解決策は、狙うビジネス価値の柱に合わせて測れる成功基準を決めて、初めて評価できます。よい成功基準は、具体的で、測れて、達成でき、目的に合ったものです。ここでは経営層の目的であるアナリストの時間（生産性）が主な柱で、正確さという前提も基準にします。作った量や費用のように測りやすい数値でも、目的と結びつかないものは成否の判断に使えません。","ref":"試験ガイド 分野1 タスク 1.6（ソリューションをビジネス価値の柱に整合させる）／ Claude Docs: Define success criteria and build evaluations"},{"id":"D2-01","domain":"D2","topic":"小型モデルを評価","type":"single","question":"ある県庁が、住民から届く意見や要望（1日に約3万件）を「道路」「福祉」「教育」「税」「その他」の5つの担当分野に振り分ける処理を、最上位のモデルで動かしています。振り分けの精度は十分ですが、費用が予算を大きく超えています。業務上は精度95%以上あれば足り、職員が振り分け先を付けた過去の意見が2,000件あります。顧客に最初に勧めるべきことはどれですか。","options":["最上位のモデルのまま、システムプロンプトを短く削ってトークン数を減らし、費用を抑える","振り分け先の付いた2,000件で小型で高速なモデルを評価し、95%以上なら切り替える","振り分けに特化したモデルをファインチューニングで作り、Claude の呼び出しを置き換える","小型のモデルに本番で切り替え、担当課から苦情が出たら元のモデルに戻す"],"answer":[1],"notes":["費用の大半を生んでいるのは、単純な大量処理を最上位のモデルで動かしている構成です。プロンプトを削っても構成は変わらず、削りすぎれば必要な指示も失います。","正解。大量で単純な分類は、小型で高速なモデル（Haiku など）で足りることが多い用途です。手元の正解付きのデータで評価し、業務の基準を満たすと確かめてから切り替えます。","効くかもしれませんが、最初の一手としては重すぎます。既存のモデルの選び直しで解決できるかを確かめる前に、学習と運用の負担を負う理由がありません。","本番の業務を試験台にしており、誤った振り分けが出てから気づく進め方です。評価に使えるデータが手元にあるのに使わない理由がありません。"],"explanation":"モデルの選択は、能力、速度、費用のトレードオフです。公式ドキュメントは、大量で単純なタスクや費用を重視する用途では、速くて安いモデルから始めて評価し、能力が足りない部分があるときだけ上げる「効率優先」の進め方を示しています。どの場合でも、判断の根拠は自社のデータで作った評価データセットと、業務で必要な基準です。2026年11月時点のドキュメントは、同じモデルのまま思考の深さと費用を調整する `effort` パラメータも、モデルを替えるより先に試す手として挙げています。","ref":"試験ガイド 分野2 タスク 2.1（トレードオフに基づくモデル選択） ／ Claude Docs: Choosing the right model"},{"id":"D2-02","domain":"D2","topic":"能力優先で始める","type":"single","question":"製薬会社の薬事部門が、承認申請の資料一式（数百ページの試験報告書と社内の規程）を突き合わせ、記載の矛盾や不足を洗い出す作業を Claude で支援したいと考えています。対象は月に20件ほどで、1件の見落としが審査の数か月の遅れにつながります。費用は人が確認する手間に比べて小さく、予算の制約はほとんどありません。最初に試すモデルの選び方として最も適切なものはどれですか。","options":["費用を抑えるため最も小さいモデルから試し、評価で足りなければ1段ずつ上位のモデルに上げる","中位のモデルを選び、能力の足りない部分は過去の指摘事例を few-shot の例として大量に足して補う","汎用のモデルでは足りないとみて、過去の申請資料でファインチューニングしたモデルを最初から作る","最も能力の高いモデルから始め、実際の申請資料で作った評価で見落としを測ってから効率化を探る"],"answer":[3],"notes":["大量で単純な処理や、費用を重視する場面に向く進め方です。ここは件数が少なく費用の制約もほとんどない一方、複雑な突き合わせで見落としの代償が大きいので、小さいモデルから順に試すのは回り道です。","中位のモデルを選ぶ根拠が示されていません。例は出力の形や判断の基準を示すのに役立ちますが、長い資料を突き合わせる推論の力そのものを補う手ではなく、トークンも増えます。","作り込みすぎです。既存のモデルで要件を満たせるかを評価で確かめる前に、学習用のデータの準備と、モデルの更新のたびの作り直しを抱えることになります。","正解。複雑な推論が要り、精度が費用より重い用途では、最も能力の高いモデルを出発点にします。実際の資料での見落としを評価で測り、要件を満たすと分かったあとで、より効率のよい設定やモデルを試します。"],"explanation":"公式ドキュメントは、最初に試すモデルの選び方を2つ示しています。速くて安いモデルから始めて足りないときだけ上げる「効率優先」は、試作、厳しいレイテンシの要件、費用を重視する実装、大量で単純な処理に向きます。最も能力の高いモデルから始めて後で効率化する「能力優先」は、複雑な推論、微妙な読み取りが要る作業、精度が費用より重い用途に向きます。件数、誤りの代償、費用の制約から出発点を選び、どちらの場合も実際のデータで作った評価で確かめるのが判断の軸です。","ref":"試験ガイド 分野2 タスク 2.1（トレードオフに基づくモデル選択） ／ Claude Docs: Choosing the right model"},{"id":"D2-03","domain":"D2","topic":"機能ごとのモデル","type":"single","question":"教育サービス企業が、学習アプリに2つの機能を載せます。1つは、生徒が問題を解いている最中にチャットで短いヒントを返す機能で、応答が遅いと生徒が離れてしまいます。もう1つは、1週間分の学習記録を分析して保護者向けに詳しい所見をまとめる機能で、翌日までに届けばよいものです。モデルの選び方として最も適切なものはどれですか。","options":["ヒントには小型で高速なモデルを、週次の分析には能力の高いモデルを使い、それぞれ評価で確かめる","品質をそろえるため、両方の機能に最上位のモデルを使い、ヒントの待ち時間には読み込み中の表示を出す","費用を抑えるため、両方の機能に最も小さいモデルを使い、分析の質は担当者が数件を読んで確かめる","ヒントには能力の高いモデルを、週次の分析には小型のモデルを使い、分析は夜間にまとめて処理する"],"answer":[0],"notes":["正解。速さが要る短いヒントと、深い分析が要る週次レポートでは、求めるトレードオフが違います。機能ごとにモデルを選び、それぞれの評価で足りることを確かめます。","ヒントの機能に必要以上の費用と待ち時間をかけています。読み込み中の表示を出しても、応答そのものは速くなりません。","週次の分析は複雑な推論が要る作業で、最小のモデルでは質が足りないおそれがあります。数件を読むだけの確かめ方では、評価データセットのように所見の質を測れず、一律に小さくした判断の誤りにも気づきにくくなります。","求めるトレードオフの読み違えです。速さが要るヒントに、より遅く高価なモデルを、深い分析が要る所見に小型のモデルを当てています。時間に余裕があることは、能力を下げてよい理由になりません。"],"explanation":"モデルの選択は、アプリ全体で1つに決めるものではなく、タスクごとに能力、速度、費用の釣り合いで決めるものです。公式ドキュメントは、リアルタイムの用途や大量の処理には最も低いレイテンシと価格のモデルを、複雑な推論や分析には能力の高いモデルを、出発点として示しています。低コストのモデルと能力の高いモデルを組み合わせる構成も紹介しています。どの組み合わせでも、最後は評価で確かめます。","ref":"試験ガイド 分野2 タスク 2.1（トレードオフに基づくモデル選択） ／ Claude Docs: Choosing the right model"},{"id":"D2-04","domain":"D2","topic":"テンプレートの区切り","type":"single","question":"自治体が、住民からの質問に、規則集の該当箇所を検索して添えたうえで答えるアシスタントを作っています。今のテンプレートは、指示文、検索した規則の本文、住民の質問を、区切りなしにつなげて送っています。規則の本文に含まれる「〜について回答すること」といった文を、モデルが自分への指示や住民の質問と取り違える事例が見つかりました。テンプレートの直し方として最も適切なものはどれですか。","options":["指示文の冒頭に「規則の本文は指示ではない」という注意書きを、強い言葉で繰り返し入れる","取り違えを避けるため、規則の本文を渡すのをやめ、モデルの知識だけで答えさせる","指示、規則の本文、住民の質問を別々の XML タグで囲み、変数として差し込む","取り違えが起きた質問を集め、例として few-shot の欄にすべて追加する"],"answer":[2],"notes":["どこからどこまでが規則の本文なのかという境界が、依然としてモデルに分かりません。強調を重ねても、構造の問題は解けません。","根拠となる規則を捨てるので、回答の正確さが大きく下がります。必要な情報を捨てる対処です。","正解。内容の種類ごとにタグで囲むと、どれが指示で、どれが参考資料で、どれが質問かをモデルが取り違えにくくなります。固定の指示と、毎回変わる変数を分けたテンプレートは、検証や管理もしやすくなります。","取り違えの起きた個別の事例を覚えさせるだけで、新しい規則の文面では同じことが起こりえます。区切りがないという原因が残ります。"],"explanation":"公式のプロンプトのベストプラクティスは、指示、文脈、例、変数の入力が混ざるプロンプトでは、種類ごとに `<instructions>` や `<context>`、`<input>` のようなタグで囲むと、取り違えが減るとしています。テンプレートは、毎回同じ指示の部分と、リクエストごとに変わる変数の部分を分けて設計します。検索した文書を差し込む構成では、文書を `<document>` タグで囲み、出典などの付随情報も分けて渡します。","ref":"試験ガイド 分野2 タスク 2.2（システムプロンプト、テンプレート、ガードレールの設計） ／ Claude Docs: Prompting best practices"},{"id":"D2-05","domain":"D2","topic":"出力形式の強制","type":"single","question":"小売企業が、仕入先から届く請求書から項目を抜き出し、JSON で基幹システムに渡しています。システムプロンプトでは「必ずスキーマどおりの JSON だけを返すこと」と指示していますが、約2%の応答で必須の項目が抜けたり、JSON として読めなかったりして、取り込みが止まります。失敗した応答は、`max_tokens` に達して途中で切れたものではありません。この問題を最も確実に解消する対応はどれですか。","options":["指示の文を「絶対に」「必ず」で強め、スキーマから外れた悪い例も書き加える","構造化出力で JSON スキーマを指定し、応答そのものをスキーマに従う形に制約する","読めない応答が返ったら、同じリクエストを最大3回まで自動で送り直す処理を足す","より大きなモデルに切り替え、指示に従う確率を上げて失敗の割合を下げる"],"answer":[1],"notes":["指示を強めても、従うかどうかはモデルの確率的な振る舞いのままです。失敗は減っても、なくなる保証はありません。","正解。構造化出力は、制約付きのデコードで応答をスキーマに従わせます。公式ドキュメントは、JSON の構文エラーが起きず、必須の項目と型が保証されると説明しています。","再送は症状を抑えるだけで、失敗の原因は残ります。費用と待ち時間も増え、3回とも失敗すれば止まります。","規模で解決しようとする手です。大きいモデルでも、形式が保証されるわけではありません。"],"explanation":"後段のシステムが必ず読める形を求めるときは、プロンプトで頼むのではなく、出力の形式を仕組みで制約します。公式ドキュメントによると、構造化出力（`output_config.format` に JSON スキーマを指定する方法と、ツール定義の `strict: true`）は、制約付きのデコードでスキーマに従う応答を返し、形式違反のための再送が要らなくなります。ただし、安全上の理由で断った応答（`stop_reason` が `refusal`）や `max_tokens` で切れた応答はスキーマに合わないことがあり、数値の範囲のようにスキーマで表せない制約もあります。そのため、`stop_reason` の確認と値の妥当性の検査は、アプリケーション側に残します。","ref":"試験ガイド 分野2 タスク 2.2（システムプロンプト、テンプレート、ガードレールの設計） ／ Claude Docs: Structured outputs"},{"id":"D2-06","domain":"D2","topic":"強すぎる指示","type":"single","question":"病院向けの診療記録の作成支援アシスタントを、新しい世代のモデルに移行しました。以前のモデルは薬剤データベースの検索ツールを呼ばないことが多かったため、システムプロンプトに「重要: 薬剤名が出たら必ずこのツールを使え」と強い言葉で書いてあります。移行後、薬剤とほとんど関係のないやり取りでもツールが呼ばれ、応答が遅くなりました。最初に行うべき対応はどれですか。","options":["「必要なときだけ使うこと」という一文を、同じように強い言葉で書き足して打ち消す","移行前の世代のモデルに戻し、元のシステムプロンプトをそのまま使い続ける","応答の遅れをなくすため、薬剤データベースの検索ツールを構成から外す","強い言葉を外し、どんな場面でなぜ使うのかを普通の言葉で説明する"],"answer":[3],"notes":["強い言葉どうしがぶつかり、どちらが優先されるのかがかえって曖昧になります。原因である過剰な強調が残ります。","プロンプトの書き方を直せば済む問題で、新しいモデルの利点を捨てています。","薬剤の確認が要る場面でも検索できなくなり、記録の正確さを損ないます。業務に必要な機能を捨てる両極端の手です。","正解。新しいモデルはシステムプロンプトによく反応するため、以前の弱さを補う強い言葉が過剰な呼び出しを生みます。公式ドキュメントは、強い言葉を和らげることと、指示の理由を添えることを勧めています。"],"explanation":"公式のベストプラクティスは、新しいモデルはシステムプロンプトに以前より強く反応するため、ツールを呼ばなさすぎることを防ぐために書いた強い言葉（「CRITICAL: 必ず使え」など）が、呼びすぎを招くことがあると説明しています。直し方は「〜のときにこのツールを使う」という普通の書き方に戻すことです。指示に理由や目的を添えると、モデルは意図を汲んで適用範囲を判断できます。モデルを移行したら、古いモデル向けに足した強調や念押しを見直すのが定石です。","ref":"試験ガイド 分野2 タスク 2.2（システムプロンプト、テンプレート、ガードレールの設計） ／ Claude Docs: Prompting best practices"},{"id":"D2-07","domain":"D2","topic":"few-shot の例","type":"single","question":"保険会社が、事故の報告書から査定担当者向けの要約を作る機能を作っています。指示文には項目の順番や書き方を詳しく書きましたが、出力される要約の書式と語調が報告書ごとにばらつきます。特に、複数の車両が関わる報告書で崩れやすいことが分かっています。次に行う改善として最も適切なものはどれですか。","options":["複数車両の事故も含む多様な要約例を3〜5件、タグで囲んで加える","複数車両の事故の要約例を1件だけ加え、すべての報告書でその例と同じ書き方をさせる","指示文をさらに細かくし、項目ごとの文字数や句読点の使い方まで書き足す","書式のばらつきを抑えるため、より大きなモデルに切り替えて同じ指示文を使う"],"answer":[0],"notes":["正解。例は、出力の書式、語調、構造をそろえる最も確実な手の一つです。崩れやすい複数車両の事例を含めた、関連性があり多様な例を、指示と区別できるようタグで囲んで渡します。","1件だけの例では、その例に固有の細部（車両の台数や言い回し）までまねされやすく、単独の事故など別の型の報告書でかえって崩れるおそれがあります。","すでに詳しい指示があってばらつくので、文章の指示を増やす効果は小さいと考えられます。書式は、説明より例で示すほうが伝わります。","規模で解決しようとする手です。書式の手本がないという原因は残ります。"],"explanation":"few-shot（multishot）プロンプトは、望む出力の例を見せて、書式、語調、構造をそろえる手法です。公式のベストプラクティスは、例を実際の用途に近く（関連性）、境界的な事例を含めて十分に変化をつけ（多様性）、`<example>` タグで囲む（構造化）ことを勧め、3〜5件を目安にしています。例が似通っていると、意図しない特徴までまねされます。ゼロショットの指示で足りないときに、次に足す手として位置づけます。","ref":"試験ガイド 分野2 タスク 2.3（プロンプトエンジニアリングの手法） ／ Claude Docs: Prompting best practices"},{"id":"D2-08","domain":"D2","topic":"思考の連鎖","type":"single","question":"銀行が、融資の申込みについて、収入、既存の借入、担保などの複数の条件を組み合わせて、審査の一次判定を出す仕組みを作っています。条件が1つだけ関わる申込みはほぼ正しく判定できますが、複数の条件が絡む申込みでは最終判定の誤りが目立ちます。処理は夜間にまとめて行い、応答の速さは問いません。最も効果の見込める手はどれですか。","options":["最終判定だけを書いた過去の例を few-shot で20件加え、判定の傾向をつかませる","出力を短くするため、判定の結果だけを1語で返すよう指示を厳しくする","最終判定の前に、条件ごとに段階を追って考えさせ、その結果を踏まえて判定させる","審査規程の全文に加えて過去の申込みの記録も大量に渡し、文脈を増やす"],"answer":[2],"notes":["結論だけの例では、条件をどう組み合わせるかという過程が示されません。誤りの原因である多段の推論は改善しにくいままです。","出力の形を絞っても、複数の条件を組み合わせる推論の誤りは直りません。速さは要件にないので、出力を短くする理由もありません。","正解。複数の条件を順に組み合わせる判断は、答える前に段階を追って考えさせると精度が上がりやすい典型です。速さを問わないので、推論にかかる時間とトークンの増加も許容できます。","必要な情報が足りないという状況ではなく、組み合わせの推論で誤っています。無関係な記録を足すと、かえって注意が散ります。"],"explanation":"思考の連鎖（chain-of-thought）は、答えの前に推論の過程を踏ませる手法で、多段の推論が要るタスクで効果を発揮します。推論が増える分、レイテンシとトークンが増えるので、速さに余裕がある場面や、単純な手では誤る場面で使います。2026年11月時点のドキュメントでは、新しいモデルは思考の機能（adaptive thinking）で考える量を自分で決めるのが基本で、深さは `effort` で調整します。推論を本文の `<thinking>` タグなどに書き出させる手作業の指示は、思考を使えないときの代わりとされ、一部の最新モデルでは断られることがあります。","ref":"試験ガイド 分野2 タスク 2.3（プロンプトエンジニアリングの手法） ／ Claude Docs: Prompting best practices"},{"id":"D2-09","domain":"D2","topic":"足さない判断","type":"single","question":"EC 事業者が、問い合わせメールに「至急」「通常」の優先度を付ける処理を、短いゼロショットのプロンプトで動かしています。評価データセットでの精度は目標の98%を上回っており、受信から1秒以内に振り分けるという要件もあります。チームの一人が「品質を上げるため、段階的に考えさせる指示と例を20件加えよう」と提案しました。アーキテクトの判断として最も適切なものはどれですか。","options":["提案どおり両方を加え、品質に余裕を持たせてから本番に出す","例の20件だけを加え、段階的に考えさせる指示は見送る","応答をさらに速くするため、評価を省いてより小さいモデルに切り替える","目標を満たしているので今のプロンプトを保ち、評価で劣化を見張る"],"answer":[3],"notes":["推論と例の追加は、どちらもトークンと待ち時間を増やします。1秒以内という要件を危うくするうえ、効果が測られていません。","入力のトークンが増え、費用と待ち時間が上がります。目標を満たしている今、足す根拠が評価で示されていません。","精度もレイテンシも要件を満たしている今、替える理由がありません。評価を省いて小さくすると、精度が目標を割っても気づけません。","正解。単純な分類で、評価が目標を上回り、厳しいレイテンシの要件があります。効果の測られていない手を足すより、今のプロンプトを保ち、評価を回して劣化に備えるのが最善です。"],"explanation":"ゼロショット、few-shot、思考の連鎖は、強い順に重ねるものではなく、タスクと制約に合わせて選ぶものです。公式のベストプラクティスも、思考はレイテンシを増やすので、答えの質を意味のある程度に上げるとき（典型的には多段の推論が要る問題）に使うよう、モデルに促す指示の例を示しています。評価で目標を満たしているなら、変更は評価で効果が示されたときだけ入れます。評価は改善の道具であると同時に、不要な変更や劣化を止める関門でもあります。","ref":"試験ガイド 分野2 タスク 2.3（プロンプトエンジニアリングの手法） ／ Claude Docs: Prompting best practices"},{"id":"D2-10","domain":"D2","topic":"長い文書の配置","type":"single","question":"資産運用会社が、200ページの目論見書を1回のリクエストで渡し、投資家からの質問に答えるツールを作っています。今のプロンプトは、先頭に質問と指示を置き、その後に目論見書の全文を続けています。全文はコンテキストウィンドウに収まっていますが、関連する条項を見落とした回答が目立ちます。最初に試すべき改善はどれですか。","options":["目論見書をモデルで先に要約し、要約だけを質問と一緒に渡すようにする","目論見書をタグで囲んで先頭に、質問を末尾に置き、関連箇所を引用してから答えさせる","より大きなコンテキストウィンドウを持つモデルに切り替え、同じプロンプトのまま送る","目論見書を章ごとに分けて別々に質問し、各章で得た回答をつなげて返す"],"answer":[1],"notes":["要約の段階で細かな条項が落ちやすく、見落としがかえって増えるおそれがあります。必要な情報を捨てる最適化です。","正解。長い文書は先頭に、質問は末尾に置くと品質が上がると公式ドキュメントは示しています。まず関連箇所を引用させると、文書の中の必要な部分に注意を向けさせられます。","全文はすでに収まっており、ウィンドウの大きさは原因ではありません。規模で解決しようとする手です。","呼び出しの数と費用が増え、章をまたぐ条項の関係も失われます。全文が収まっている今、最初に試す手としては重すぎます。"],"explanation":"公式のベストプラクティスは、2万トークンを超えるような長い入力では、文書をプロンプトの上のほう（質問、指示、例より前）に置くよう勧めています。質問を末尾に置くと、特に複数の文書がある複雑な入力で、応答の品質が大きく上がったとしています。複数の文書は `<document>` タグで囲み、出典を付けて区別します。さらに、答える前に関連する箇所を引用させると、長い文書の中で必要な部分に集中させられます。","ref":"試験ガイド 分野2 タスク 2.4（コンテキストウィンドウの最適化とトークン管理） ／ Claude Docs: Prompting best practices"},{"id":"D2-11","domain":"D2","topic":"履歴の肥大化","type":"multi","question":"IT 企業の運用チームが、障害を調査するエージェントを使っています。エージェントはログ検索ツールを何度も呼び、そのたびに数千行のログがそのまま会話の履歴に積み上がります。調査が長くなると、後半で最初に立てた仮説や指示を見失う挙動が増えます。この状況で取るべき対応を2つ選んでください。（2つ選択）","options":["処理を終えた古いツールの結果を、コンテキスト編集の機能などで履歴から消す","最も大きなコンテキストウィンドウを持つモデルに切り替え、履歴を消さずに済ませる","調査の開始時に、関係しそうなログをすべて読み込ませてからエージェントを動かす","立てた仮説と判明した事実を外部のメモに書かせ、必要なときに読み戻させる","トークンを節約するため、システムプロンプトからツールの使い方の説明を削る"],"answer":[0,3],"notes":["正解。一度処理した生のツールの結果を再び見る必要はほとんどありません。古いツールの結果の削除は最も安全で軽い形の圧縮の一つとされ、API のコンテキスト編集の機能でも行えます。","コンテキストは、量が増えるほど情報を正しく思い出す力が落ちる有限の資源です。器を大きくしても、注意が散る原因は残ります。","最初に全部を載せると、無関係なログが注意を奪い、問題を悪化させます。必要なときに必要な分だけ読む設計の逆です。","正解。仮説や判明した事実をコンテキストの外のメモ（メモリのツールやファイル）に残させると、履歴が長くなっても失われず、必要なときに読み戻せます。長い作業で大事な文脈を見失うことへの対策です。","削るべきは重複した古いログで、エージェントの行動を導く指示ではありません。必要な情報を捨てる最適化です。"],"explanation":"Anthropic のコンテキストエンジニアリングの記事は、コンテキストを、増えるほど効き目が落ちる有限の資源として扱い、望む結果につながる最小限の、信号の濃い情報を目指すよう述べています。長く続くエージェントでは、古いツールの結果の削除や会話の要約（コンパクション）で履歴を軽くし、仮説や決定事項はコンテキストの外のメモに残して読み戻します。公式ドキュメントは、API のコンテキスト編集とメモリのツールを組み合わせ、消される前に大事な情報をメモに保存させる使い方も紹介しています。大きなウィンドウや、最初に全部を載せる設計は、注意が散る原因を残します。","ref":"試験ガイド 分野2 タスク 2.4（コンテキストウィンドウの最適化とトークン管理） ／ Anthropic Engineering: Effective context engineering for AI agents、Claude Docs: Context editing"},{"id":"D2-12","domain":"D2","topic":"キャッシュが効かない","type":"single","question":"SaaS 企業が、約1万トークンの製品マニュアルとシステムプロンプトを、プロンプトキャッシングの対象にしています。ところが、使用量を見るとキャッシュの読み取りがほぼゼロで、毎回キャッシュの書き込みの料金がかかっています。調べると、システムプロンプトの先頭に、リクエストごとの現在時刻を差し込んでいました。最も適切な修正はどれですか。","options":["現在時刻を、キャッシュの区切りより後ろのユーザーのメッセージ側に移す","キャッシュの有効期間を1時間に延ばし、期限が切れる前に次のリクエストが来るようにする","現在時刻を含むブロックにもキャッシュの区切り（`cache_control`）を付け、区切りの数を増やす","キャッシュは効かないものとして無効にし、製品マニュアルを要約して短くする"],"answer":[0],"notes":["正解。キャッシュは、区切りまでの接頭辞が完全に一致したときだけ当たります。毎回変わる時刻を先頭から外し、変わらない部分を前に、変わる部分を区切りの後ろに置きます。","期限の長さは原因ではありません。先頭の時刻が毎回違うので、期間を延ばしても接頭辞は一致せず、書き込みの料金が上がるだけです。","区切りを足しても、その手前に毎回変わる時刻がある限り、どの区切りでも接頭辞は一致しません。","原因を直さずに仕組みを捨てています。要約すると、回答に必要なマニュアルの内容も失われます。"],"explanation":"公式ドキュメントによると、プロンプトキャッシングは `tools`、`system`、`messages` の順に並んだ接頭辞を、`cache_control` を付けたブロックまで含めて再利用します。当たるには、そこまでの内容が完全に一致している必要があり、上の階層が変わるとそれより後ろはすべて無効になります。そのため、時刻やリクエストごとの文脈のような変わる内容は、毎回同じ部分の後ろに置き、区切りは変わらない最後のブロックに付けます。キャッシュの読み取りが増えないときは、まず接頭辞のどこが毎回変わっているかを調べます。","ref":"試験ガイド 分野2 タスク 2.5（プロンプトの再利用戦略） ／ Claude Docs: Prompt caching"},{"id":"D2-13","domain":"D2","topic":"モジュール型プロンプト","type":"single","question":"ある大学が、入試、学生生活、就職支援の3つの問い合わせアシスタントを運用しています。3つのシステムプロンプトは同じ原本を写して作ったもので、個人情報の扱いの方針、口調の決まり、出力の形式が、それぞれにほぼ同じ文で書かれています。先月、個人情報の扱いの方針を改めた際に1つのアシスタントだけ直し漏れ、古い方針のまま答えていたことが分かりました。プロンプトの再利用の仕組みとして最も適切なものはどれですか。","options":["3つのアシスタントを1つに統合し、すべての業務の指示を1つの長いシステムプロンプトに書く","方針を改めるたびに、3つのプロンプトを担当者が見比べて直すための点検表を作る","方針、口調、出力の形式を共通の部品として1か所で管理し、決まった順で組み立てて使う","個人情報の扱いの方針はプロンプトから外し、モデルが学習済みの一般的な知識に任せる"],"answer":[2],"notes":["方針の写しは1つになりますが、毎回3業務分の指示を載せることになり、関係のない指示が混ざって判断を鈍らせ、トークンも増えます。業務ごとの変更も1つのプロンプトの上でぶつかります。","人の注意に頼る運用で、写しが3つある構造は変わりません。アシスタントや部品が増えるほど、直し漏れは起きやすくなります。","正解。共通の部品を1か所で直せば、使っているすべてのアシスタントに反映され、直し漏れが起きません。業務ごとの指示は、各アシスタントに固有の部品として後ろに足します。","大学が定めた方針は、モデルの一般的な知識からは分かりません。必要な指示を捨てる対処です。"],"explanation":"モジュール型プロンプトは、役割、方針、出力の形式のような部品に分け、1か所で管理して使い回す設計です。試験ガイドが推奨経験に挙げるモジュール設計や関心の分離を、プロンプトに当てはめたものと考えられます。公式のベストプラクティスは、内容の種類ごとに XML タグで囲み、タグの名前をプロンプトの間でそろえるよう勧めており、部品の境目をはっきりさせるのに役立ちます。部品の並び順を固定し、変わらない部品を前に置けば、各アシスタントで毎回同じ接頭辞になり、プロンプトキャッシングも効きやすくなります。","ref":"試験ガイド 分野2 タスク 2.5（プロンプトの再利用戦略） ／ Claude Docs: Prompting best practices、Prompt caching"},{"id":"D3-01","domain":"D3","topic":"役割に要らないツール","type":"single","question":"小売チェーンが、店舗スタッフ向けに在庫を問い合わせるエージェントを作りました。開発中に試した名残で、在庫、POS の管理、人事、メール、ファイル共有の5つの MCP サーバーがつながったままで、ツールは合わせて120個あります。この業務に必要なのは、在庫の照会と店舗間の移動依頼の2つだけです。最近、エージェントが関係のないツールを呼ぶ誤りが増えています。最も適切な対応はどれですか。","options":["ツール検索ツールを導入し、120個の定義を必要なときにだけ読み込ませる","在庫の照会と移動依頼のツールだけを残し、ほかのサーバーは構成から外す","システムプロンプトに「在庫に関係するツールだけを使うこと」と書き加える","ツールの選び間違いが減るよう、指示によく従う大きなモデルに切り替える"],"answer":[1],"notes":["ツール検索は、多数のツールがどれも必要な場面で、コンテキストと選択の精度を守る仕組みです。業務に要らない人事や POS 管理の機能は、呼べる状態のまま残ります。","正解。役割に要らない機能を構成から取り除けば、誤ったツールを選ぶ余地と攻撃面の両方がなくなります。残るツールが少なければ、最初から全部渡す通常の構成で足ります。","指示は確率的にしか効かず、ツールは呼べるまま残ります。迷いの原因である余分な定義も減りません。","モデルの大きさは、渡しているツールの範囲とは無関係です。余分なツールがある限り、選び間違いと権限の過剰は残ります。"],"explanation":"機能の肥大化を見つけたら、まず「この役割に本当に要るか」で構成を削ります。ツールが多すぎたり役割が重なったりすると、エージェントは迷いやすくなり、要らない権限は事故や悪用の入口にもなります。ツール検索のような仕組みは、多数のツールがどれも必要な場合の解決策で、不要な機能を減らすことの代わりにはなりません。指示の追加やモデルの変更では、構成の問題は解決しません。","ref":"試験ガイド 分野3 タスク 3.1（機能の肥大化の評価）／ Anthropic Engineering: Writing effective tools for agents ／ Claude Docs: Tool search tool"},{"id":"D3-02","domain":"D3","topic":"サブエージェントの権限","type":"single","question":"証券会社が Claude Agent SDK で投資調査のエージェントを作っています。メインのエージェントには、売買の注文を出す MCP のツールが付いています。外部のニュース記事を読んで要約するサブエージェントを追加しましたが、その定義では `tools` を省略しています。ニュース記事には、モデルへの指示を装った文が紛れ込むおそれがあります。最も適切な見直しはどれですか。","code":"agents={\n    \"news-summarizer\": AgentDefinition(\n        description=\"外部のニュース記事を読んで要約する\",\n        prompt=\"あなたはニュースの要約担当です。…\",\n    ),\n}","options":["サブエージェントのプロンプトに「注文のツールは絶対に使わないこと」と書き加える","サブエージェントをやめ、記事の読み込みと要約もメインのエージェントに任せる","注文のツールの呼び出しをすべて記録し、不審な注文を後から監査できるようにする","サブエージェントの `tools` に、記事の取得と読み取りのツールだけを並べる"],"answer":[3],"notes":["指示は確率的で、記事に紛れ込んだ文に上書きされるおそれがあります。注文のツールは呼べる状態のまま残ります。","メインのエージェントは注文のツールを持っているので、信頼できない記事を同じ文脈で読ませると、かえって危険が増えます。","記録は後から見つけるための発見的な統制で、不要な権限そのものは残ります。","正解。`tools` を省略したサブエージェントは、メインのエージェントで使えるツールを、MCP のツールも含めて受け継ぎます。必要なツールだけを列挙すれば、注文のツールはそのサブエージェントのセッションに存在しなくなります。"],"explanation":"Agent SDK のサブエージェントは、`tools` を省略すると、メインのエージェントで使えるツールを MCP のツールも含めて受け継ぎます。信頼できない入力を扱う役割ほど、持たせるツールを絞ることが大切です。列挙から外したツールはそのサブエージェントのセッションにないので、指示が乗っ取られても呼べません。指示や記録は、権限を減らす統制の代わりになりません。","ref":"試験ガイド 分野3 タスク 3.1（機能の肥大化の評価）／ Claude Agent SDK Docs: Subagents in the SDK ／ Claude Code Docs: Subagents（Available tools）"},{"id":"D3-03","domain":"D3","topic":"ツールの粒度と返す量","type":"multi","question":"ある大学が、職員の問い合わせに答えるエージェントを運用しています。`list_all_students` ツールは約3万人分の学生の記録を一度に返し、そのたびにコンテキストが埋まります。また、1人の学生について答えるたびに、`get_profile`、`get_grades`、`get_attendance`、`get_advisor_notes` を毎回順に呼んでいます。ツールの構成の見直しとして最も効果的なものを2つ選んでください。（2つ選択）","options":["全件を返すツールを、条件で絞り込めてページ分けもできる検索のツールに置き換える","コンテキストウィンドウの大きなモデルに替え、全件の結果を収められるようにする","システムプロンプトに「ツールの呼び出しはできるだけ少なくすること」と書き加える","毎回続けて呼ばれる4つのツールを、学生ごとの要約を返す1つのツールにまとめる","記録の項目ごとにツールをさらに細かく分け、必要な項目だけを選べるようにする"],"answer":[0,3],"notes":["正解。全件を返すより、絞り込みやページ分けで必要な分だけ返すほうが、コンテキストを無駄にしません。","大きな窓に収まっても、関係のない記録で文脈が埋まる問題は残ります。コストと待ち時間も増えます。","指示は確率的にしか効かず、ツールの切り分け方という原因はそのままです。","正解。いつも一緒に使う処理を1つのツールにまとめると、呼び出しの回数と途中の結果が減ります。","ツールをさらに増やすと、どれを使うかの迷いと呼び出しの回数がかえって増えます。"],"explanation":"ツールは、API の端点を1つずつ包んだものではなく、エージェントの仕事の単位で設計します。Anthropic は、全件を返す一覧より検索のツールを、毎回続けて呼ばれる処理はまとめたツールを勧め、応答にはページ分けや絞り込みを付けるよう述べています。ツールの数や返す量が膨らむほど、コンテキストと判断の両方が圧迫されます。モデルや指示を変える前に、ツールの構成を見直します。","ref":"試験ガイド 分野3 タスク 3.1（機能の肥大化の評価）／ Anthropic Engineering: Writing effective tools for agents"},{"id":"D3-04","domain":"D3","topic":"利用者ごとの認可","type":"single","question":"ある病院が、職員向けのアシスタントから患者の記録を調べられるよう、リモートの MCP サーバーを作りました。サーバーは全員の要求を、すべての記録を読める1つのサービスアカウントで処理しています。どの職員がどの患者の記録を見てよいかは、システムプロンプトで「担当の患者の記録だけを返すこと」と指示しています。セキュリティ上のギャップを塞ぐ対応として最も適切なものはどれですか。","options":["システムプロンプトの指示を強め、担当外の患者を尋ねられたら断る例を追加する","サービスアカウントの操作をすべて記録し、担当外の閲覧を毎週の監査で見つける","職員ごとに OAuth で認可し、その職員の権限に沿ってサーバー側で絞り込む","接続元を院内のネットワークだけに限り、外部の端末からの利用を確実に防ぐ"],"answer":[2],"notes":["認可の判断をモデルに任せたままです。指示や例は確率的で、言い回し次第で破られるおそれがあります。","監査は後から見つける発見的な統制で、担当外の記録が読めてしまう状態は変わりません。","正解。誰が使っているかをサーバーが確かめ、その人に許された範囲だけを返す仕組みにすれば、認可がモデルの判断から切り離されます。","接続元を絞るのは入口の対策で、院内の職員が担当外の記録を読める問題は残ります。"],"explanation":"認証は「誰か」を確かめ、認可は「何を許すか」を決めます。全員を1つの強い資格情報で処理し、絞り込みをプロンプトに任せる構成では、実質的に認可がありません。MCP の認可は仕様上は任意ですが、HTTP のトランスポートを使うサーバーには OAuth 2.1 をもとにした認可の仕様があり、利用者に代わって発行されたトークンで要求を受けられます。権限の判断は、モデルではなくサーバー側のコードで強制します。","ref":"試験ガイド 分野3 タスク 3.2（認証と認可の要件の分析）／ MCP Specification: Authorization"},{"id":"D3-05","domain":"D3","topic":"トークンの素通し","type":"single","question":"ある自治体が、会計システムの API の前に MCP サーバーを置き、職員のアシスタントから予算を照会できるようにしました。レビューで、このサーバーがクライアントから届いたアクセストークンを、発行先を確かめずにそのまま会計システムの API へ転送していることが分かりました。最も適切な修正はどれですか。","options":["自分あてのトークンだけを受け付け、会計 API には別に発行されたトークンを使う","会計 API への転送をすべてログに記録し、不正な利用を後から追跡できるようにする","届いたトークンの署名と有効期限を確かめたうえで、そのまま会計 API へ転送する","会計 API の側で、MCP サーバーの IP アドレスから届いた要求だけを受け付ける"],"answer":[0],"notes":["正解。MCP サーバーは自分を宛先とするトークンだけを受け付け、先の API には、その API の認可サーバーが発行した別のトークンを使います。","記録は後から見つけるための発見的な統制です。別のサービス向けのトークンを受け付け、そのまま先へ渡す状態は変わりません。","署名や期限が正しくても、そのトークンがこのサーバーあてに発行されたとは限りません。受け取ったトークンを先へ渡す点も変わらず、仕様が禁止するトークンパススルーのままです。","接続元を絞っても、別のサービス向けのトークンが流用される問題と、先の API の記録で誰の要求かを区別できない問題は残ります。"],"explanation":"受け取ったトークンを先のサービスへそのまま渡す「トークンパススルー」は、MCP の認可仕様で明確に禁止されています。トークンが本物かどうかだけでなく、自分あてに発行されたものかを確かめないと、別のサービス向けのトークンが流用され、先の API のレート制限や監査も素通りされます。MCP サーバーは OAuth のリソースサーバーとして宛先を検証し、先の API に対しては自らがクライアントとして、その API の認可サーバーが発行した別のトークンを使います。","ref":"試験ガイド 分野3 タスク 3.2（認証と認可の要件の分析）／ MCP Specification: Authorization、Security Best Practices（Token Passthrough）"},{"id":"D3-06","domain":"D3","topic":"STDIO が継ぐ資格情報","type":"single","question":"あるソフトウェア企業の開発者は、Claude Code から、障害の調査のためにクラウドのログを読むローカルの MCP サーバー（STDIO で起動）を使っています。このサーバーは、起動した開発者の環境にあるクラウドの資格情報をそのまま使います。多くの開発者の環境には、本番環境を変更できる管理者権限の資格情報が入っています。最も適切な対応はどれですか。","options":["この STDIO のサーバーに OAuth 2.1 の認可フローを実装し、開発者にログインさせる","ログの読み取りだけを許す専用の資格情報を用意し、このサーバーにはそれだけを渡す","サーバーのツールの説明文に「読み取り以外の操作はしない」と明記しておく","サーバーが実行したクラウドの操作をすべて記録し、変更があれば通知する"],"answer":[1],"notes":["MCP の認可仕様は HTTP のサーバー向けで、STDIO のサーバーはこの仕様に従わず、資格情報を環境から受け取るものとされています。権限が広すぎるという問題も解決しません。","正解。STDIO のサーバーは環境の資格情報と、起動した人と同じ権限で動きます。渡す資格情報そのものを、役割に合った最小の権限にします。","説明文は Claude への案内で、サーバーが持つ権限は変わりません。","記録と通知は後から気づくための統制で、本番を変更できる権限は残ります。"],"explanation":"ローカルで起動する MCP サーバーは、クライアントと同じ権限で動き、資格情報を環境から受け継ぎます。そのため「どの資格情報を受け継いでいるか」が、認可の実体になります。役割に合った最小の権限の資格情報を用意して渡せば、サーバーの不具合や悪用があっても被害の範囲が限られます。認証の仕組みを足すことや、記録と説明文の追加では、権限の広さは変わりません。","ref":"試験ガイド 分野3 タスク 3.2（認証と認可の要件の分析）／ MCP Specification: Authorization（Protocol Requirements）、Security Best Practices（Local MCP Server Compromise）"},{"id":"D3-07","domain":"D3","topic":"難しさで振り分け","type":"single","question":"あるネット通販企業は、問い合わせのチャットをすべて最上位のモデルで処理しており、レイテンシの目標を満たせていません。問い合わせの約7割は配送状況や返品の手順などの定型の質問で、評価データセットでは、速い小型のモデルでも定型の質問は最上位のモデルと同じ精度でした。残りの3割の複雑な相談では、小型のモデルの精度は大きく下がりました。最も適切な構成はどれですか。","options":["すべての問い合わせを小型のモデルに切り替え、レイテンシの目標を優先する","`max_tokens` を小さくして回答を短くし、すべての問い合わせの生成時間を縮める","最上位のモデルのまま、すべての問い合わせで effort を最大にして精度を上げる","問い合わせを分類し、定型は小型のモデル、複雑な相談は最上位のモデルに振り分ける"],"answer":[3],"notes":["複雑な相談の精度が大きく下がることが、評価で分かっています。速さのために品質の要件を捨てることになります。","`max_tokens` は上限に達した応答を途中で切る手段です。必要な説明が欠けるおそれがあり、遅さの原因であるモデルの選び方も変わりません。","考える量を増やすと精度は上がりうるものの、レイテンシはさらに延びます。目標を満たせていない問題を悪化させます。","正解。評価で「定型は小型で十分」と確かめた範囲だけを速いモデルに回し、品質が必要な相談には上位のモデルを残します。"],"explanation":"精度とレイテンシのトレードオフは、一律にどちらかへ寄せるのではなく、評価の結果を根拠に問い合わせの種類ごとに決めます。Anthropic はルーティングの例として、簡単でよくある質問は小型で安いモデルへ、難しい質問は高性能なモデルへ振り分ける構成を挙げています。前提は、分類が正確にできることと、種類ごとの品質を評価で確かめていることです。","ref":"試験ガイド 分野3 タスク 3.3（精度とレイテンシのトレードオフ）／ Anthropic Engineering: Building effective agents（Routing）／ Claude Docs: Reducing latency"},{"id":"D3-08","domain":"D3","topic":"件数は測って決める","type":"single","question":"あるオンライン学習サービスが、講義資料を検索して受講者の質問に答える RAG を運用しています。いまは候補を150件取ってリランカーで採点し直し、上位20件をモデルに渡しています。回答の正確さは要件を満たしていますが、応答が終わるまでの時間は、事業部門と合意した目標を超えています。チームは件数を減らせば速くなると考えています。件数の決め方として最も適切なものはどれですか。","options":["代表的な質問の評価データセットで件数ごとに正確さと所要時間を測り、両方の要件を満たす値を選ぶ","公開されている検証で最も成績の良かった件数を、自社の講義資料でもそのまま採用する","応答を最も速くするため、リランカーを外し、検索の上位1件だけをモデルに渡すようにする","正確さを守るため件数は変えずに、合意した時間の目標を緩めるよう事業部門に申し入れる"],"answer":[0],"notes":["正解。件数を減らすと速くなる一方で、必要な記述を取りこぼすおそれもあります。自分のデータで両方を測れば、どこまで減らせるかを根拠をもって示せます。","ほかのデータと質問での結果が、自社の講義資料と質問に当てはまるとは限りません。正確さも所要時間も確かめないままでは、決定の根拠になりません。","必要な記述がモデルに渡らなくなり、正確さの要件を守れなくなるおそれが大きい手です。必要な情報を捨てる高速化です。","測る前に目標を緩めるのは早すぎます。件数を減らしても正確さが保てるなら、構成の見直しだけで目標を満たせる可能性があります。"],"explanation":"精度とレイテンシのトレードオフは、思い込みやよその数字ではなく、自分のデータで測って決めます。Claude のドキュメントは、まず性能の出る構成を作り、そのあとでレイテンシを削るよう勧めています。Anthropic の Contextual Retrieval の記事は、リランカーで採点する件数を増やせば性能は上がりうる一方でレイテンシとコストが増えるとして、自分のユースケースで設定を試すよう勧めています。記事がモデルに渡すチャンクの数を比べた結果も、その評価環境での値です。要件を満たす構成の中から軽いものを選び、測った結果を構成の根拠として示します。","ref":"試験ガイド 分野3 タスク 3.3（精度とレイテンシのトレードオフ）／ Anthropic Engineering: Contextual Retrieval ／ Claude Docs: Reducing latency"},{"id":"D3-09","domain":"D3","topic":"段ごとの追跡","type":"single","question":"ある銀行が、融資の申込書類を確認する多段のエージェントを本番で動かしています。検索、書類の読み取り、規程との照合、判定の下書きという段があり、全体の約4%で誤った下書きが出ます。処理はエラーなく終わり、レイテンシも普段どおりです。記録しているのは最終の出力だけで、同じ入力で実行し直しても誤りが再現しないことがあります。原因を突き止めるために最初に行うべきことはどれですか。","options":["誤りが出たら自動で実行し直し、2回の結果が一致したものだけを採用する","誤りが報告された入力で実行を繰り返し、誤りが再現したときに各段を調べる","リクエストごとに、各段の入出力とツールの呼び出しを1本につないで記録する","API のエラー率とレイテンシのモニタリングを細かくし、異常が出た時刻の処理を調べる"],"answer":[2],"notes":["誤りを目立たなくするだけで、どの段で崩れたかは分からないままです。呼び出しが増える分、コストもかさみます。","同じ入力でも毎回同じ動きをするとは限らないので、再現を待つと調べられない誤りが残ります。本番で起きた誤りそのものを記録するほうが確実です。","正解。本番の各段で何を受け取り、何を返したか（取得した書類や規程の箇所、ツールの結果）を残せば、再現に頼らずに崩れた段を切り分けられます。","誤った下書きはエラーとしては現れず、レイテンシも変わっていません。エラー率とレイテンシを細かく見ても、手がかりは得られません。"],"explanation":"LLM を使った多段の処理は、同じ入力でも毎回同じ動きをするとは限らず、失敗もエラーとしては現れません。最終の出力だけでは、検索、読み取り、照合のどこで崩れたかを切り分けられず、再現に頼る調べ方も成り立ちません。Anthropic はマルチエージェントの記事で、エージェントは同じプロンプトでも実行ごとに動きが変わると述べ、本番の全体を追跡できるようにしたことで、失敗の原因を体系的に直せるようになったとしています。まず本番の各段を観測できる状態を作り、そのうえで原因の段に手を打ちます。","ref":"試験ガイド 分野3 タスク 3.4（オブザーバビリティの課題とモニタリング戦略）／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D3-10","domain":"D3","topic":"中身を見ないモニタリング","type":"multi","question":"ある医療機関が、患者向けの予約と問い合わせのエージェントを運用しており、会話は1日に約20万件あります。院内の規程で、エンジニアが会話の本文を読むことは認められていません。プロンプトやツールを更新したあとに挙動が悪くなっても、気づくのが遅れています。会話の本文を読まずに、悪化を早く見つけて影響を抑える方法を2つ選んでください。（2つ選択）","options":["エンジニアが毎日、無作為に選んだ100件の会話の本文を読み、品質の変化を確かめる","ツールの呼び出しの順序や回数、エラー、所要時間を全件記録し、集計値の変化に警報を設定する","すべての応答の最後にモデル自身の確信度を出力させ、その平均の変化をモニタリングする","すべての会話の本文を期限なく保存し、問題が報告されたときに検索して調べる","新しい版へは一部の利用から段階的に切り替え、旧版と並べて動かしながら指標を比べる"],"answer":[1,4],"notes":["規程で認められていない本文の閲覧です。20万件に対して100件では、悪化を早く見つける力も足りません。","正解。会話の中身ではなく、判断のパターンとやり取りの構造をモニタリングすれば、プライバシーを守りながら、挙動の変化を全件で捉えられます。","自己申告の確信度は当てにならない目安で、挙動の悪化と結びつく保証がありません。","本文を無期限に保存するのは規程の趣旨とデータの最小化に反し、問題が報告されるまで気づけない点も変わりません。","正解。新旧を並べて少しずつ切り替えれば、悪化が出ても影響は一部にとどまり、版ごとの指標の差で早く気づけます。"],"explanation":"大規模なシステムでは、人が会話を読むモニタリングは、量の面でも規程の面でも成り立ちません。Anthropic は、会話の中身は見ずに、エージェントの判断のパターンとやり取りの構造をモニタリングし、本番の全体を追跡したと述べています。また、更新で動いているエージェントを壊さないよう、旧版と新版を同時に動かしながら利用を少しずつ移す方法（レインボーデプロイ）を使っています。検知の仕組みと、影響を限る切り替え方を組み合わせるのが要点です。","ref":"試験ガイド 分野3 タスク 3.4（オブザーバビリティの課題とモニタリング戦略）／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D3-11","domain":"D3","topic":"チャンクの文脈を補う","type":"single","question":"ある県が、補助金の要綱集を検索して職員の質問に答える RAG を作りました。要綱は制度ごとに数十ページあり、500トークンずつに区切って埋め込みのインデックスを作っています。「対象は前年度の所得が基準額以下の世帯とする」のように、どの制度の話かが書かれていないチャンクが多く、別の制度の条件を答える誤りが目立ちます。最も適切な改善はどれですか。","options":["回答を生成するモデルを上位のモデルに替え、制度の取り違えに気づけるようにする","各チャンクに、文書全体から見た短い説明を Claude で付けてからインデックスを作り直す","検索で取得するチャンクの数を大幅に増やし、正しい制度のチャンクも含まれるようにする","要綱を制度ごとに1つのチャンクにまとめ、文書全体を1つの単位として検索させる"],"answer":[1],"notes":["誤りの原因は、検索の段で制度の区別がつかないことです。渡されるチャンクが違えば、モデルを替えても直りません。","正解。Contextual Retrieval の考え方で、どの制度のどの部分かという文脈をチャンクに補ってから埋め込みとインデックスを作れば、検索の段での取り違えが減ります。","関係のないチャンクも増え、コンテキストが雑音で埋まります。どの制度の条件かが分からない点も変わりません。","1件が大きすぎると、どの箇所が質問に合うのかが埋もれやすくなり、毎回大量の文章を渡すことにもなります。"],"explanation":"文書をチャンクに切ると、文書全体では分かっていた文脈が落ちることがあります。Anthropic の Contextual Retrieval は、各チャンクが文書のどこの何の話かという短い説明を Claude に書かせて先頭に付け、そのうえで埋め込みと BM25 のインデックスを作る手法です。問題が検索の段にあるときは、生成の段のモデルを替えるのではなく、インデックスに入れる中身を直します。","ref":"試験ガイド 分野3 タスク 3.5（チャンキングとインデックス作成の戦略）／ Anthropic Engineering: Contextual Retrieval"},{"id":"D3-12","domain":"D3","topic":"構造に沿った区切り","type":"single","question":"ある保険会社が、約款を検索して契約者の質問に答える RAG を作っています。約款は章と条で構成され、多くの条が「〜の場合は保険金を支払います。ただし、次の各号のいずれかに該当する場合を除きます」のように、本文と例外の列挙が続きます。いまは400トークンごとの機械的な区切りで、本文と例外が別のチャンクに分かれ、例外を見落とした回答が出ています。最も適切な改善はどれですか。","options":["チャンクを100トークンに小さくし、1つのチャンクに入る内容を細かく絞り込む","回答の前に必ず例外の有無を確かめるよう、システムプロンプトで強く指示する","条ごとに区切って本文と例外を同じチャンクに収め、章と条の見出しを付ける","埋め込みモデルを大きなものに替え、本文と例外の意味のつながりを捉えさせる"],"answer":[2],"notes":["細かく切るほど、本文と例外はさらに別のチャンクに分かれやすくなります。","例外のチャンクが取得されていなければ、モデルは確かめようがありません。原因は区切り方です。","正解。文書の構造に沿って意味のまとまりで区切れば、条件と例外が一緒に取得され、見出しから出どころも分かります。","区切る位置が同じままでは、例外が別のチャンクにある状態は変わりません。"],"explanation":"チャンクの大きさ、区切る位置、前後の重なりは、検索の性能を左右します。固定の長さで機械的に切ると、条件と例外のように一緒に読むべき内容が分かれることがあります。約款や規程のように構造がはっきりした文書は、その構造に沿って区切り、見出しなどの情報を添えるのが基本です。区切り方の良し悪しは、実際の文書と質問で評価して決めます。","ref":"試験ガイド 分野3 タスク 3.5（チャンキングとインデックス作成の戦略）／ Anthropic Engineering: Contextual Retrieval（Implementation considerations）"},{"id":"D3-13","domain":"D3","topic":"ハイブリッド検索","type":"multi","question":"あるソフトウェア企業のサポート用 RAG は、埋め込みによる意味の検索だけで技術資料を探し、上位5件をモデルに渡しています。「E-4012 が出る」のようにエラーコードで尋ねると、似た番号の別のエラーの資料が返ります。また、文章で症状を尋ねる質問でも、関連する資料は上位50件には入っているのに、上位5件には入らないことがよくあります。最も効果的な改善を2つ選んでください。（2つ選択）","options":["回答を生成するモデルを上位のモデルに替え、渡された資料の誤りに気づかせる","多めに取った候補をリランカーで採点し直し、関連の高い数件だけを渡す","BM25 などのキーワードのインデックスを加え、意味の検索の結果と順位で統合する","エラーコードが一字一句一致する資料だけを使うよう、システムプロンプトで指示する","上位50件をすべてモデルに渡し、関連する資料が必ず含まれるようにする"],"answer":[1,2],"notes":["渡す資料が違えば、モデルを替えても答えは直りません。原因は検索の段です。","正解。候補を広く取ってから関連の強さで並べ直せば、上位50件に埋もれた資料を、渡す数件に引き上げられます。その分、レイテンシは少し増えます。","正解。BM25 は、エラーコードのような固有の文字列を含む質問に強く、意味の検索と組み合わせると取りこぼしが減ります。","一致する資料が取得されていなければ、指示しても使えません。検索の方法という原因が残ります。","関係のない資料が大量に入り、コストとレイテンシが増え、回答の質も落ちやすくなります。"],"explanation":"検索の方法は、質問の型に合わせて選びます。意味の検索は言い換えに強い一方で、固有の識別子の一致を取りこぼすことがあり、キーワードの検索はその逆です。両方の質問が来るなら、2つの結果を順位で統合し、さらにリランカーで絞り込みます。Anthropic の Contextual Retrieval の評価では、これらを重ねるほど検索の失敗が減りましたが、リランカーはレイテンシとコストを少し増やします。","ref":"試験ガイド 分野3 タスク 3.6（データの形状とクエリパターンに合った検索戦略）／ Anthropic Engineering: Contextual Retrieval"},{"id":"D3-14","domain":"D3","topic":"表のデータは問い合わせ","type":"single","question":"ある小売チェーンは、売上データの各行を文章に変換して埋め込みのインデックスに入れ、店長からの質問に RAG で答えています。「先月の地域別の売上合計は」「昨日いちばん売れた商品は」といった質問で、数字が誤った回答が目立ちます。売上データは毎日更新され、データウェアハウスの表として管理されています。最も適切な対応はどれですか。","options":["データウェアハウスに集計の問い合わせを読み取り専用で実行できるツールを渡す","検索で取得する行の数を大きく増やし、集計に必要な行がすべて含まれるようにする","月次や地域別の売上の要約文を前もって作ってインデックスに加え、集計の質問も検索で答える","渡された数字を一つずつ慎重に足し合わせるよう、システムプロンプトで指示する"],"answer":[0],"notes":["正解。表の形のデータへの集計の質問は、似た文章を探す検索ではなく、元のシステムに問い合わせて答えるのが合っています。読み取り専用にすれば、権限も最小にできます。","合計に必要な行は数千行に及ぶことがあり、検索ですべてを確実に集めることはできません。コンテキストも圧迫します。","決まった切り口の数字は答えられても、「昨日」「商品別」のような切り口の組み合わせを前もってすべて文章にはできません。数字の正確さを検索の当たり外れに任せる点も変わりません。","必要な行がそろっていない以上、計算を丁寧にしても正しい合計にはなりません。"],"explanation":"検索の戦略は、データの形と質問の型で選びます。規程や手順書のような文章は意味やキーワードの検索に向きますが、表の形のデータの集計や、刻々と変わる値の照会は、元のシステムにツールや API で問い合わせるほうが正確です。Anthropic も、Claude Code が大きなデータベースに対して的を絞ったクエリを書き、データ全体をコンテキストに載せずに分析する例を挙げています。何でも埋め込んで検索する設計になっていないかを確かめます。","ref":"試験ガイド 分野3 タスク 3.6（データの形状とクエリパターンに合った検索戦略）／ Anthropic Engineering: Effective context engineering for AI agents"},{"id":"D3-15","domain":"D3","topic":"複数の環境で使い回す","type":"single","question":"あるソフトウェア企業では、社内のチケット管理システムを Claude から使いたいというチームが3つあります。社員が使う Claude のアプリ、開発者の Claude Code、Agent SDK で作る社内の自動化エージェントです。いまは各チームが別々に、チケットを扱う独自のツール定義と API の呼び出しを書こうとしています。最も適切な設計はどれですか。","options":["各チームがそれぞれの環境に合わせて、独自のツール定義を書いて保守する","チケットの一覧を毎朝書き出し、各環境のシステムプロンプトに貼り付けておく","チケット管理の担当エージェントを作り、ほかのエージェントがそれに仕事を任せる","チケット管理システムの MCP サーバーを1つ作り、3つの環境からそれにつなぐ"],"answer":[3],"notes":["同じ連携を3回作ることになり、認可や仕様が変わるたびに3か所を直す必要があります。","情報が古くなるうえ、チケットの更新などの操作ができません。コンテキストも無駄に使います。","決まった操作を呼ぶだけの連携に、判断を担うエージェントを挟むと、コストと不確かさが増えます。必要なのはツールとデータへの接続です。","正解。MCP は AI のアプリと外部のシステムをつなぐオープンな標準で、一度サーバーを作れば、対応する複数のクライアントから使い回せます。"],"explanation":"統合の手段は、つなぐ相手と使い方で選びます。同じ社内システムを複数のアプリやチームで使うなら、MCP サーバーとして一度作り、各クライアントからつなぐのが効率的です。自分のアプリの中だけで使う決まった連携なら、API を呼ぶ自作のツールで足ります。エージェント間の連携は、別のエージェントに独立した仕事を任せる場面のための形で、決まった操作の呼び出しには重すぎます。","ref":"試験ガイド 分野3 タスク 3.7（接続プロトコルと統合メカニズムの選択）／ MCP Docs: What is the Model Context Protocol (MCP)?"},{"id":"D3-16","domain":"D3","topic":"STDIO かリモートか","type":"single","question":"ある官庁が、文書管理システムを検索する MCP サーバーを作り、約800人の職員のパソコンに配って、それぞれの端末で STDIO で起動させる計画を立てています。設定ファイルには、全員で共有する1つの API キーを書き込む予定です。サーバーは今後も頻繁に更新され、職員ごとの利用の記録と、異動した職員の権限の取り消しが必要です。最も適切な設計はどれですか。","options":["計画どおり各端末で起動させ、共有の API キーを定期的に新しいものに差し替える","各端末に配るサーバーの更新を自動化し、全員を常に同じ版にそろえておく","Streamable HTTP のリモートのサーバーを1か所に置き、職員ごとに認可する","職員が文書を検索するたびに、Claude に職員の所属を確かめさせてから検索させる"],"answer":[2],"notes":["鍵を替えても全員で1つの資格情報を共有する点は変わらず、職員ごとの記録や取り消しができません。","版はそろっても、800台への配布と共有の API キーという問題は残ります。","正解。リモートのサーバーなら1か所で更新でき、HTTP のサーバー向けの認可の仕様に沿って、職員ごとのトークンで利用を記録し、取り消せます。","所属の確認をモデルに任せても、確かな認証にはなりません。共有の API キーの問題も残ります。"],"explanation":"MCP の標準のトランスポートは、クライアントがサーバーを子プロセスとして起動する STDIO と、HTTP で1つのエンドポイントに要求を送る Streamable HTTP の2つです。手元だけで使う道具なら STDIO が簡単ですが、多くの利用者が使い、頻繁に更新し、利用者ごとの認可と記録が要るなら、リモートのサーバーにまとめるほうが合っています。接続の方式は、利用者の数、更新の頻度、認可の要件で選びます。","ref":"試験ガイド 分野3 タスク 3.7（接続プロトコルと統合メカニズムの選択）／ MCP Specification: Transports、Authorization"},{"id":"D3-17","domain":"D3","topic":"CLI があれば CLI","type":"single","question":"あるソフトウェア企業の開発チームが、Claude Code にプルリクエストの操作と、クラウドのリソースの状態の確認をさせたいと考えています。どちらのサービスにも公式の CLI があり、開発者の端末には導入済みで、各自の権限でサインインしてあります。チームの一人は、両方のサービスの API を包む MCP サーバーを自作して全員に配る案を出しました。最初に勧める方法として最も適切なものはどれですか。","options":["提案どおり MCP サーバーを自作して配り、両方のサービスの操作をそのサーバー経由にする","各自の権限でサインイン済みの公式の CLI を、Claude Code にそのまま使わせる","チームで共有する API キーを `CLAUDE.md` に書き、Claude Code に API を直接呼ばせる","サービスごとに操作を担当するエージェントを作り、Claude Code からそのエージェントに頼む"],"answer":[1],"notes":["CLI がないシステムなら MCP が向きますが、ここでは公式の CLI がすでに使えます。自作のサーバーは作って保守する手間が増え、つないだサーバーは使わないときもツールの名前などをコンテキストに加えます。","正解。Claude Code のドキュメントは、相手のシステムに CLI があれば、たいていそれがいちばん簡単な入り口だとしています。各自の権限で認証済みなので、新たな資格情報の管理も要りません。","共有の鍵をリポジトリのファイルに書くと漏えいの危険が増え、誰の操作かも区別できなくなります。各自の権限で認証された経路があるのに、わざわざ弱い方式に替えることになります。","エージェント間の連携は、独立した仕事を別のエージェントに任せる場面のための形です。決まったコマンドで済む操作に挟むと、コストと不確かさが増えます。"],"explanation":"統合の手段は、相手のシステムに何が用意されているかと、誰がどう使うかで選びます。Claude Code のドキュメントは、CLI があればそれがたいてい最も簡単な入り口で、CLI のないシステムには MCP がある、という順で整理しています。MCP サーバーは、CLI がないときや、複数のアプリで同じ連携を使い回したいときに作る価値があります。どの方式でも、利用者ごとの権限で認証された経路を使い、共有の資格情報を増やさないことが前提です。","ref":"試験ガイド 分野3 タスク 3.7（接続プロトコルと統合メカニズムの選択）／ Claude Code Docs: Best practices"},{"id":"D3-18","domain":"D3","topic":"小さな知識は一括で","type":"single","question":"ある大学が、学生からの質問に「学生便覧」をもとに答えるアシスタントを作ります。便覧は約80ページでコンテキストに余裕をもって収まり、内容は学期中ほとんど変わりません。質問のほとんどは、便覧のどこかの記述に関わります。チームの一人が、便覧をチャンクに分けてベクトルデータベースを作り、検索で必要な部分だけを渡す構成を提案しています。最も適切な判断はどれですか。","options":["便覧の全文を変わらない前置きとしてプロンプトの先頭に置き、キャッシュする","提案どおりチャンクとベクトルデータベースを用意し、検索で取った部分だけを渡す","便覧の章ごとにスキルを作り、質問に合う章だけをその都度読み込ませる","便覧の内容をモデルに覚えさせるため、便覧でファインチューニングを行う"],"answer":[0],"notes":["正解。小さく変わらない知識をほぼ毎回使うなら、一括で載せるのが最も単純です。キャッシュで、繰り返す前置きの処理の時間とコストも抑えられます。","収まる量の知識に検索の仕組みを足すと、作るものと壊れる箇所が増え、必要な記述を取りこぼすおそれも生まれます。","段階的に読み込む設計は、ときどき要る大きな情報に向きます。ほぼ毎回使う小さな情報では、探す手間と見落としの危険が増えるだけです。","改訂のたびに学習し直す必要があり、最初の一手としては重すぎます。"],"explanation":"一括型と段階的ディスカバリーは、情報の大きさ、変わる頻度、使う頻度で選びます。Anthropic は、知識ベースが十分に小さければ RAG を使わずに全体をプロンプトに含め、プロンプトキャッシングで速く安くできると述べています。実行中に探す設計は、その分遅く、説明があいまいだと見落とします。いつも要る小さな情報は先に載せ、ときどき要る大きな情報は後から読み込む、が判断の軸です。","ref":"試験ガイド 分野3 タスク 3.8（段階的ディスカバリーと一括型コンテキストの比較）／ Anthropic Engineering: Contextual Retrieval ／ Claude Docs: Prompt caching"},{"id":"D3-19","domain":"D3","topic":"多数のツールは検索で","type":"single","question":"ある大学の教職員向けエージェントには、学務、授業、図書、施設予約、研究費など12の MCP サーバーがつながり、ツールは合わせて約250個あります。棚卸しでは、どのツールもいずれかの部署の業務で使われていて、外せるものはありませんでした。一方で、ツールの定義だけで毎回5万トークン以上を使い、1回の依頼で使うのは数個なのに、似た名前のツールを取り違える誤りも増えています。最も適切な見直しはどれですか。","options":["各ツールの説明文を1行に削って定義のトークンを減らし、すべてのツールを毎回読み込ませる","コンテキストウィンドウの大きなモデルに替え、すべてのツールの定義を毎回余裕をもって収める","MCP サーバーごとに12の専用エージェントを作り、前段の振り分けで1つを選ばせて処理させる","ツール検索ツールを導入し、よく使う数個を除くツールの定義は検索されたときだけ読み込ませる"],"answer":[3],"notes":["説明文は、Claude がツールを選ぶ手がかりです。削るほど似たツールを取り違えやすくなり、毎回すべてを読み込む構成も変わりません。","収まっても、毎回の大量のトークンのコストは残ります。ツールが多すぎると選択の精度が落ちる問題も解決しません。","12のエージェントと振り分けを作って保守するのは、最初の一手としては重すぎます。複数のサーバーにまたがる依頼では、エージェント間の受け渡しも増えます。","正解。`defer_loading` を付けたツールの定義は最初はコンテキストに入らず、Claude が検索で見つけたものだけが読み込まれます。よく使う数個は最初から載せておけます。"],"explanation":"多くのツールがどれも必要で、1回に使うのはその一部、という場面が段階的ディスカバリーの出番です。ツール検索ツールを使うと、すべての定義をリクエストに含めたまま、`defer_loading` を付けたものはコンテキストに載せず、Claude が検索で見つけたツールだけを読み込みます。2026年11月時点のドキュメントは、ツールが10個以上ある場合や定義が1万トークンを超える場合に勧め、10個未満で毎回すべてを使うなら通常の構成のほうが合うとしています。要らないツールを外すことが先で、それでも残る多数のツールに対して使う仕組みです。","ref":"試験ガイド 分野3 タスク 3.8（段階的ディスカバリーと一括型コンテキストの比較）／ Claude Docs: Tool search tool"},{"id":"D4-01","domain":"D4","topic":"件数の偏りと指標","type":"single","question":"クレジットカード会社が、会員からのチャットの問い合わせを Claude で分類し、カードの紛失や盗難の連絡だけを、すぐに利用を止める専門の窓口に回す仕組みを設計しています。過去の問い合わせ2万件のうち、紛失や盗難の連絡は約2%です。開発チームは「精度95%以上」を合格の基準にしようとしていますが、すべてを「その他」に分類するだけでも精度は98%になります。評価指標の定義として最も適切なものはどれですか。","options":["精度の基準を95%から99%に引き上げ、正解の付いた2万件すべてで測って、基準を上回るかどうかで合否を決める","紛失や盗難の連絡を拾えた割合（再現率）と、窓口に回したうち本当に該当した割合（適合率）に目標値を定める","紛失や盗難の連絡は件数が少なく測りにくいので評価データセットから外し、残りの問い合わせの精度で合否を決める","分類のたびにモデルに確信度を出力させ、その平均が0.9以上になることを、合格の基準として計画書に書いておく"],"answer":[1],"notes":["全体の精度は、件数の多い「その他」の出来に引きずられます。紛失や盗難の連絡を半分見逃しても誤りは全体の約1%なので、99%の基準でも見逃しを隠せます。","正解。件数が少なく、見逃すと被害の大きい種類について、拾えた割合と、回した先で当たった割合を分けて目標を置けば、合否が業務への影響と結びつきます。","最も重要な種類を、測る対象から外しています。見逃しが不正利用の被害に直結する種類こそ、評価で確かめる必要があります。","モデルの自己申告の確信度は、正しさの当てになる目安ではありません。正解と照らした測定が要ります。"],"explanation":"評価指標は、業務で何を誤ると困るかに合わせて選びます。全体の精度は件数の多い種類の出来に引きずられるため、件数の少ない種類の失敗を隠してしまいます。Anthropic のドキュメントは、成功基準を具体的で測定可能なものにするよう勧め、指標の例として、精度のほかに適合率、再現率、F1 スコアを挙げています。ここでは、見逃しは不正利用の被害に、空振りは窓口の手間につながるので、再現率に高い目標を置き、適合率にも下限を決めます。多くの用途では複数の基準での評価が要るので、レイテンシやコストの目標も合わせて定めます。","ref":"試験ガイド 分野4 タスク 4.1（評価指標の定義） ／ Claude Docs: Define success criteria and build evaluations"},{"id":"D4-02","domain":"D4","topic":"セキュリティの指標","type":"single","question":"証券会社が、アナリストがアップロードした外部の調査レポートを読んで要点をまとめる社内アシスタントを作っています。セキュリティ部門は、レポートに埋め込まれた指示にアシスタントが従ってしまうリスクを心配しており、リリースの判定に使えるセキュリティの指標を求めています。最も適切な指標の定義はどれですか。","options":["本番のログで、ガードレールが遮断したリクエストの件数を週ごとに数え、件数が減っていれば安全性が上がったと判断する","採用しているモデルの、公開されている安全性ベンチマークの点数を指標とし、一定の点数以上のモデルを使うことを条件にする","埋め込まれた指示を検出できたかをアシスタント自身に毎回答えさせ、「検出した」と答えた割合をそのまま指標にする","指示を埋め込んだ文書と通常の文書を含むテストセットで、埋め込みに従った割合と、通常の文書を誤って拒んだ割合を測る"],"answer":[3],"notes":["遮断件数には、攻撃が何件来たかという分母も、遮断が正しかったかという正解もありません。増減から安全性は判断できません。","一般的なベンチマークは、この業務の文書と攻撃の形を反映していません。自分たちのユースケースに合わせたテストが必要です。","自己申告は当てにならない目安です。攻撃が成功しているときほど、正しく申告するとは限りません。","正解。攻撃が成功した割合を正解付きのケースで測り、同時に過剰な拒否も測る、両面のテストセットです。"],"explanation":"評価は実際の業務の分布に合わせ、エッジケースを含めて作るのが基本です。セキュリティの指標も同じで、この業務で起こりうる攻撃（文書に埋め込まれた指示）を正解付きのケースにして、攻撃が成功した割合を測ります。Anthropic のエンジニアリング記事は、ある振る舞いが起こるべき場合と起こるべきでない場合の両方をテストするよう勧め、片側だけの評価は片側だけの最適化を招くとしています。そのため、通常の文書を誤って拒む割合も合わせて測ります。","ref":"試験ガイド 分野4 タスク 4.1（評価指標の定義） ／ Anthropic Engineering: Demystifying evals for AI agents ／ Claude Docs: Define success criteria and build evaluations"},{"id":"D4-03","domain":"D4","topic":"採点方法の組み合わせ","type":"single","question":"アパレルの EC 事業者が、商品データから商品説明文を生成する仕組みの評価方法を設計しています。評価したい点は、決められた JSON の項目がそろい文字数の上限を守っていることと、ブランドの語調に合っていることの2つです。説明文は毎週数千件作られ、評価は変更のたびに回したいと考えています。最も適切な評価の組み合わせはどれですか。","options":["項目と文字数はコードで判定し、語調は採点基準を与えた LLM で採点して、担当者の採点との一致度で較正する","品質を確実にするため、項目、文字数、語調のすべてを、ブランドの担当者が変更のたびに全件を読んで手作業で採点する","評価の仕組みを1つにそろえるため、項目、文字数、語調のすべてを LLM に採点させ、合計点が基準以上なら合格とする","評価をすべて自動化するため、語調もブランドの禁止語と推奨語の一覧を使ってコードで判定し、LLM や人は使わない"],"answer":[0],"notes":["正解。規則で決まる点は速く確実なコードで判定し、判断が要る点は LLM で採点します。その LLM の採点は、同じ説明文を担当者も採点して、両者の食い違いが小さくなるように較正します。","人による採点は最も柔軟で質が高い一方、遅く高価です。毎週数千件を変更のたびに読む運用は続きません。","項目の有無や文字数は、コードで確実に判定できます。そこに確率的な LLM の採点を使うと、判定がぶれます。","語調は単語の一覧では捉えきれない判断です。一覧にない言い回しで語調に合っている正しい表現を、誤りと判定しがちです。"],"explanation":"Anthropic のドキュメントは、採点方法を「最も速く、確実で、拡張しやすい方法」から選ぶよう勧めています。コードによる採点は速く確実ですが、複雑な判断には向きません。LLM による採点は速く柔軟で、判断が要る基準に向きますが、まず信頼できるかを確かめてから規模を広げます。人による採点は質が高い反面、遅く高価なので、LLM の採点の較正や抜き取りの確認に絞って使います。1つの方法ですべてを測ろうとせず、基準ごとに合う方法を組み合わせるのが、試験ガイドのいう「複数の方法論の組み合わせ」です。","ref":"試験ガイド 分野4 タスク 4.2（評価データセットとテストフレームワークの設計） ／ Claude Docs: Define success criteria and build evaluations ／ Anthropic Engineering: Demystifying evals for AI agents"},{"id":"D4-04","domain":"D4","topic":"評価データセットの作り方","type":"single","question":"オンライン学習の事業者が、学習者の質問に答えるチューター機能を運用しています。評価データセットは開発者が書いた50問で、最近の変更ではどれも合格率100%です。ところが、学習者からは「見当違いの答えが返る」という報告が続いています。評価データセットについて、最初に勧める対応として最も適切なものはどれですか。","options":["同じ開発者たちに、いまの50問と同じ書き方で問題を450問書き足してもらい、評価データセットを500問に増やして測り直す","いまの50問はそのままにして採点の基準を厳しくし、合格率が100%から下がるようにしたうえで、もう一度測り直す","本番の質問を匿名化して抜き出し、報告された失敗例、あいまいな質問、範囲外の質問を加えて、専門家が合意した正解を付ける","学習者からの報告を1件ずつ調べてプロンプトを直し、そのたびに、いまの50問で合格率が保たれていることを確かめる"],"answer":[2],"notes":["数を増やすこと自体はよいことですが、同じ人が同じ書き方で作ると、本番の質問との分布のずれは残ります。","採点を厳しくしても、問題が本番の質問と違うという原因は残ります。見当違いの答えが出るような質問が50問の中になければ、厳しく採点しても見つかりません。","正解。実際の利用の分布とエッジケースを入れ、専門家の判断が一致する正解を付けると、本番の失敗を評価で捉えられます。","個別の修正は必要ですが、評価データセットが本番の失敗を捉えられないままでは、直ったかどうかも、ほかの質問で悪化していないかも測れません。"],"explanation":"評価は、実際の業務の質問の分布に合わせ、エッジケースを含めて作ります。Anthropic のエンジニアリング記事は、実際の失敗から集めた20〜50件の課題でも良い出発点になるとし、本番で利用者が報告した失敗をテストケースに変えるよう勧めています。また、良い課題とは、2人の専門家が独立に同じ合否を下せるものだとしています。合格率が100%に張り付いているのに本番で失敗が続くのは、評価データセットが実際の利用を表していない合図で、このままでは改善の余地も測れません。","ref":"試験ガイド 分野4 タスク 4.2（評価データセットとテストフレームワークの設計） ／ Anthropic Engineering: Demystifying evals for AI agents ／ Claude Docs: Define success criteria and build evaluations"},{"id":"D4-05","domain":"D4","topic":"LLM 採点者の較正","type":"multi","question":"ある自治体が、補助金の申請書の記載漏れを指摘する機能を評価するために、LLM を採点者にした自動評価（LLM-as-judge）を導入しました。ところが、採点者の判定が、審査担当の職員の判断と食い違う例が目立ちます。自動評価の信頼性を高めるために取るべき対応はどれですか。（2つ選択）","options":["職員が判定を付けた申請書の標本で、採点者の判定との一致率を測り、食い違った事例を読んで採点基準を直す","採点者に判定の確信度も出力させ、確信度が高い判定だけを集計に使うことで、誤った判定を集計から取り除く","採点者を同じ申請書で5回ずつ実行して多数決を取り、職員との食い違いを平均化して減らす","自動評価をやめ、変更のたびにすべての申請書を職員が手作業で判定する運用に切り替える","全体の印象で点を付けさせず、基準ごとの合否を出させる採点基準にし、判断できないときは「不明」を選べるようにする"],"answer":[0,4],"notes":["正解。LLM の採点者は、人の専門家の判断と照らして較正します。食い違いの原因を読み、採点基準に反映します。","モデルの自己申告の確信度は、判定の正しさの当てになる目安ではありません。","多数決はばらつきを減らしますが、採点基準そのものが職員の判断とずれている系統的な誤りは直りません。","人による採点は質が高い一方、遅く高価です。自動評価をやめると、変更のたびに評価を回せなくなります。","正解。詳しく具体的な採点基準と、はっきりした出力の形（合否や段階）を与えると判定が安定します。「不明」の選択肢は、根拠のない判定を減らします。"],"explanation":"LLM による採点は速く柔軟ですが確率的なので、人の専門家との一致を確かめてから規模を広げます。Anthropic のドキュメントは、LLM の採点に詳しく明確な採点基準を与え、「正解か不正解か」や「1〜5の段階」のように具体的に出力させるよう勧めています。エンジニアリング記事は、採点者を人の専門家と密に較正すること、観点ごとに分けて採点させること、そして「不明」という逃げ道を与えて根拠のない判定を減らすことを挙げています。多数決や確信度による絞り込みは、採点基準のずれという原因には効きません。","ref":"試験ガイド 分野4 タスク 4.2（評価データセットとテストフレームワークの設計） ／ Claude Docs: Define success criteria and build evaluations ／ Anthropic Engineering: Demystifying evals for AI agents"},{"id":"D4-06","domain":"D4","topic":"A/B テストの読み方","type":"single","question":"SaaS 企業が、サポート用チャットのシステムプロンプトの新版 B を、現行版 A と A/B テストしています。3日間で各400件の会話を集めたところ、自己解決率は A が68%、B が71%でした。プロダクト責任者は「B のほうが3ポイント良い」として全面的な切り替えを提案しています。アーキテクトとして最も適切な助言はどれですか。","options":["B の数字のほうが高いので、すぐに全面的に切り替え、切り替えたあとで苦情が増えたら A に戻せばよいと伝える","各400件では3ポイントの差は偶然でも起こりうるので、必要な件数を見積もってテストを続け、副作用の指標も見る","B で解決できた会話のうち良い例を数件選んで経営層に示し、B の効果を具体的に説明したうえで切り替える","差が小さすぎて判断できないので、両方の版をより大きいモデルで作り直してから、改めて A/B テストをやり直す"],"answer":[1],"notes":["差が誤差の範囲かどうかを確かめずに切り替えると、効果のない変更を「改善」と言いすぎることになります。","正解。各400件なら差の標準誤差はおよそ3ポイントで、3ポイントの差は偶然でも十分に起こります。検出力の分析で必要な件数を決め、副作用の指標も確かめます。","選んだ成功例は、全体として B が良いことの根拠になりません。逸話で結果を言いすぎる誤りです。","モデルを替えると、プロンプトの比較という元の問いに答えられなくなります。規模で解決しようとする筋違いの手です。"],"explanation":"A/B テストは、仮説と指標を決め、必要なサンプルサイズを見積もってから実施し、結果を言いすぎずに読みます。2つの割合の差には不確かさがあり、各400件で68%と71%なら、差の標準誤差はおよそ3ポイントです。Anthropic の評価の統計についての記事は、標準誤差を報告することと、検出したい差の大きさから必要な観測数を求める検出力の分析を勧めています。主な指標が良くなっても、レイテンシ、コスト、有人対応への引き継ぎの率などが悪化していないかも合わせて確かめます。","ref":"試験ガイド 分野4 タスク 4.3（A/B テストと反復的な改善） ／ Anthropic Research: A statistical approach to model evaluations"},{"id":"D4-07","domain":"D4","topic":"対応のある比較","type":"single","question":"銀行のチームが、融資規程についての行員からの質問に答える機能で、プロンプトの案 X と案 Y を評価データセット300問で比べています。最初は300問を150問ずつに分けて X と Y に割り当てましたが、割り当てをやり直すたびに、どちらが良いかが入れ替わります。比べ方として最も適切なものはどれですか。","options":["150問ずつの割り当てのまま、どちらかの案が3回続けて上回るまで、問題の割り当てを変えて実行を繰り返す","300問を3つに分け、X、Y、現行版にそれぞれ100問ずつ割り当てて、3つの案の平均点を並べて比べる","点数のばらつきは避けられないので、担当者が両案の出力を10件ずつ読み、印象の良いほうを採用する","300問すべてを両方の案で解かせ、各問を複数回実行した平均の差を問題ごとに集計し、標準誤差も示す"],"answer":[3],"notes":["別々の問題で比べる限り、問題の難しさの違いがそのまま結果のぶれになります。繰り返しても原因は残ります。","1つの案あたりの問題が減り、問題の違いによるぶれはむしろ大きくなります。","10件ずつの印象では、ばらつきを避けるどころか、より小さく偏った標本で判断することになります。","正解。同じ問題で両案を比べる対応のある比較は、問題の難しさによるばらつきを取り除きます。問ごとの再実行は生成のばらつきを減らし、標準誤差を添えると、差が偶然の範囲かどうかを判断できます。"],"explanation":"2つの案を別々の問題で比べると、問題の難しさの違いが差に混ざり、結果が安定しません。Anthropic の評価の統計についての記事は、同じ問題に対する2つのモデルの点の差を分析する「対応のある差」の分析を勧めており、問題の難しさによる分散を取り除けるとしています。同じ問題で複数回答えさせて平均を取ると、問題の中のばらつきも減らせます。同じ規程の節から作った問題のように独立でない問題が多いときは、そのまとまりを単位にして標準誤差を求めます。","ref":"試験ガイド 分野4 タスク 4.3（A/B テストと反復的な改善） ／ Anthropic Research: A statistical approach to model evaluations"},{"id":"D4-08","domain":"D4","topic":"回帰の評価を分ける","type":"single","question":"業務 SaaS の会社が、問い合わせ対応エージェントの評価データセット400件を、プロンプトや設定を変えるたびに回しています。セットには、すでに安定してこなせる定型の課題と、まだ半分ほどしか解けない難しい課題が混ざっており、リリースの判定は全体の合格率だけで行っています。先月、全体の合格率が71%から73%に上がった変更をリリースしたところ、以前は確実に通っていた返金手続きの課題がいくつも失敗していたことが、あとで分かりました。評価の仕組みの見直しとして最も適切なものはどれですか。","options":["定型の課題を回帰用のセットに分けてほぼ全件の合格をリリースの条件にし、難しい課題は別のセットで改善の推移を追う","全体の合格率の基準を73%から80%に引き上げ、基準を上回った変更だけをリリースできるようにする","難しい課題が全体の合格率を下げて判断を誤らせるので、難しい課題を外し、定型の課題だけで合否を決める","評価データセットを1,000件に増やし、全体の合格率の差がはっきり出るようにしたうえで、同じ方法で判定を続ける"],"answer":[0],"notes":["正解。これまでできていたことを確かめる回帰の評価と、新しい能力を伸ばす評価を分けます。回帰のセットはほぼ100%の合格が前提なので、少数の失敗でも何かが壊れた合図として止められます。","全体の基準を上げても、難しい課題での改善が定型の課題の崩れを打ち消す構造は変わりません。80%を超えても、返金の課題が壊れている可能性は残ります。","難しい課題を外すと、改善の余地を測る手段がなくなります。問題は課題が混ざっていることではなく、全体の合格率だけで判定していることです。","件数を増やしても、改善と退行が全体の合格率という1つの数字の中で打ち消し合う点は変わりません。"],"explanation":"評価の結果を全体の合格率という1つの数字にまとめると、ある課題での改善と別の課題での退行が打ち消し合い、崩れが見えなくなります。Anthropic のエンジニアリング記事は、まだ苦手な課題で改善の余地を測る能力の評価と、これまでできていたことが今もできるかを確かめる回帰の評価を分けています。能力の評価は低い合格率から始まり、回帰の評価はほぼ100%の合格が前提です。能力の評価で安定して合格するようになった課題は、回帰のセットに移します。本番で見つかった失敗も回帰のケースとして加え、変更のたびに関門として回します。","ref":"試験ガイド 分野4 タスク 4.3（A/B テストと反復的な改善） ／ Anthropic Engineering: Demystifying evals for AI agents"},{"id":"D4-09","domain":"D4","topic":"生成の段のハルシネーション","type":"single","question":"県の窓口が、制度の案内文書を検索して住民の質問に答える RAG のアシスタントを運用しています。ある補助金について、どの文書にも書かれていない上限額を回答した例が見つかりました。ログを調べると、その質問では、正しい最新の案内文書の該当箇所が検索され、コンテキストに入っていました。最も適切な対応はどれですか。","options":["検索の段に問題があるとみて、案内文書のインデックスを作り直し、あわせて埋め込みモデルも新しいものに替える","より大きいモデルに切り替え、一般知識が豊富なモデルであれば正しい金額を答えられるようにする","提供した文書だけを根拠に、該当箇所を引用してから答え、根拠がなければ「分からない」と答えるよう指示を直す","案内文書と過去の問答を使ってモデルをファインチューニングし、県の制度の知識をモデル自体に覚えさせる"],"answer":[2],"notes":["正しい箇所が検索されてコンテキストに入っているので、検索の段は原因ではありません。状況と因果がつながらない手です。","問題は、渡した文書ではなく一般知識から答えたことです。一般知識の多いモデルにしても、文書に基づかせることにはなりません。","正解。生成の段のハルシネーションです。文書に限定し、引用で根拠付け、不確かなら認めさせるのが直接の対策です。","制度は改定されるので、モデルに覚えさせた知識は古くなります。プロンプトで直せる段階では作り込みすぎです。"],"explanation":"RAG の誤答は、検索の段の失敗（関係のない、または古い箇所を渡した）と、生成の段の失敗（正しい箇所を渡したのに、それに基づかずに答えた）に分けて診断します。この例では正しい箇所がコンテキストに入っていたので、生成の段のハルシネーションです。Anthropic のドキュメントは、「分からない」と言うことを許す、直接の引用で根拠付ける、主張ごとに引用で裏付けさせる、提供した文書以外の知識を使わないよう指示する、といった手を挙げています。これらの手でもハルシネーションは完全にはなくならないので、重要な情報は評価と確認の仕組みで確かめます。","ref":"試験ガイド 分野4 タスク 4.4（システムの問題の診断） ／ Claude Docs: Reduce hallucinations"},{"id":"D4-10","domain":"D4","topic":"モデルの不適合","type":"single","question":"医療機関の事務部門が、診療報酬の請求書を Claude で点検しています。コスト削減のため、項目の抜き出しと算定ルールとの照合の両方を、上位のモデルから小型のモデルに切り替えたところ、抜き出しの精度は変わらない一方で、複数の条件を組み合わせる照合の誤りが増えました。評価データセットで確かめると、同じプロンプトのまま上位のモデルに戻せば照合の誤りは消え、小型のモデルで指示を詳しくしても改善しませんでした。最も適切な対応はどれですか。","options":["照合のプロンプトに「すべての条件を必ず確認すること」と強い調子の指示を加え、小型のモデルのまま運用を続ける","抜き出しは小型のモデルのまま、照合の工程だけを上位のモデルに戻し、工程ごとのモデルは評価の正答率で選ぶ","照合の誤りを確実に避けるため、抜き出しも照合も上位のモデルに戻し、コスト削減の目標は取り下げる","小型のモデルの `max_tokens` を引き上げ、照合のときにより長い回答を書けるようにして誤りを減らす"],"answer":[1],"notes":["指示を詳しくしても改善しなかったことが、評価で分かっています。能力が足りない工程を、指示の強さで補うことはできません。","正解。誤りは照合という特定の工程でのモデルの不適合です。その工程だけに上位のモデルを使えば、精度とコストの両方を満たせます。どの工程にどのモデルを使うかは、工程ごとの評価データセットの正答率で決めます。","抜き出しは小型のモデルで精度を保てているので、全部を戻すのは、コスト削減の目標を不要に捨てる手です。","回答が途中で切れていることは示されていません。出力の上限は、複数の条件を照合する能力の不足とは関係がありません。"],"explanation":"診断では、何を変えたら誤りが出て、何を戻したら消えたかを見ます。プロンプトが同じままモデルを戻すと直り、指示を詳しくしても直らないなら、原因はプロンプトの失敗ではなくモデルの不適合です。Anthropic のドキュメントは、モデルを替えるかどうかを、自分たちの用途に合わせた評価で、回答の精度、品質、エッジケースの扱いを比べて決めるよう勧めています。工程ごとに難しさが違うときは、工程ごとにモデルを選び分けると、コストと性能のつり合いが取れます。なお、2026年11月時点のドキュメントでは、同じモデルのまま推論の量とコストを変える `effort` パラメータが「モデルを替えるよりよい手であることが多い」とされており、工程ごとの選び分けでも、その設定を含めて同じ評価データセットで比べます。","ref":"試験ガイド 分野4 タスク 4.4（システムの問題の診断） ／ Claude Docs: Choosing the right model ／ Claude Docs: Effort"},{"id":"D4-11","domain":"D4","topic":"プロンプトの失敗の切り分け","type":"multi","question":"教育サービスの会社が、記述式の答案を Claude で採点し、講評を返す処理を運用しています。先月、システムプロンプトに「低学年には平易な言葉で講評する」という指示を足してから、高学年の答案でも講評がやさしすぎる、点数が甘い、という報告が出始めました。モデルと設定は変えていません。原因を診断するために、最初に行うべきことを2つ選んでください。（2つ選択）","options":["より大きいモデルに切り替え、指示の解釈が改善するかどうかを、本番の一部の答案で試してみる","追加した指示を外した版と今の版で、同じ評価データセットを回し、講評と点数の差を比べる","システムプロンプトに「採点基準を必ず守ること」と強い調子で書き足し、報告が止まるかで効果を確かめる","報告のあった答案と出力を読み、追加した指示が学年に関係なくすべての答案に効いていないかを確かめる","報告のあった答案を再採点し、点数が甘いものだけを人が手で直してから返す運用に切り替える"],"answer":[1,3],"notes":["変わったのはプロンプトだけで、モデルは変えていません。原因を確かめる前にモデルを替えるのは筋違いです。","正解。変えた部分だけを戻して同じ評価データセットで比べると、その指示が原因かどうかを事実で切り分けられます。","原因を確かめないまま指示を足すと、指示どうしの食い違いがさらに増えるおそれがあります。報告が止まるかで確かめるのは、本番で生徒に返したあとにしか分からない確かめ方で、どの指示が原因だったかも切り分けられません。","正解。失敗した事例の入力と出力を読むのが診断の基本です。条件付きのつもりの指示が全体に効いているなら、プロンプトの失敗です。","人が直すのは症状への対処で、原因は残ります。診断の手順になっていません。"],"explanation":"診断は、何が変わったかと、失敗した事例そのものから始めます。この例で変わったのはシステムプロンプトだけなので、まずプロンプトの失敗を疑います。失敗した事例を読んで仮説を立て、変更の前後の版を同じ評価データセットで比べれば、原因を事実で確かめられます。Anthropic のエンジニアリング記事は、多くの試行の記録と採点結果を実際に読まなければ、採点がうまく働いているかも分からないとしています。原因が分かってから、学年の条件を明示するなど、指示の書き方を直します。","ref":"試験ガイド 分野4 タスク 4.4（システムの問題の診断） ／ Anthropic Engineering: Demystifying evals for AI agents"},{"id":"D4-12","domain":"D4","topic":"使われない出力の削減","type":"single","question":"家具の EC 事業者が、分析担当者の日本語の質問から SQL を生成して実行し、結果を画面に表示する社内ツールを Claude で動かしています。SQL の正しさは評価で合格していますが、費用が予算を超え、画面で結果を待つ担当者からは遅いとも言われています。応答の `usage` を集計すると、費用の大半は出力トークンで、各応答は SQL の前に、考え方を説明する数百字の文章を書いていました。ツールが使うのは SQL だけで、説明はどこにも表示していません。最も適切な対応はどれですか。","options":["入力のトークンも減らすため、テーブル定義を、よく使う数個のテーブルの分だけに切り詰めて渡す","`max_tokens` を小さくして、説明が長くなる前に応答を打ち切らせ、出力トークンを抑える","質問をためて夜間に Message Batches API でまとめて処理し、トークンあたりの料金を下げる","SQL だけを決まった形式で返すよう出力の指示を改め、評価データセットで SQL の合格率を前後で比べる"],"answer":[3],"notes":["SQL を正しく書くには、質問に関係するテーブルの定義が要ります。必要な情報を捨てる最適化で、正しさを失うおそれがあります。","説明が SQL より前にあるので、上限で打ち切ると肝心の SQL が欠けます。`max_tokens` は出力を途中で切る粗い手で、何を出力するかを選ぶ手ではありません。","担当者は画面で結果を待っているので、結果が翌日に返る処理は業務に合いません。料金は下がっても、要件を満たしません。","正解。費用の大半は、どこにも使われない説明の文章です。出力を必要な SQL だけにすれば、出力トークンと待ち時間の両方が減ります。説明が推論の助けになっていた可能性もあるので、変更の前後で評価データセットの合格率が下がらないことを見てから切り替えます。"],"explanation":"最適化の前に、トークンがどこで使われているかを `usage` で確かめます。この例では、費用の大半が、後工程で使われない説明の出力でした。Anthropic のドキュメントは、品質を保ちながら入力と出力のトークンを減らすこと、簡潔に答えるよう直接頼むことをレイテンシの対策に挙げ、`max_tokens` による打ち切りは、答えが冒頭に来る短い出力に向く粗い手だとしています。必要な情報（この例ではテーブル定義）ではなく、使われていない出力を削ります。推論が必要な処理なら、説明の文章を書かせるより思考の機能に任せ、その量を `effort` で調整するよう、2026年11月時点のドキュメントは勧めています。","ref":"試験ガイド 分野4 タスク 4.5（トークン使用量、レイテンシ、コストとパフォーマンスの最適化） ／ Claude Docs: Reducing latency ／ Claude Docs: Prompting best practices"},{"id":"D4-13","domain":"D4","topic":"独立した照会の並列化","type":"single","question":"総合病院が、患者からの問い合わせに答えるエージェントを運用しています。多くの問い合わせで、予約、検査の受付状況、会計の3つのシステムを照会しますが、どれも読み取りだけで、互いの結果を必要としません。トレースを見ると、Claude は照会を1つ要求しては結果を待ってから次を要求しており、約12秒かかる応答の大半は、3つのシステムを順に待つ時間でした。回答の質は評価で合格しています。レイテンシを縮める対応として最も適切なものはどれですか。","options":["独立した照会は1回の応答でまとめて要求させ、アプリ側で同時に実行して、結果を1つのメッセージにまとめて返す","3つのシステムをそれぞれ別のサブエージェントに担当させ、リードのエージェントが結果を受け取って回答をまとめる","応答をストリーミングで返し、生成された部分から順に画面に表示して、待ち時間を短く感じさせる","より小さく速いモデルに切り替えて、Claude が1回の応答を生成するのにかかる時間を短くする"],"answer":[0],"notes":["正解。互いに依存しない読み取りの照会は、同時に実行しても結果は変わりません。まとめて要求させて同時に実行すれば、待ち時間は最も遅い1つの分に近づき、モデルとの往復の回数も減ります。","サブエージェントを立てると、指示と結果の受け渡しの分だけ、モデルの呼び出しとトークンが増えます。3つの照会を同時に行うだけなら、1つのエージェントの並列のツール呼び出しで足ります。","待ち時間の大半は、回答を書き始める前の照会の待ちです。ストリーミングは書き始めてからの体感を改善しますが、この待ちは縮みません。","トレースでは、時間の大半はモデルの生成ではなく照会の待ちです。モデルを替えても主な待ちは残り、評価で合格した品質を失うおそれもあります。"],"explanation":"レイテンシを下げるときは、まず時間がどこで使われているかをトレースで確かめ、その部分に効く手を選びます。この例では、互いに依存しない照会を1つずつ順に待つことに、時間の大半が使われています。Anthropic のドキュメントは、Claude が1回の応答で複数のツール呼び出しを返せること、独立した読み取りの操作は並列に実行するとレイテンシを下げられることを示し、結果は次の1つのユーザーメッセージにまとめて返すよう求めています（別々のメッセージで返すと、並列の呼び出しが減ります）。マルチエージェントの調査システムについての記事も、初期の逐次の検索はとても遅く、ツールの並列実行などで調査の時間を大きく縮めたと述べています。副作用のある操作や、前の結果に依存する操作は、並列にせず順に実行します。","ref":"試験ガイド 分野4 タスク 4.5（トークン使用量、レイテンシ、コストとパフォーマンスの最適化） ／ Claude Docs: Parallel tool use ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D4-14","domain":"D4","topic":"推論の量とコスト","type":"single","question":"ソフトウェア企業が、社内の問い合わせを分類して担当部署に振り分ける処理を Claude で動かしています。評価データセットでは、現行の設定で精度が目標を大きく上回っていますが、応答の `usage` を見ると出力トークンの大半が思考に使われており、月々のコストが予算を超えています。品質の目標を守りながらコストを下げるために、最初に試すこととして最も適切なものはどれですか。","options":["問い合わせ文が長いほどトークンが増えるので、各問い合わせを先頭の数行に切り詰めてから分類させる","コストを確実に下げるため、評価は回さずに、最も安いモデルの最も低い設定へ一度に切り替える","同じモデルのまま `effort` を段階的に下げて評価データセットを回し、目標を満たす最も低い設定を選ぶ","分類を確実にするため、各問い合わせを3回分類させて多数決を取り、誤りによる手戻りのコストを減らす"],"answer":[2],"notes":["分類の手がかりが後半にある問い合わせでは、必要な情報が失われます。必要な情報を捨てる最適化です。","評価を関門にせずに替えると、目標を満たしているかが分かりません。下げすぎて品質を失うおそれがあります。","正解。品質に余裕があるなら、まず同じモデルで推論の量を減らし、評価で目標を満たす範囲で最も安い設定を探します。","多数決は呼び出しの回数を増やすので、コストはむしろ増えます。品質はすでに目標を上回っています。"],"explanation":"コストと性能のつり合いは、評価を関門にして探ります。2026年11月時点のドキュメントでは、多くの Claude のモデルが `effort` パラメータを持ち、同じモデルのまま、思考を含む出力のトークンの量と、それに伴う速さとコストを調整できます。ドキュメントは、`effort` の調整はモデルを替えるよりよい手であることが多いとし、自分たちの評価で設定を段階的に試して決めるよう勧めています。それでも足りなければ、評価で確かめたうえで、より小さいモデルを検討します。","ref":"試験ガイド 分野4 タスク 4.5（トークン使用量、レイテンシ、コストとパフォーマンスの最適化） ／ Claude Docs: Effort ／ Claude Docs: Choosing the right model"},{"id":"D4-15","domain":"D4","topic":"品質のモニタリング","type":"multi","question":"銀行が、顧客向けの問い合わせチャットを本番で運用しています。モニタリングのダッシュボードは HTTP のエラー率と平均レイテンシだけを表示しており、どちらも正常です。ところが、「回答が途中で終わる」「答えが間違っている」という苦情が増えています。モニタリングの仕組みに加えるべきものはどれですか。（2つ選択）","options":["HTTP のエラー率と平均レイテンシの集計の間隔を1分ごとに細かくし、異常を早く見つけられるようにする","回答が途中で切れないよう、すべてのリクエストの `max_tokens` を、そのモデルで指定できる上限まで引き上げる","`stop_reason` をリクエストごとに記録し、`max_tokens` や `refusal` で終わった割合に警告を設定する","本番の会話から一定の割合を抜き出して評価用の採点基準で自動採点し、品質のスコアの推移を追う","原因をあとから探せるよう、すべての会話の全文を期限を決めずに保存し、苦情が来たら検索する"],"answer":[2,3],"notes":["いま起きている問題は、HTTP のエラーにもレイテンシにも表れていません。同じ指標を細かくしても見えません。","モニタリングを加える手ではなく、原因を確かめないままの一律の変更です。コストが増え、誤答の苦情には効かず、切れた回答が出ても気づけないままです。","正解。途中で終わる回答も HTTP 200 で返ります。終わり方を記録して割合を追えば、切れた回答を数字で捉えられます。","正解。間違った回答はエラーとしては表れません。本番の出力を継続的に採点すると、品質の低下を早く捉えられます。","顧客の会話の全文を無期限に持つのは、銀行のデータ保持の方針やプライバシーの点で問題があります。苦情が来るまで気づけない点も変わりません。"],"explanation":"LLM のシステムでは、HTTP のエラー率やレイテンシが正常でも、出力の品質が落ちていることがあります。`max_tokens` で止まった応答も成功として200で返るので、`stop_reason` を記録しないと見えません。Anthropic のエンジニアリング記事は、リリース前の自動評価に加えて、本番のモニタリング、A/B テスト、利用者のフィードバック、会話記録の確認を重ねて使うよう勧め、1つの層ですべての問題を捉えることはできないとしています。本番で見つかった失敗は評価データセットに加え、次の変更の関門に使います。","ref":"試験ガイド 分野4 タスク 4.6（ロギングツールとオブザーバビリティツールによるモニタリング） ／ Claude Docs: Handling stop reasons ／ Anthropic Engineering: Demystifying evals for AI agents"},{"id":"D4-16","domain":"D4","topic":"費用の内訳の記録","type":"single","question":"ある省が、職員向けに、文書の要約、翻訳、問い合わせ対応エージェントの3つの機能を Claude API で提供しています。3つの機能は同じ API キーを使い、アプリのログにはリクエストごとの成否と所要時間しか残していません。先月の API の費用が前月の約2倍になりましたが、どの機能の、どの変更が原因かが分かりません。原因を突き止め、次に同じことが起きたら早く気づけるようにするために、最初に整えるべきものとして最も適切なものはどれですか。","options":["毎月の請求書の合計額を前月と比べる表を作り、一定以上増えた月には、各機能の担当者に心当たりを聞いて回る","リクエストごとの `usage` を、機能、プロンプトの版、モデルとともに記録し、機能ごとの推移に警告を設定する","Claude に回答の最後でその回答に使ったトークン数を書き添えさせ、機能ごとに足し上げて費用を見積もる","費用を確実に抑えるため、すべての機能の `max_tokens` を一律に半分にし、翌月の請求額が戻るかを確かめる"],"answer":[1],"notes":["請求額は全体の合計なので、どの機能の、どの変更が原因かは分かりません。月に1度の確認では、気づくのも遅れます。","正解。応答ごとの `usage` を機能や版と結び付けて残せば、費用の増加がどの機能の、どの変更から始まったかを追えます。キャッシュの読み書きのトークン数を見れば、キャッシュが外れたことによる増加も見分けられます。","モデルの自己申告は当てにならない目安です。使ったトークン数は、API の応答に `usage` として返っています。","原因を確かめないままの一律の変更です。必要な出力が途中で切れるおそれがあり、どこで費用が増えたのかも分からないままです。"],"explanation":"費用は、品質やレイテンシと並んで、ログで見張るべきシステムの性能の指標です。Messages API の応答には、入力と出力のトークン数、キャッシュに書き込んだトークン数と読み取ったトークン数が `usage` として返り、課金と利用量の上限はこのトークン数に基づきます。これを機能、プロンプトの版、モデルといった属性と一緒にリクエストごとに記録すると、合計の請求額では見えない、機能ごと・変更ごとの増え方を集計して警告にできます。プロンプトキャッシングのドキュメントも、キャッシュが効いているかは `usage` のこれらの値で見るよう勧めています。原因の変更が分かったら、評価で品質を確かめながら直します。","ref":"試験ガイド 分野4 タスク 4.6（ロギングツールとオブザーバビリティツールによるモニタリング） ／ Claude API Docs: Messages（usage） ／ Claude Docs: Prompt caching"},{"id":"D5-01","domain":"D5","topic":"閉じた状態で失敗","type":"single","question":"中学生向けの学習サービスで、利用者の入力を本体の会話に渡す前に、軽量モデルによるスクリーニングで有害かどうかを判定しています。調べたところ、スクリーニングの呼び出しがタイムアウトやエラーになったとき、また判定の呼び出し自体が拒否で終わったとき、コードは「有害ではない」とみなして入力を本体に渡していました。利用者が未成年であることを踏まえ、最も適切な修正はどれですか。","options":["スクリーニングが失敗した入力もそのまま本体に渡し、翌日のログ分析で有害な入力が通っていないかを確かめる","判定を得られなかった場合は有害とみなして入力を本体に渡さず、安全な定型の応答を返すようにする","スクリーニングを外し、本体のシステムプロンプトに有害な依頼を断るよう指示する文を書き足す","スクリーニングに使うモデルを最も大きなモデルに替え、タイムアウトや拒否が起きにくいようにする"],"answer":[1],"notes":["後から見つけるだけの発見的統制で、未成年の利用者に有害な入力が届くこと自体は防げません。","正解。判定が得られないときに通すのではなく止める、閉じた状態で失敗する設計にすれば、スクリーニングの障害が安全上の穴になりません。","決定的に止められる層を外して、確率的なプロンプトだけに頼る形になり、防御が弱まります。","大きなモデルは応答が遅くなりやすく、タイムアウトはかえって増えるおそれがあります。何より、失敗したときに通してしまう設計がそのまま残ります。"],"explanation":"安全管理策は、それ自体が失敗したときにどう振る舞うかまで決めて初めて管理策になります。Claude Docs は、軽量モデルによる事前スクリーニングを勧め、判定の呼び出しが拒否で終わった場合も有害の判定として扱うよう書いています。タイムアウトやエラーも同じで、判定がないことを「安全」と読み替えると、障害のたびに防御が開いてしまいます。止めたときの利用者体験は定型の応答や再試行の案内で補い、守るべき側に倒すのが原則です。","ref":"試験ガイド 分野5 タスク 5.1（ガードレールと安全管理策の実装） ／ Claude Docs: Mitigate jailbreaks and prompt injections ／ Partner Academy: Responsible AI, Safety & Risk for Architects"},{"id":"D5-02","domain":"D5","topic":"決定的なツール認可","type":"single","question":"銀行の顧客対応エージェントが、手数料の返金ツールを使えます。規程では、担当者の承認なしに返金できるのは1件5,000円までで、システムプロンプトにもそう書いてあります。ところが、事情を切々と訴えた顧客に対して、エージェントが30,000円を返金した事例が見つかりました。この上限を確実に守らせるために、最も適切な対策はどれですか。","options":["システムプロンプトの上限の記述を強調表現にし、上限を超える依頼を断る例を few-shot で追加する","返金の前に別の Claude の呼び出しで規程に沿っているかを判定させ、問題ないときだけ実行する","すべての返金をログに残し、月次の監査で上限を超えた返金がないかを確認する","返金ツールのサーバー側で金額を検査し、上限を超える依頼は実行せず承認の待ち行列に回す"],"answer":[3],"notes":["確率的な手段を強めるだけで、説得的な入力に押し切られる可能性は残ります。","金額の上限のように機械的に判定できる規則に、確率的なモデルの判定を重ねても、確実にはなりません。","超えた返金を後から見つける発見的統制で、返金が実行されること自体は止められません。","正解。上限はコードで判定できる決定的な規則なので、ツールの認可の層で強制すれば、モデルが何を出力しても超えた返金は実行されません。"],"explanation":"ツール呼び出しの認可は、モデルの外側、つまりリクエスト経路のアプリケーション層に置きます。金額の上限のように明確に判定できる規則には決定的なチェックを使い、曖昧な判断が要るところにだけモデルによるチェックを使い分けます。プロンプトに書いた規則は従われやすくなるだけで、強制にはなりません。上限を超えたときに止めて人の承認に回す流れにしておけば、正当な高額返金の業務も止まりません。","ref":"試験ガイド 分野5 タスク 5.1（ガードレールと安全管理策の実装） ／ Partner Academy: Responsible AI, Safety & Risk for Architects ／ Claude Docs: Mitigate jailbreaks and prompt injections"},{"id":"D5-03","domain":"D5","topic":"間接インジェクション","type":"multi","question":"テクノロジー企業のサポート部門が、受信したメールを読み、顧客データベースを照会し、メールを送れるエージェントを運用しています。レッドチームの試験で、本文に隠し文字の指示を仕込んだメールを処理させたところ、エージェントが顧客情報を外部のアドレスに送ってしまいました。この種の攻撃のリスクを下げるために、最も効果的な対策はどれですか。（2つ選択）","options":["受信メールの本文をシステムプロンプトに入れ、ユーザーの発言とはっきり区別できるようにする","メール送信ツールの宛先を、チケットの元の差出人と許可したドメインだけにツールのコードで制限する","受信メールの本文は、外部の不明な送信元からのものと明記し、JSON に包んだツールの結果として渡す","インジェクションへの耐性を上げるため、エージェントのモデルを最も大きなモデルに替える","処理の後にエージェント自身に指示を乗っ取られたかを尋ね、乗っ取られたと答えた件だけを調査する"],"answer":[1,2],"notes":["Claude Docs は、第三者のコンテンツをシステムプロンプトに入れないよう求めています。指示として扱われる危険がかえって高まります。","正解。最小権限で宛先を絞っておけば、インジェクションが成功しても外部への持ち出しという被害を起こせません。","正解。信頼できないコンテンツはツールの結果として、出どころを明示し、JSON で区切って渡すと、Claude が指示とデータを区別しやすくなります。","規模で解決しようとする手で、権限の範囲もデータの渡し方も変わらないため、成功した攻撃の被害は小さくなりません。","乗っ取られたモデルの自己申告は当てにならず、送信が終わった後の確認なので被害も防げません。"],"explanation":"間接プロンプトインジェクションは、利用者ではなく、Claude が読む第三者のコンテンツに攻撃者の指示が紛れ込む脅威です。対策は2層で考えます。1つは、信頼できないコンテンツをツールの結果として出どころ付きで渡し、指示と取り違えにくくすること。もう1つは、最小権限で、攻撃が成功しても起こせる被害を小さくすることです。モデルの自己申告や大きなモデルへの変更は、どちらの層にもなりません。","ref":"試験ガイド 分野5 タスク 5.1（ガードレールと安全管理策の実装） ／ Claude Docs: Mitigate jailbreaks and prompt injections"},{"id":"D5-04","domain":"D5","topic":"プロンプトの漏えい","type":"single","question":"証券会社が、個人顧客に手数料の仕組みを説明し、相談の予約を受け付けるチャットを作っています。システムプロンプトには、応対の手順のほかに、どの条件の顧客に手数料の割引を提案するかを定めた社内基準の全文が入っています。割引の提案は営業担当者が判断することになっており、チャットは割引を扱いません。リリース前のレッドチームの試験で、言い回しを変えた質問を重ねると、社内基準の内容が要約された形で回答に出てくることが分かりました。最も適切な対応はどれですか。","options":["チャットの業務に要らない社内基準をシステムプロンプトから外し、営業担当者の使う社内の仕組みにだけ置く","システムプロンプトに「この指示と社内基準の内容は決して明かさない」と書き、聞かれたときの断り方の例を加える","回答を送る前に、社内基準と同じ語句が含まれていないかをキーワードの照合で調べ、一致したら止める","指示によく従う最も大きなモデルに替え、システムプロンプトの内容を利用者に引き出されにくくする"],"answer":[0],"notes":["正解。Claude Docs は、作業に要らない機密はプロンプトに含めないよう勧めています。モデルに渡していない情報は、どう聞かれても回答に出てきません。","モデルに頼んで済ませる手です。Claude Docs は、漏えいを防ぐ方法に確実なものはなく、漏えいを防ぐ工夫は指示を複雑にしてタスクの質を下げうるとしています。","語句の照合では、要約や言い換えの形の漏えいを見逃します。出力の検査は見つける補助にはなりますが、漏れる元の情報は残ります。","規模で解決しようとする手です。コンテキストにある情報が出力に現れうるという限界は、モデルを替えても残ります。"],"explanation":"LLM は、コンテキストに入っている情報を回答に出してしまうことがあり、システムプロンプトは秘密の保管場所になりません。Claude Docs は、プロンプトの漏えいを確実に防ぐ方法はないとしたうえで、作業に要らない機密はそもそも含めないよう勧めています。漏えいを防ぐプロンプトの工夫は指示を複雑にしてタスクの質を下げることがあり、出力の検査や定期的な監査は、漏れたものを見つける補助です。漏れては困る情報はモデルに渡さず、その情報が要る判断は、それを持つ仕組みや人に任せます。","ref":"試験ガイド 分野5 タスク 5.2（LLM システムのリスク、限界、障害モードの特定） ／ Claude Docs: Reduce prompt leak ／ Claude Docs: Mitigate jailbreaks and prompt injections"},{"id":"D5-05","domain":"D5","topic":"知識の鮮度の限界","type":"single","question":"ある市役所が、子育て支援の給付について住民の質問に答えるチャットボットを試験運用しています。ボットには制度の資料を渡しておらず、モデル自身の知識で答えています。給付の条件と金額は今年4月に改定されましたが、ボットは改定前の金額を自信をもって答えることがあります。条件は今後も年に1〜2回改定される見込みで、住民への案内は市の公式の情報に基づく必要があります。最も適切な対応はどれですか。","options":["知識の期限がより新しい最新のモデルに替え、改定後の内容をモデルが知っている状態にする","システムプロンプトに「必ず最新の制度に基づいて回答すること」という一文を書き足す","回答のたびに市の公式の制度ページを検索して渡し、その内容と施行日を示して答えさせる","Web 検索のツールを有効にし、インターネット全体から最新の情報を探して答えさせる"],"answer":[2],"notes":["どのモデルにも学習データの期限があり、次の改定でまた同じ問題が起きます。回答の出どころも示せません。","モデルに頼んで済ませる手です。知らない改定の内容は、指示されても答えられません。","正解。知識の期限という限界を、回答時に正式な情報源を取りに行くことで補います。施行日と出どころを示せば、住民も確かめられます。","新しい情報には届きますが、まとめサイトや改定前の古い記事も拾います。市の公式の情報に基づくという要件を保証できません。"],"explanation":"モデルの知識は学習データの期限で止まっており、その後に変わった制度や数字は知りません。Claude Docs のモデル一覧も、モデルごとに知識の期限を示しています。頻繁に変わる事実は、モデルの知識ではなく、回答時に取得した正式な情報源から答える設計にします。新しいモデルに替えても次の改定でまた古くなり、情報源を広げすぎると正式でない情報が混ざります。","ref":"試験ガイド 分野5 タスク 5.2（LLM システムのリスク、限界、障害モードの特定） ／ Claude Docs: Models overview ／ Claude Docs: Reduce hallucinations"},{"id":"D5-06","domain":"D5","topic":"与えていない規則","type":"single","question":"クリニックが予約受付用のチャットボットを公開したところ、利用者の質問に答えて、市販薬の飲む量を案内していたことが分かりました。開発チームは「Claude は安全のために訓練されているので、医療の助言は自分で断るはずだった」と話しています。システムプロンプトには予約の手順だけが書かれていました。この事象の見立てとして最も適切なものはどれですか。","options":["利用者が巧みな言い回しでモデルの安全の仕組みをすり抜けた、ジェイルブレイクによるものだった","「医療の助言をしない」という業務の線引きを、アプリがモデルに与えも強制もしていなかった","モデルがハルシネーションを起こし、根拠のない服薬の量を作り出して利用者に案内してしまった","小さなモデルを使っていたため安全のための訓練が弱く、大きなモデルなら断っていた"],"answer":[1],"notes":["利用者は、ふつうに質問しただけです。すり抜けの手口がなくても答える状態だったことが問題で、攻撃への対策を足しても、与えていない線引きは守られません。","正解。訓練が減らすのは一般的な危害で、「このボットでは服薬の案内をしない」という業務の規則は、アプリケーションの層で定めて強制しなければなりません。","問題は答えの正しさではなく、このボットが答えるべきでない範囲の質問に答えたことです。案内した量が正しかったとしても、範囲外の回答です。","規模の問題ではありません。一般的な服薬の情報を案内することは、モデルが訓練で必ず避けることではありません。"],"explanation":"公式の対策講座は、Claude が与えられてもいない規則を守ってくれると思い込むことを、安全設計の壊れ方として最も多いものに挙げています。モデルの訓練で減らせるリスクと、アプリケーション層が強制すべき業務上の規則を分けて考えます。対応は、範囲外の話題をシステムプロンプトで明示し、出力のスクリーニングで範囲外の回答を止め、評価に範囲外の質問を加えることです。障害の原因を考えるときは、まず設計で何を与え、何を強制していたかを確かめます。","ref":"試験ガイド 分野5 タスク 5.2（LLM システムのリスク、限界、障害モードの特定） ／ Partner Academy: Responsible AI, Safety & Risk for Architects"},{"id":"D5-07","domain":"D5","topic":"リスクに応じた振り分け","type":"single","question":"IT 企業の経理部が、毎月約3万件届く経費精算の申請を Claude で一次判定する仕組みを作っています。判定は、承認、記載の不備による差し戻し、不正の疑いによる却下と上長への報告、の3種類です。差し戻された申請は、社員が直して出し直せます。審査の担当者は2人だけで、すべてを人が見ることはできません。人による確認の振り分けとして最も適切な設計はどれですか。","options":["担当者が見られる範囲で全件から無作為に1割を選び、処理が済んだ後に判定が正しかったかを確かめる","Claude に判定ごとの確信度を数値で出させ、その値が一定より低い判定だけを担当者に回す","すべての判定を担当者に回し、Claude の判定は担当者が参考にする下書きとしてだけ使う","確信度、取り消せるか、誤ったときの影響で区分し、不正の疑いとする判定は必ず担当者が確認する"],"answer":[3],"notes":["処理が済んだ後に確かめる抜き取りは、誤りに後から気づくだけの発見的な確かめ方です。誤ると影響の大きい不正の疑いの判定にも確認を集めておらず、上長に報告した後では取り消せません。","自己申告の確信度だけでは、取り消せるかどうかや誤ったときの影響が考慮されません。確信をもって誤る判定も見逃します。","2人で月3万件は確認しきれず、中身を見ずに承認するだけの形骸化した確認になりがちです。","正解。差し戻しは誤っても社員が出し直せますが、不正の疑いは社員の評価に大きく影響し、上長に伝わった後では取り消せません。確認の手間をそこに集め、残りは自動で進めます。"],"explanation":"ヒューマン・イン・ザ・ループは、全件を人に見せることではなく、確認の手間を、それが必要な判断に集めることです。公式の対策講座は、確信度、取り消せるかどうか、誤ったときのコストで、判断を適切なレビュアーや決裁者に回すことを学習目標にしています。Anthropic の安全なエージェントの枠組みも、重要な判断の前には人が主導権を持つべきだとしています。誤っても本人が直せる判断は自動で進め、個人に大きく影響し取り消しにくい判断の前に人による確認を置き、自動の部分は抜き取りの監査で見張ります。","ref":"試験ガイド 分野5 タスク 5.3（ヒューマン・イン・ザ・ループによる検証戦略） ／ Partner Academy: Responsible AI, Safety & Risk for Architects ／ Anthropic: Our framework for developing safe and trustworthy agents"},{"id":"D5-08","domain":"D5","topic":"形だけの承認","type":"multi","question":"医療機関のグループが、検査の事前承認の申請について、Claude が承認か差し戻しかの推奨を下書きし、看護師が確認して確定する運用をしています。監査で、看護師が推奨をそのまま承認した割合は99.6%、1件あたりの確認時間の中央値は6秒でした。確認画面には Claude の結論だけが表示されています。人による確認を実質的なものにするために、取るべき対策はどれですか。（2つ選択）","options":["推奨の根拠になった診療記録の該当箇所と判定基準を確認画面に並べ、判断の分かれ目になった点を目立たせる","承認率が高いのは推奨が正確だからなので、確認の工程をなくして処理を速くする","承認の前に「内容を確認しました」というチェック欄への入力を必須にする","推奨の横に Claude 自身が見積もった確信度を表示し、看護師が判断を急げるようにする","正解が分かっている事例や、意図的に誤りを入れた事例を時々混ぜ、看護師が誤りを見つけられた割合を測る"],"answer":[0,4],"notes":["正解。結論だけでは確かめようがありません。元の記録と基準を並べれば、看護師が推奨を検証し、変更できるようになります。","承認率の高さは推奨が正確な証拠ではなく、確認が形骸化している兆候です。差し戻しのような本人に不利な判断から、資格のある人による確認を外すことにもなります。","形式を足すだけで、確認の中身は変わりません。6秒で押すチェック欄が1つ増えるだけです。","自己申告の確信度は当てにならず、表示すれば推奨への寄りかかりをかえって強めます。","正解。誤りを含む事例で見つけた割合を測れば、確認が実際に機能しているかを数字でモニタリングできます。"],"explanation":"人がいても、推奨をそのまま通すだけなら、ヒューマン・イン・ザ・ループは機能していません。Anthropic の利用ポリシーは、医療などの高リスク領域で、資格のある人が推奨を実質的に確認し、変更できる権限を持つことを求めています（法律が認める範囲で、本人に完全に有利な判断は除かれます）。実質的な確認には、検証できる材料を見せることと、確認の質を測ることの両方が要ります。承認率や確認時間は、確認が形骸化していないかを見張る指標として使えます。","ref":"試験ガイド 分野5 タスク 5.3（ヒューマン・イン・ザ・ループによる検証戦略） ／ Anthropic Usage Policy（High-risk use cases）"},{"id":"D5-09","domain":"D5","topic":"承認を置く場所","type":"single","question":"IT 企業の運用チームが、データベースの保守作業をエージェントに任せています。今は、作業の最初にエージェントが文章で示した計画を担当者が承認し、その後はエージェントが SQL を自由に実行します。先日、計画になかった DELETE 文が実行され、本番のデータが消えました。人による確認の設計として最も適切な変更はどれですか。","options":["計画をより細かく書かせ、計画にない操作をしないようシステムプロンプトで強く指示する","実行したすべての SQL を監査ログに残し、翌朝に担当者がまとめて内容を確認する","データを書き換える SQL だけは、実行の前に実際の文を担当者に示し、承認がなければ実行しない","参照だけの SELECT 文も含めて、すべての SQL を1文ずつ担当者が承認してから実行する"],"answer":[2],"notes":["確率的な手を強めるだけです。計画からそれた操作を止める仕組みにはなりません。","消えたデータは翌朝の確認では戻りません。取り消せない操作に対する発見的統制です。","正解。取り消せない操作の直前に、モデルの要約ではなく実際の文で承認を求めれば、計画と実行のずれを止められます。","参照まで承認させると承認の数が増えすぎ、担当者が中身を見ずに承認する形骸化を招きます。"],"explanation":"人による確認は、取り消せない副作用が起きる直前に置きます。計画の承認は方向を確かめるのに役立ちますが、エージェントが実際に何を実行するかは保証しません。Anthropic は、エージェントがコードやシステムを変更する前に人の承認を求めることを、安全なエージェントの原則に挙げています。Agent SDK でも、ツール呼び出しごとに許可を判定する仕組みがあります。参照のような安全な操作は自動で許し、書き換えだけを止めると、確認の手間をつり合わせられます。","ref":"試験ガイド 分野5 タスク 5.3（ヒューマン・イン・ザ・ループによる検証戦略） ／ Anthropic: Our framework for developing safe and trustworthy agents ／ Agent SDK Docs: Configure permissions"},{"id":"D5-10","domain":"D5","topic":"義務を管理策に対応","type":"single","question":"EU で事業をする小売企業が、Claude API を使った購入相談のチャットを運用しています。アプリは会話の全文を自社のログ基盤に期限を決めずに保存し、会話の要約を個人ごとの推薦のためにベクトルデータベースに入れています。データ保護責任者から、保存期間の制限と消去の請求にどう応えているかを、監査で示すよう求められました。最も適切な対応はどれですか。","options":["個人データの流れを洗い出し、保存期間や消去などの義務ごとに、システム上の管理策、責任者、実行の証跡を対応づける","Anthropic が個人データの処理者なので、保存期間と消去の義務は Anthropic 側で満たされていると回答する","消去の請求が届くたびに、担当者がログとデータベースを手作業で探して消し、対応したことをメールで報告する","保存期間と消去の方針を定めた社内規程を新たに作り、経営層の承認を得たうえで監査の資料として提出する"],"answer":[0],"notes":["正解。ログとベクトルデータベースの両方に、自動の期限切れ削除や利用者単位の消去といった管理策を置き、責任者と証跡まで決めれば、監査で示せます。","業務で Claude を使う顧客企業がデータの管理者で、Anthropic は指示に従う処理者です。そもそもログとベクトルデータベースは自社が保存しており、義務を果たすのは自社です。","場当たりの手作業では、すべての保存先から消えたことを示せません。期限を決めずに保存している問題（保存期間の制限）にも応えていません。","文書を作るだけで、システムの中に実際の管理策がありません。方針どおりに消えている証跡も示せません。"],"explanation":"コンプライアンスは、文書や場当たりの作業ではなく、システムに組み込んだ管理策で満たします。公式の対策講座は、義務の一つひとつを、名前の付いた管理策、責任者、証跡に対応づけ、監査できるようにすることを学習目標にしています。そのためには、まず個人データがどこに流れて保存されているかを洗い出します。GDPR の文脈では、Claude を業務で使う企業がデータの管理者で、Anthropic は処理者なので、自社のログやデータベースの統制は自社の責任です。","ref":"試験ガイド 分野5 タスク 5.4（規制へのコンプライアンスの確保） ／ Partner Academy: Responsible AI, Safety & Risk for Architects ／ Anthropic Privacy Center: Does Anthropic act as a data processor or controller? ／ Claude Docs: API and data retention"},{"id":"D5-11","domain":"D5","topic":"BAA の及ぶ範囲","type":"single","question":"米国の病院グループが、診療記録を要約するアプリを Claude API で作っています。保護対象保健情報（PHI）を扱うため、Anthropic とはビジネスアソシエイト契約（BAA）を結び、組織の設定も HIPAA に対応させています。本番前のレビューで、アプリがデバッグのために、プロンプトと応答の全文を外部の SaaS のオブザーバビリティツールに送っていることが分かりました。このツールの事業者とは BAA を結んでいません。最も適切な指摘はどれですか。","options":["Anthropic とゼロデータリテンションの取り決めも追加で結び、ツールに送るデータも保存されないようにする","Claude に、応答に患者を特定できる情報を含めないようシステムプロンプトで指示する","Anthropic との BAA でアプリ全体が対象になるので、ツールへの送信はこのまま続けてよい","ツールの事業者と BAA を結ぶか、ツールに送る前に PHI を取り除くまで、全文の送信を止める"],"answer":[3],"notes":["ゼロデータリテンションは Anthropic 側の保存についての取り決めで、第三者のツールに送ったデータは対象外です。Claude Docs は、PHI を扱うなら HIPAA 対応の取り決めを使い、ゼロデータリテンションを重ねる必要はないとしています。","プロンプトには診療記録そのものが入っているので、応答だけを指示で絞っても PHI はツールに流れます。モデルに頼んで済ませる手でもあります。","Claude Docs は、外部のツールやサービスが処理するデータは対象外としています。BAA が及ぶのは、Anthropic のサービスの対象範囲だけです。","正解。PHI が流れる先ごとに、契約と管理策が要ります。BAA のない事業者に流れる経路を止めるのが先です。"],"explanation":"規制への対応は、データの流れ全体で考えます。Anthropic との BAA は、Anthropic のサービスのうち対象となる機能での処理に及ぶもので、アプリが別の事業者に送るデータまでは覆いません。Claude Docs は、HIPAA への対応の対象外として、接続した外部のツールやサービスが処理するデータを挙げています。PHI がどこに流れるかを洗い出し、流れる先ごとに契約、取り除き、または送信の停止という管理策を決めます。","ref":"試験ガイド 分野5 タスク 5.4（規制へのコンプライアンスの確保） ／ Claude Docs: API and data retention（HIPAA readiness）"},{"id":"D5-12","domain":"D5","topic":"FedRAMP の提供ルート","type":"single","question":"米国の連邦政府機関が、内部文書を検索して答えるアシスタントを導入しようとしています。機関の要件として、FedRAMP High の認可を受けた環境で運用する必要があります。開発チームは、Anthropic の Claude API に直接つないで試作を作りました。本番に向けて、最も適切な提案はどれですか。","options":["Claude API の直接利用のまま、ゼロデータリテンションの取り決めを結び、データを残さないことで要件を満たす","FedRAMP High の認可を受けた提供ルートに切り替え、使うモデルがその認可の範囲に入っているかも確かめる","Claude API の利用をクラウドのマーケットプレイス経由の購入に切り替え、クラウド事業者の認可を引き継ぐ","Anthropic の SOC 2 Type II の報告書に照らし、FedRAMP High 相当の統制だと確かめて出す"],"answer":[1],"notes":["ゼロデータリテンションはデータの保存の取り決めで、FedRAMP の認可ではありません。2026年11月時点で、Claude API の直接利用は FedRAMP の認可を受けていません。","正解。2026年11月時点では、Claude for Government や、AWS GovCloud の Amazon Bedrock などが FedRAMP High のルートです。GovCloud では AWS がモデルごとに認可するので、使うモデルが範囲内かまで確かめます。","Anthropic は、マーケットプレイス経由で購入しても製品の認可は変わらないと説明しています。","SOC 2 は別の枠組みの報告書です。その内容に照らして統制が同じくらいだと確かめても、要件は FedRAMP High の認可を受けた環境で運用することで、認可の代わりにはなりません。"],"explanation":"FedRAMP は、モデルそのものではなく、モデルを動かすクラウドのサービスと環境に対する認可です。Anthropic の政府向けの案内は、FedRAMP High が要る場合の経路として、AWS GovCloud の Amazon Bedrock、Assured Workloads を使った Google Cloud、Anthropic の Claude for Government を挙げています。規制の要件があるときは、提供ルートを他のトレードオフより先に決めます。認可の範囲はモデルや地域によって違うので、使う組み合わせが範囲に入っているかを確かめ、機関の運用認可（ATO）にも含めます。","ref":"試験ガイド 分野5 タスク 5.4（規制へのコンプライアンスの確保） ／ claude.com: Claude for Government ／ Anthropic: Claude in Amazon Bedrock: Approved for use in FedRAMP High and DoD IL4/5 workloads"},{"id":"D5-13","domain":"D5","topic":"バイアスの評価","type":"single","question":"小売チェーンが、店舗スタッフの応募書類を Claude で要約し、求める条件への合致度を採点する仕組みを作っています。氏名と性別の欄は、Claude に渡す前に取り除いてあります。本番の前に、人事部から「公平であることをどう確かめたのか」と問われました。最も適切な対応はどれですか。","options":["性別などの属性の欄を Claude に渡す前に取り除いているので、採点に属性による偏りは生じないと説明する","Claude に自分の採点に偏りがなかったかを振り返らせ、問題がないと答えた結果を報告する","属性や、それを推し量れる情報だけを変えた同じ内容の応募書類で採点を比べ、差の許容範囲を決めて変更のたびに測る","過去に人が下した採用の判断と Claude の採点を比べ、一致率が高いことを公平さの根拠として示す"],"answer":[2],"notes":["属性の欄を消しても、学歴の年や住所、経歴の空白などから属性を推し量れるため、偏りが残ることがあります。","モデルの自己申告は当てにならない目安で、偏りを測ったことになりません。","正解。ほかを同じにして属性に関わる情報だけを変える比較で、不公平な結果がどこで生じるかを測れます。プロンプトやモデルを変えるたびに測り直します。","過去の人の判断に偏りが含まれていれば、一致率が高いほど、その偏りをなぞっていることになります。"],"explanation":"公平さは、入力から属性を消したことではなく、結果を測って確かめます。Anthropic の研究は、ほかを同じにして人口統計上の情報だけを変えたプロンプトで、モデルの判断の差を測る方法を示しています。この研究は、調べた高リスクの用途で言語モデルに自動で決定させることを、支持も許可もしないと明記しています。採用は Anthropic の利用ポリシーでも高リスクの領域なので、測った結果に加えて、人による確認と、AI が関わったことの開示も設計に入れます。","ref":"試験ガイド 分野5 タスク 5.5（倫理的な AI に関する考慮事項：バイアス、公平性） ／ Anthropic: Evaluating and mitigating discrimination in language model decisions ／ Anthropic Usage Policy（High-risk use cases）"},{"id":"D5-14","domain":"D5","topic":"相手ごとの説明","type":"single","question":"ある大学が、奨学金の申請書を Claude で一次評価し、最終の判断は選考委員が行う仕組みを導入します。申請者からは結果の理由を知りたいという声があり、学内の監査部門は判断の経緯を後から確かめられることを求め、開発チームは不具合を調べられることを求めています。透明性の設計として最も適切なものはどれですか。","options":["申請者には AI の関与と主な理由を、監査部門には判断の記録を、開発チームには処理の記録を、それぞれ用意する","申請者への説明として、Claude が評価のときに出力した思考の過程を、そのまま結果の通知に添付する","評価に使っているシステムプロンプトを大学のウェブサイトで公開し、すべての相手への説明とする","利用規約に「選考に AI を使う場合があります」と一文を加え、個々の結果についての説明は行わない"],"answer":[0],"notes":["正解。相手ごとに必要な説明は違います。申請者には開示と理由、監査部門には入力、基準と版、確認者を残した再現できる記録、開発チームには調査のための記録を用意します。","Anthropic の研究では、思考の過程は答えに影響した要因を書き落とすことがあり、判断の理由の忠実な説明とは限りません。","1つの文書で全員に説明しようとする手で、個々の申請がなぜその評価になったかは分かりません。","開示が規約の奥に埋もれ、個々の結果の理由も示しません。申請者の求める説明に応えていません。"],"explanation":"公式の対策講座は、利用者、規制当局、自分たちのデバッグチームのそれぞれに必要な説明を定め、透明性を設計に組み込むことを学習目標にしています。Anthropic の利用ポリシーも、教育の機会に関わる判断のような高リスクの用途では、影響を受ける人に AI が関わったことをはっきり伝えるよう求めています。監査には、どの入力、どの基準、どのモデルとプロンプトの版で、誰が確認したかを残します。モデルの思考の過程は、判断の理由の忠実な説明とは限らないので、説明の代わりにしません。","ref":"試験ガイド 分野5 タスク 5.5（倫理的な AI に関する考慮事項：透明性） ／ Partner Academy: Responsible AI, Safety & Risk for Architects ／ Anthropic Usage Policy ／ Anthropic: Reasoning models don't always say what they think"},{"id":"D6-01","domain":"D6","topic":"業務の分解から始める","type":"single","question":"銀行の役員から「融資の審査を AI で自動化したい」という相談を受け、あなたはアーキテクトとして最初のディスカバリーを任されました。役員は審査の細かい流れを把握しておらず、どの部分に Claude を使うかもまだ決まっていません。最初に行うべきことはどれですか。","options":["実現性を早く示すため、審査を最後まで自動で行うエージェントをまず試作し、役員に見せて方向を決める","役員に AI に求める機能の一覧を書いてもらい、役員と内容を確かめ合ってから要件として確定する","現行の審査を手順に分け、件数、誤ったときの影響、最終判断の責任者を担当者と確かめて文書にする","最初に使うモデルを決め、審査1件あたりのトークン数と月々の費用を見積もってから範囲を相談する"],"answer":[2],"notes":["何を自動化すべきかが分からないうちに作る試作は、技術の好みを先に決めてしまいます。要件と前提がないため、試作の良し悪しも判断できません。","審査の流れを把握していない役員と一覧を確かめ合っても、確かめる相手が違います。希望の一覧は要件でも前提でもなく、どこを Claude が担い、どこを既存システムや人が担うかの判断材料になりません。","正解。手順ごとの件数、誤りのコスト、責任の所在が分かって初めて、Claude に任せる部分、既存システムに残す部分、人が判断する部分を分けられます。聞いたことを前提として文書にすれば、設計をビジネスケースにさかのぼれます。","モデルと費用は、Claude に何をさせるかが決まってから見積もるものです。範囲が決まる前の見積もりは根拠を持ちません。"],"explanation":"ディスカバリーの目的は、ステークホルダーから聞いたことを、アーキテクチャの要件と文書化した前提に変えることです。そのためには、まず現行の業務を手順に分け、件数、誤ったときの影響、最終判断の責任者を確かめます。これが、Claude に任せる部分と人に残す部分を分ける材料になります。試作、モデル選び、費用の見積もりは、この土台の上で行います。","ref":"試験ガイド 分野6 タスク 6.1（体系的なディスカバリーと要件収集）／ 公式 Prep Course 講座4（Stakeholder Engagement, Lifecycle & GTM）の学習目標"},{"id":"D6-02","domain":"D6","topic":"要望を成功基準にする","type":"single","question":"病院で、退院サマリーの下書きを Claude で作る仕組みを検討しています。看護部長と医師へのヒアリングで出た要望は「正確で、速いこと」でした。この要望を、設計と受け入れ判定に使える要件に変える方法として、最も適切なものはどれですか。","options":["過去のサマリーで作った評価用のケースで、必須項目の記載率やレイテンシなどの数値目標を決め、関係者と合意する","「正確で速い」をそのまま要件として開発チームに渡し、具体的な基準は実装を進めながら開発チームに決めてもらう","正確さが最優先なので、最も高性能なモデルを使うことを要件に書き、細かい基準の議論はそれで代える","医療では誤りが許されないため、すべての項目で正確さ100%を受け入れ基準にし、届くまで稼働させない"],"answer":[0],"notes":["正解。成功基準は、具体的で、測れて、達成でき、目的に合ったものにします。実際のケースで測る数値の目標にし、関係者と合意しておけば、設計と受け入れ判定の両方に使えます。","あいまいな要望のまま渡すと、何をもって合格とするかを開発側が好みで決めることになり、あとで関係者と食い違います。","モデルの指定は手段であって、成功の基準ではありません。どのモデルでも、測る基準がなければ十分かどうかを判断できません。","成功基準は、今のモデルの能力で達成できる水準にする必要があります。現実的でない目標は、受け入れ判定を不可能にするだけで、誤りへの備え（人による確認など）にもなりません。"],"explanation":"Anthropic のドキュメントは、良い成功基準の条件として、具体的であること、測れること、達成できること、目的に合っていることを挙げています。「正確で速い」のような要望は、実際の業務から作った評価用のケースと数値の目標に置き換えて、関係者と合意します。多くの用途では、精度、レイテンシ、費用など複数の観点で基準を決めます。基準が先にあれば、モデルの選択や設計の変更を、その基準に照らして判断できます。","ref":"試験ガイド 分野6 タスク 6.1（体系的なディスカバリーと要件収集）／ Claude Docs: Define success criteria and build evaluations"},{"id":"D6-03","domain":"D6","topic":"先に確かめる制約","type":"multi","question":"ある政府機関が、住民からの手続きの問い合わせに答えるアシスタントを検討しています。あなたはディスカバリーを担当しており、設計に入る前に、取りうるアーキテクチャの範囲を早い段階で絞り込みたいと考えています。このディスカバリーで確かめておくべきことはどれですか。（2つ選択）","options":["職員や住民が使いたいと考えているモデルの名前と、そのモデルをほかのモデルより選びたいと考える理由","扱うデータの区分と、満たす必要のある規制や認可の要件（データの保管場所、FedRAMP など）","将来の拡張に備えて、職員から追加したい機能の候補を広く集め、最初の要件にまとめて含めておくこと","最も高性能なモデルですぐに試作したときの応答の速さと、問い合わせ1件あたりにかかる費用の目安","回答の元になる情報の在りかと更新の頻度（固まった文書か、申請の状況のように刻々と変わるか）"],"answer":[1,4],"notes":["モデルの希望は、ほかの制約を確かめたあとに評価で決めるものです。範囲を絞る材料にはなりません。","正解。規制や認可の要件を満たせない提供ルートや構成は、ほかのトレードオフを比べる前に候補から外れます。早く確かめるほど手戻りが減ります。","使うかどうか分からない機能の候補まで最初の要件に入れると、範囲が広がり、構成が肥大化します。範囲を絞る方向とは逆です。","要件と制約が分からないうちの試作の数値は、何と比べるかが決まっていません。範囲が決まったあとの評価で測るものです。","正解。固まった文書なら検索（RAG）で足りますが、申請の状況のように刻々と変わる情報は、検索用のインデックスではなく、元のシステムに問い合わせる設計が必要です。情報の形が構成の選択肢を決めます。"],"explanation":"ディスカバリーでは、構成の選択肢そのものを消してしまう制約を先に確かめます。代表は、規制やガバナンスの制約（データの区分、保管場所、必要な認可）と、データの形と性質（固まった文書か、刻々と変わる状態か）です。前者は使える提供ルートや構成を、後者は検索で足りるか、元のシステムへの問い合わせが要るかを決めます。モデルの好みや試作の数値は、こうした制約で範囲が決まってから評価します。","ref":"試験ガイド 分野6 タスク 6.1（体系的なディスカバリーと要件収集）／ 公式 Prep Course 講座1・講座4 の学習目標"},{"id":"D6-04","domain":"D6","topic":"決められる形で示す","type":"single","question":"小売企業の店舗スタッフ向けアシスタントについて、Claude API を直接使う案と、自社がすでに使っている Amazon Bedrock 経由で使う案を比べる資料を出しました。資料はレイテンシの測定値とトークン単価の比較表が中心で、経営会議と調達のレビューでは「何を決めればよいのか分からない」として結論が先送りになりました。資料をどう作り直すのが最も適切ですか。","options":["推奨する案だけを示し、比較はかえって混乱のもとになるので資料から外したうえで、承認を求める","レイテンシとトークン単価の表をさらに詳しくし、測定の条件も書き加えて、技術的な正しさで納得してもらう","決めるのに十分なデータがそろうまで、どちらの案も示さずに検証を続け、そのあとで再提出する","案ごとに、費用、リスク、あとで切り替えるときに要る作業を並べ、推奨する案とその理由を添える"],"answer":[3],"notes":["比較を消すと、なぜその案なのかをレビューで確かめられず、かえって承認が止まります。トレードオフを隠すことになります。","問題は技術の詳しさが足りないことではなく、経営や調達が判断できる形になっていないことです。表を詳しくしても論点は変わりません。","十分なデータを待つと決定がさらに遅れます。今ある情報でも、案ごとの費用、リスク、元に戻すのに何が要るかは示せます。","正解。費用、リスク、元に戻すのに何が要るかを案ごとに示すと、経営層や調達が自分たちの基準で決められます。推奨と理由を添えれば、議論の出発点もはっきりします。"],"explanation":"アーキテクチャ上の決定は、ビジネス側が決められる形で示します。公式の対策講座は、選択肢ごとに費用、リスク、元に戻すのに何が要るかを添え、経営や調達のレビューで止まらずに結論が出るようにすることを学習目標に挙げています。提供ルート（直接の API、Amazon Bedrock、Google Cloud など）を比べる場面なら、レイテンシ、コンプライアンス、費用を、この形に直して示します。測定値や単価は根拠として残してよいですが、それだけでは判断の材料になりません。推奨案を示すことと、比較を隠すことは別のことです。","ref":"試験ガイド 分野6 タスク 6.2（アーキテクチャ上の決定とトレードオフを伝える）／ 公式 Prep Course 講座4（Stakeholder Engagement, Lifecycle & GTM）の学習目標（トレードオフの示し方、提供ルートの比較）"},{"id":"D6-05","domain":"D6","topic":"ワークフローを選ぶ理由","type":"single","question":"大学の奨学金の申請書類のチェックで、あなたは手順を固定したワークフローを推奨しました。手順は毎回同じで、監査のために各段の入出力を残す必要があります。プロジェクトのスポンサーである副学長は「エージェント型のほうが高度なのに、なぜ使わないのか」と納得していません。副学長への説明として最も適切なものはどれですか。","options":["まずはワークフローで始め、半年後にはエージェント型へ置き換えると約束して、納得してもらう","手順が決まり記録も要るので、ワークフローのほうが予測しやすく安いと示し、見直す条件も伝える","副学長の意向に沿ってエージェント型で作り、各段の入出力を記録する仕組みを足すと伝える","エージェントのループやツール呼び出しの仕組みを詳しく説明し、技術的な理解を得てから判断してもらう"],"answer":[1],"notes":["置き換えを先に約束すると、必要かどうかに関係なく複雑さを足すことになります。見直すのは、手順を固定できなくなるなどの条件が生じたときで、時期で決めるものではありません。","正解。手順の決まったタスクにはワークフローが予測可能性と一貫性をもたらし、レイテンシと費用を払って成果を高めるエージェント型の利点は、この業務では生きません。どんな条件なら見直すかを添えると、スポンサーは決定を受け入れやすくなります。","記録を足しても、手順が実行のたびに変わりうる構成では、費用とレイテンシが増え、結果も予測しにくくなります。手順の決まったこの業務では、それに見合う利点がありません。根拠のある推奨を、意向だけで取り下げることにもなります。","仕組みの詳しい説明は、スポンサーが判断に使う観点（予測可能性、監査、費用）に答えていません。"],"explanation":"Anthropic は、最も単純な解決策から始め、必要なときだけ複雑さを足すことを勧めています。エージェント型のシステムは、レイテンシと費用を払ってタスクの性能を得るもので、手順の決まったタスクには、予測可能で一貫したワークフローが向きます。非技術のスポンサーには、「高度かどうか」ではなく、この業務の制約（決まった手順、監査）とコストで説明します。決定を見直す条件を示すと、好みではなく根拠で選んだことが伝わります。","ref":"試験ガイド 分野6 タスク 6.2（アーキテクチャ上の決定とトレードオフを伝える）／ Anthropic: Building effective agents"},{"id":"D6-06","domain":"D6","topic":"聞き手に合わせて伝える","type":"single","question":"テクノロジー企業で、社内文書を検索して答えるアシスタントの設計（閲覧権限に応じて検索結果を絞る RAG）が固まりました。これから経営層、セキュリティチーム、開発チームのそれぞれにこの決定を説明し、承認と実装の準備を進めます。説明の進め方として最も適切なものはどれですか。","options":["全員に同じ詳しい設計書を配り、各自が必要な部分を読むようにして、質問があれば個別に答える","経営層向けの1枚の要約だけを作り、説明をそろえるためにセキュリティチームと開発チームにも同じものを回す","結論と根拠はそろえ、経営層には費用とリスク、セキュリティにはデータの流れ、開発には仕様を中心に示す","決定を速めるために経営層の承認を先に取り、セキュリティチームと開発チームには決定後に設計書を共有する"],"answer":[2],"notes":["詳しい設計書だけでは、経営層は判断の要点を、セキュリティは確かめたい点を、自分で探すことになります。レビューが長引く原因になります。","1枚の要約には、セキュリティが確かめるべきデータの流れや、開発が必要とする仕様が入りません。","正解。決定と根拠は1つにしたまま、聞き手ごとに判断に必要な観点を前に出します。経営層、セキュリティ、開発のそれぞれが、自分の責任の範囲で確かめられます。","セキュリティの確認で設計の変更が必要になれば、経営層の承認をやり直すことになります。データの扱いの議論は早く始めるほうが手戻りが少なくなります。"],"explanation":"アーキテクトは、セキュリティ、法務、経営層の観点を含む議論を担います。同じ決定でも、聞き手によって判断に使う観点が違います。結論と根拠は1つにそろえ、経営層には費用と事業上のリスク、セキュリティにはデータの流れと制御、開発には仕様と制約を中心に示します。聞き手によって結論を変えたり、利害の大きい部門を後回しにしたりすると、あとで決定がひっくり返ります。","ref":"試験ガイド 分野6 タスク 6.2（アーキテクチャ上の決定とトレードオフを伝える）・試験ガイド 3章（対象者）"},{"id":"D6-07","domain":"D6","topic":"SLA の決め方","type":"single","question":"小売企業の顧客向けチャットを Claude API で作っています。容量を確保する特別な契約はなく、標準の条件で API を使います。顧客の事業部長は、契約に「稼働率 99.99%、すべての応答を2秒以内」と書くよう求めています。SLA について顧客に勧める対応として、最も適切なものはどれですか。","options":["レイテンシは p95 などの分位で測り、混雑時の再試行と人への引き継ぎを設計に入れて、守れる水準を合意する","API の過去の稼働実績を根拠に、稼働率 99.99% と全応答2秒以内を、求められたとおり契約に書き入れる","レイテンシは全リクエストの平均値で測ることにし、平均が2秒以内なら目標を満たしたとみなすと合意する","最も性能の高いモデルに切り替え、性能の余裕によって稼働率とレイテンシの両方の目標を満たせるようにする"],"answer":[0],"notes":["正解。標準の条件での API の可用性はベストエフォートで、混雑時には一時的な過負荷のエラーも起こりえます。その前提で、分位で測る指標、再試行、人への引き継ぎを設計に組み込み、守れる水準を合意します。","過去の実績は今後の保証になりません。上流の API がベストエフォートで提供している部分を、自社が保証する数値として約束することになり、混雑や遅い応答が出たときに守れません。","平均値は少数の遅い応答を隠すため、利用者の体験を表しません。遅い応答も含めた体験を約束に反映するには、p95 などの分位で目標を決めます。","大きなモデルは一般に応答が遅く、費用も上がります。稼働率は、モデルの能力ではなく、障害時の設計で決まります。"],"explanation":"SLA は、システムが実際に守れる水準を、測り方まで含めて合意するものです。Claude API の標準の提供はベストエフォートの可用性で、混雑時には一時的な過負荷のエラーが返ることもあります。そのため、レイテンシは p95 などの分位で測ります（Anthropic のドキュメントが示す成功基準の例も「応答の95%が200ミリ秒未満」の形です）。そのうえで、再試行（公式の SDK は一時的な失敗を指数バックオフで自動的に再試行する）と、人への引き継ぎなどの縮退運転を設計に入れ、目標の数値を決めます。なお、2026年11月時点のドキュメントでは、サービスティアは旧来の仕組み（legacy）とされ、Priority Tier の容量契約は新たに購入できず、容量の保証が必要なら営業窓口への相談が案内されています。","ref":"試験ガイド 分野6 タスク 6.3（フィードバックループと期待値の調整、SLA を含む）／ Claude Docs: Service tiers、Errors、Define success criteria and build evaluations"},{"id":"D6-08","domain":"D6","topic":"揺れへの期待値","type":"single","question":"地方銀行のコンプライアンス部門が、行員向けの規程の Q&A アシスタントの受け入れテストをしています。部長は、同じ質問を3回したところ、結論と根拠の条文は毎回同じでも言い回しが違ったことを問題視し、「同じ質問には一字一句同じ回答を返すこと」を受け入れ基準に加えるよう求めています。回答の末尾には、法務部が文面を定めた注意書きを必ず付ける決まりです。部長への対応として最も適切なものはどれですか。","options":["より大きなモデルに切り替えれば言い回しの揺れはなくなると説明し、一字一句同じという基準はそのまま受け入れる","システムプロンプトに「毎回まったく同じ文面で答えること」と書き加え、受け入れテストを繰り返して揺れがないことを確かめる","一度返した回答を質問の文面ごとに保存しておき、同じ文面の質問には保存した回答をそのまま返して、基準を満たす","言い回しは実行ごとに変わりうると説明し、結論と根拠の条文の一致を基準にして、注意書きはアプリが定型の文面で付ける"],"answer":[3],"notes":["規模で解決しようとする手です。LLM の出力は同じ入力でも実行ごとに変わりうるので、モデルを大きくしても一字一句同じになる保証はなく、守れない基準を受け入れることになります。","モデルに頼んで済ませる手です。指示は確率的にしか効かず、テストで揺れが出なくても本番で同じ文面になる保証はありません。必ず同じでなければならない注意書きも、モデルに書かせたままです。","文面が完全に同じ質問にしか効かず、言い換えた質問では揺れが残ります。規程が改定されても古い回答を返し続けるおそれがあり、部長の本当の懸念（結論が揺れないか）を確かめる基準にもなりません。","正解。部長の懸念を「結論と根拠が揺れないか」という測れる一貫性の基準に置き換えて合意し、本当に一字一句同じでなければならない注意書きは、モデルではなくコードで付けます。"],"explanation":"LLM の出力は、同じ入力でも実行ごとに変わりえます。Anthropic のドキュメントは、成功基準の1つに一貫性を挙げ、同じ質問を2回したときに意味の上で似た答えが返ることがどれだけ重要かを決めるよう求め、言い回しが違っても意味が近いかを測る方法を示しています。期待値の調整では、ステークホルダーの要望の裏にある懸念（ここでは結論が揺れないか）を確かめ、測れる基準に置き換えて合意します。そのうえで、法務が定めた文面のように一字一句同じでなければならない部分は、モデルに書かせず、アプリが決まった文面を付けます。","ref":"試験ガイド 分野6 タスク 6.3（ステークホルダーからのフィードバックループと期待値の調整）／ Claude Docs: Define success criteria and build evaluations（Consistency）／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D6-09","domain":"D6","topic":"目標に届かないとき","type":"single","question":"保険会社の書類分類で、役員は「1か月後の稼働時に精度95%」を求めています。保留しておいた300件の書類で評価したところ、全体の精度は88%でした。内訳は、件数の8割を占める活字の書類が95%、2割の手書きの書類が60%です。役員への報告として最も適切なものはどれですか。","options":["プロンプトを調整すれば1か月で95%に届く見込みだと伝え、予定どおり全種類の書類で稼働を始める","内訳を示し、手書きの書類は当面人に回して活字の書類から稼働させる案を、工数と見直しの時期とともに示す","より大きなモデルに替えれば手書きの差も埋まると説明し、切り替えを前提に予定どおり95%での稼働を約束する","全体で95%に届くまで稼働を見送ることにし、改善を続けて、届いた時点であらためて役員に報告する"],"answer":[1],"notes":["根拠のない見込みで約束すると、稼働後に期待との差が表に出て、信頼を大きく損ないます。手書きの書類の誤りもそのまま本番に流れます。","正解。測った結果を言いすぎずに示し、誤りが集中する部分を切り分けて人に回せば、目標を満たす範囲で早く価値を出せます。工数と見直しの時期を添えると、役員が判断できます。","モデルの変更で差が埋まるかは、評価で確かめるまで分かりません。確かめる前に約束するのは、期待値を根拠なく上げることになります。","活字の書類はすでに目標に届いています。全体の数字だけで判断すると、今すぐ出せる価値を捨て、いつ稼働できるかも示せません。"],"explanation":"期待値の調整では、測った結果を条件と内訳とともに示し、言いすぎも言い控えもしません。全体の数字の裏に、誤りが特定の種類に集中していることがよくあります。その部分を人の処理に回し、目標を満たす範囲から稼働させる案は、費用（人手の工数）と見直しの時期を添えると判断の材料になります。モデルやプロンプトの変更は、約束する前に評価で効果を確かめます。","ref":"試験ガイド 分野6 タスク 6.3（フィードバックループと期待値の調整）／ 公式 Prep Course 講座2・講座4 の学習目標"},{"id":"D6-10","domain":"D6","topic":"決定の記録を残す","type":"single","question":"政府機関の申請受付システムが稼働して1年たちました。新しいチームが「固定のワークフローをエージェントに置き換えたい」と提案しましたが、当初なぜワークフローを選んだのか、何を前提にしたのかを誰も説明できず、監査の担当者からも根拠を求められています。設計の段階で、どのような文書を残しておくのが最も適切でしたか。","options":["最終的な構成図と各コンポーネントの説明をまとめ、決定に至った経緯は会議ごとの議事録に任せておく","設計の会議をすべて録画して保存し、あとで必要になったときにいつでも見返せるようにしておく","重要な決定ごとに、背景、検討した選択肢、選んだ理由、トレードオフ、見直す条件を記録しておく","決定の理由はコードのコメントに書き、コードと文書が離れて内容が食い違わないようにしておく"],"answer":[2],"notes":["構成図は「何を作ったか」を示しますが、「なぜそうしたか」は示しません。議事録に散った経緯は、あとから探して組み立てるのが困難です。","録画は残っていても、どこで何を決めたかを探すのに時間がかかり、検討した選択肢や前提が整理されていません。","正解。決定ごとに背景、選択肢、理由、トレードオフ、見直す条件を残しておけば、新しいチームは前提が今も成り立つかを確かめて判断でき、監査にも根拠を示せます。","コードのコメントは実装の説明には向きますが、検討して捨てた選択肢や、業務上の前提、見直す条件を書く場所としては不十分です。"],"explanation":"アーキテクチャの文書化で大事なのは、構成だけでなく決定の理由を残すことです。重要な決定ごとに、背景、検討した選択肢、選んだ理由、受け入れたトレードオフ、見直す条件をまとめておくと、作った人がいなくなっても判断を引き継げます。前提が崩れたときに見直すべき決定もすぐに分かります。設計がビジネスケースにさかのぼれることは、監査の場面でも根拠になります。","ref":"試験ガイド 分野6 タスク 6.4（アーキテクチャを文書化し、実装のガイダンスを提供する）／ 公式 Prep Course 講座4 の学習目標"},{"id":"D6-11","domain":"D6","topic":"実装ガイダンスの置き場","type":"single","question":"金融機関向けの設計を終え、実装を顧客の開発チームに引き継ぎます。開発チームは Claude Code を使って実装します。設計上の決まりとして、「Claude API の呼び出しは共通のゲートウェイのモジュールを通す」「口座番号は送信前に必ずマスクする」があり、マスクは一度でも抜けてはいけません。実装のガイダンスの渡し方として、最も適切なものはどれですか。","options":["設計上の決まりをプロジェクトの `CLAUDE.md` に書いてリポジトリにコミットし、必ず守らせる決まりはテストで自動的に検査する","設計上の決まりを各開発者の `~/.claude/CLAUDE.md` に書いてもらい、全員の Claude Code に読み込ませる","設計上の決まりを `CLAUDE.local.md` にまとめ、プロジェクトのルートに置いてチーム全員に使ってもらう","キックオフで設計上の決まりを口頭で説明し、各開発者が Claude Code に作業のたびに伝えるようにする"],"answer":[0],"notes":["正解。プロジェクトの `CLAUDE.md` はバージョン管理でチームに共有され、設計上の決定や規約を書く場所です。ただし Claude Code は `CLAUDE.md` を強制される設定ではなく文脈として扱うので、一度も抜けてはいけないマスクはテストで機械的に検査します。","`~/.claude/CLAUDE.md` は個人用で、その人のすべてのプロジェクトに効きます。各自が写す形では内容がずれ、変更もチームに行き渡りません。","`CLAUDE.local.md` は個人用のプロジェクト設定で、`.gitignore` に入れてコミットしない前提のファイルです。チームで共有する置き場ではありません。","口頭の説明と毎回の指示は、人によって伝え方が変わり、伝え忘れも起こります。必ず守らせる決まりの管理策にもなりません。"],"explanation":"実装のガイダンスは、実装する人とツールが確実に参照できる場所に置きます。Claude Code では、プロジェクトの `CLAUDE.md` がチームで共有される指示の置き場で、設計上の決定、規約、よく使う手順を書くのに向いています。一方で、指示はモデルへの案内であり強制ではないため、一度も破ってはいけない決まりは、テストなどの決定的な検査で守らせます。個人用の置き場と共有の置き場を取り違えないことも大切です。","ref":"試験ガイド 分野6 タスク 6.4（アーキテクチャを文書化し、実装のガイダンスを提供する）／ Claude Code Docs: Memory（CLAUDE.md）"},{"id":"D6-12","domain":"D6","topic":"離れても続く引き継ぎ","type":"single","question":"パートナー企業のアーキテクトが、病院の問診要約システムの稼働から3か月後にプロジェクトを離れ、病院の情報システム部門が運用を引き継ぎます。以前の別の案件では、アーキテクトが離れたあと、品質が本当に落ちたのか、落ちたら何をすべきかを運用チームが判断できませんでした。引き継ぎの進め方として最も適切なものはどれですか。","options":["ソースコードと構成図を渡し、困ったときにはいつでもアーキテクトに相談できる連絡の窓口を残しておく","最終報告の資料で評価の結果と設計の全体像を説明し、運用チームとの質疑応答で疑問を一通り解消してから離れる","設計書一式をモデルに読み込ませた問い合わせ用のアシスタントを用意し、運用の質問にはそれに答えさせておく","評価データセットと受け入れ基準、モニタリングの指標としきい値、異常時の手順書を渡し、顧客が自分で回す期間を置く"],"answer":[3],"notes":["連絡の窓口を残すと、判断がアーキテクトに依存したままになります。品質が落ちたかを判断する基準も、運用チームの手元にありません。","説明会は評価の結果や全体像を伝えますが、運用チームが日々の判断に使う基準、指標、手順は渡せません。","設計書を読ませたアシスタントは、文書にない判断基準を補えず、もっともらしい誤答も起こりえます。何を測り、どこで動くかという仕組みの代わりになりません。","正解。受け入れ基準と評価データセットがあれば品質が落ちたかを確かめられ、指標としきい値と手順書があれば何をすべきかが分かります。顧客のチームが自分で回す期間を置くと、抜けている点が離れる前に見つかります。"],"explanation":"引き継ぎは、アーキテクトがいなくなっても続くように設計します。運用チームに必要なのは、品質を判断する基準（受け入れ基準と評価データセット）、何をいつ見るか（モニタリングの指標としきい値）、異常時に何をするか（手順書）です。これらを渡したうえで、顧客のチームが主体となって運用を回す期間を設け、足りないものを離れる前に埋めます。説明や問い合わせ窓口だけでは、判断の力は移りません。","ref":"試験ガイド 分野6 タスク 6.5（ライフサイクルの各フェーズを支援する）／ 公式 Prep Course の学習目標（引き継ぎの設計）"},{"id":"D6-13","domain":"D6","topic":"モデルの廃止への対応","type":"multi","question":"テクノロジー企業で、複数のサービスが同じ Claude のモデルを使っています。サービスごとに別の API キーを使い、担当チームも別々です。Anthropic から、そのモデルが非推奨になり、廃止日が決まったという通知が届きました。この段階で取るべき対応はどれですか。（2つ選択）","options":["モデル ID を、常に最新のモデルを指す別名に置き換え、今後のモデルの移行が自動的に行われるようにしておく","廃止日までは今のモデルで問題なく動くので、作業を一度にまとめるために廃止日の直前に一斉に切り替える","推奨の後継モデルで既存の評価データセットを廃止日より十分前に流し、結果を見て段階的に切り替える","Console の利用状況を API キーとモデルごとに書き出し、廃止予定のモデルを使う箇所を洗い出す","通知を受けた日のうちに、すべてのサービスのモデル ID を推奨の後継モデルに書き換えて本番に出す"],"answer":[2,3],"notes":["新しい世代のモデルへ自動で移る別名はありません。4.6 世代以降の日付のない ID は固定のスナップショットで、旧世代の API の別名も同じマイナーバージョンの最新スナップショットを指すだけです。評価なしで挙動が変わる設計は、それ自体が望ましくありません。","廃止日を過ぎると要求は失敗します。非推奨のモデルは稼働中のモデルより信頼性が下がりやすいとされ、直前の切り替えでは評価と修正の時間が残りません。","正解。ドキュメントは、後継モデルでのテストを廃止日より十分前に行うことを勧めています。評価データセットで確かめてから段階的に切り替えれば、品質の低下を本番の前に見つけられます。","正解。Console の Usage ページから利用状況を書き出すと、API キーとモデルごとの内訳が分かります。チームが分かれていても、廃止予定のモデルを使っている箇所を漏れなく見つけられます。","評価をせずに一斉に切り替えると、後継モデルとの挙動の違いが本番で一度に表に出ます。ドキュメントは早めの切り替えを勧めていますが、それは後継モデルで十分にテストしたうえでのことです。"],"explanation":"モデルの廃止は、ライフサイクルの中で必ず起こる変化です。Anthropic は、廃止予定のモデルを使っている顧客に事前に通知し（2026年11月時点のドキュメントでは、一般公開のモデルは少なくとも60日前）、利用状況の書き出しで使用箇所を洗い出す方法を示しています。移行は、後継モデルで評価データセットを流して結果を確かめてから、段階的に進めます。モデル ID は固定のスナップショットで、新しい版は新しい ID で出るため、評価を関門にした移行の手順をあらかじめ運用に組み込んでおきます。","ref":"試験ガイド 分野6 タスク 6.5（ライフサイクルの各フェーズを支援する）／ Claude Docs: Model deprecations、Model IDs and versioning"},{"id":"D6-14","domain":"D6","topic":"反復か作り直しか","type":"single","question":"テクノロジー企業の SaaS 製品のサポートアシスタントは、「参照だけの Q&A で、契約の変更は扱わない」という前提を文書に残して、ヘルプ記事を検索して答える構成で作られました。半年後、うまく対応できなかった会話の4割が、プランの変更や解約の手続きそのものを求める依頼になっています。チームは2か月プロンプトを調整しましたが改善していません。スポンサーに勧める対応として最も適切なものはどれですか。","options":["評価のケースを増やしてプロンプトの調整を続け、プランの変更を求める利用者にも手続きの方法を案内できるようにする","記録した前提が崩れたと判断し、要件を見直したうえで、契約の操作を扱う設計をステークホルダーと決め直す","より大きなモデルに切り替え、難しい依頼にも答えられる余裕を持たせて、対応できる範囲を広げる","契約管理システムの操作手順書を検索用のインデックスに追加し、回答の材料を増やして対応を改善する"],"answer":[1],"notes":["評価のケースを増やしても、参照だけの構成のままでは、利用者が求めるプランの変更そのものはできません。プロンプトの反復では届かない問題です。","正解。失敗の原因は品質ではなく、当初の前提（参照だけ）と実際の需要のずれです。反復で直せる問題ではないので、要件と前提に戻って、契約の操作を扱う設計と、そのコストとリスクをステークホルダーと決め直します。","モデルを大きくしても、契約管理システムを操作する手段がない構成は変わりません。費用だけが増えます。","手順書を増やすと操作の説明はできますが、利用者の代わりにプランを変更することはできません。別の問題を解いています。"],"explanation":"運用中の問題は、反復で直すものと、アーキテクチャから作り直すものに分けて判断します。手がかりは、設計の段階で文書に残した前提です。前提の範囲内で品質が足りないなら、プロンプトや検索の改善を反復します。前提そのものが崩れているなら、いくら反復しても直らないため、ディスカバリーと設計に戻ってステークホルダーと決め直します。","ref":"試験ガイド 分野6 タスク 6.5（ライフサイクルの各フェーズを支援する）／ 公式 Prep Course 講座4 の学習目標（反復で直すか、作り直すか）"},{"id":"D7-01","domain":"D7","topic":"組織で強制する設定","type":"single","question":"証券会社が、300人の開発者に Claude Code を展開します。開発者の端末はすべて MDM で管理されています。セキュリティ部門は、「`.env` などの秘密情報のファイルを読ませない」「権限の確認をすべて飛ばすモード（bypassPermissions）を使わせない」の2点を全員に例外なく守らせ、開発者が自分の設定で外せないようにすることを求めています。最も適切な構成はどれですか。","options":["各リポジトリの `CLAUDE.md` に2つのルールを書き、Claude が作業のたびに読み込むようにする","各リポジトリの `.claude/settings.json` に拒否ルールを書いてコミットし、チームで共有する","各開発者に、自分の `~/.claude/settings.json` へ拒否ルールを書き込むよう手順書で依頼する","managed settings に拒否ルールとモードの無効化を書き、MDM で全員の端末に配布する"],"answer":[3],"notes":["`CLAUDE.md` はモデルが読む指針で、従うかどうかはモデルの判断に委ねられます。例外なく守らせたいルールの置き場所ではありません。","コミットしたリポジトリにしか効かず、新しいリポジトリや設定を入れ忘れたリポジトリでは外れます。組織全体に強制する仕組みではありません。","個人の設定は、本人がいつでも書き換えられます。全員が正しく設定したかを確かめる手段もありません。","正解。managed settings は最も優先され、ユーザー、プロジェクト、ローカルの設定でも上書きできません。`permissions.deny` と `permissions.disableBypassPermissionsMode` を、利用者が書き換えられない形で MDM から端末に届けます。"],"explanation":"Claude Code の設定には、managed、ユーザー、共有プロジェクト、プロジェクトのローカルという範囲があり、managed settings が最も優先されます。managed settings は、claude.ai の管理コンソールからのサーバー管理の設定、MDM や OS のポリシー、`managed-settings.json` のファイルで届けられます。ただし公式ドキュメントは、サーバー管理の設定は端末の側で効く仕組みでセキュリティの境界ではなく、管理されていない端末では回避できるとし、より強い保証には MDM で管理する端末への配布を勧めています。毎回必ず守らせたいことは、`CLAUDE.md` ではなく、フック、拒否ルール、managed settings に置くのが判断の軸です。","ref":"試験ガイド 分野7 タスク 7.1（チーム向けの Claude のツールと環境の構成） ／ Claude Code Docs: Settings、Server-managed settings、Best practices"},{"id":"D7-02","domain":"D7","topic":"スキルとフックの配布","type":"single","question":"小売企業の開発部門が、12のリポジトリで共通に使う「コードレビューの手順」のスキルと、編集の後に整形ツールを走らせるフックを配りたいと考えています。手順は月に数回更新され、全員が常に同じ版を使う必要があります。最も適切な配布の方法はどれですか。","options":["スキルの手順を各リポジトリの `CLAUDE.md` に貼り付け、更新のたびに12か所を書き換える","スキルとフックを1つのプラグインにまとめて社内のマーケットプレイスで配り、設定で有効にする","各開発者にスキルのファイルを送り、自分の `~/.claude/skills/` に置いてもらう","手順を返す専用の MCP サーバーを新しく作り、全員の環境に接続させる"],"answer":[1],"notes":["12か所の写しは更新の漏れで版がずれます。`CLAUDE.md` は毎回すべて読み込まれるので、レビューと関係のない作業でもトークンを使います。","正解。プラグインはスキルやフックをまとめて配れます。managed settings の `extraKnownMarketplaces` と `enabledPlugins` で全員に有効にし、マーケットプレイスの自動更新を有効にしておけば、更新した版も行き渡ります。","個人の置き場所に配ると、更新のたびに配り直しが要り、人によって版がずれます。この方法ではフックも届きません。","作り込みすぎです。手順の配布という問題に、新しい基盤を作って運用する必要はありません。"],"explanation":"Claude Code でスキルをチームに共有する方法には、リポジトリの `.claude/skills/` にコミットする方法と、プラグインとして配る方法があります。複数のリポジトリにまたがり、フックも一緒に配って更新を行き渡らせたいなら、プラグインにまとめ、マーケットプレイス（`marketplace.json` で目録を定めた git リポジトリなど）から配るのが合います。組織の管理者は managed settings で、マーケットプレイスの登録とプラグインの有効化を全員に強制し、自動更新の有無を決め、許可したマーケットプレイス以外を使わせないこともできます。","ref":"試験ガイド 分野7 タスク 7.1（チーム向けの Claude のツールと環境の構成） ／ Claude Code Docs: Manage plugins for your organization、Skills"},{"id":"D7-03","domain":"D7","topic":"支出の管理","type":"multi","question":"IT サービス企業が、Claude Console（API）のアカウントで認証させて、200人の開発者に Claude Code を使わせ始めました。財務部門から、「Claude Code の支出に上限を設けたい」「誰がどれだけ使っているかを毎月確かめたい」という2つの要望が出ています。取るべき対応を2つ選んでください。（2つ選択）","options":["各リポジトリの `CLAUDE.md` に、費用を抑える使い方を守るよう書き添える","Console で、Claude Code 用のワークスペースに支出の上限を設定する","支出を抑えるため、managed settings で全員の既定のモデルを最も小さいモデルにする","各開発者に毎月の使用量を自己申告させ、表計算ソフトで集計して利用者ごとの支出を確かめる","Console のダッシュボードや Analytics API で、利用者ごとの支出を確かめる"],"answer":[1,4],"notes":["モデルへの頼みごとで、上限として働きません。支出を止める仕組みも、使用量を測る仕組みもありません。","正解。Console で認証した Claude Code の利用は専用のワークスペースに集まり、そのワークスペースに支出の上限を設けられます。","既定のモデルを変えても支出の上限にはならず、誰がどれだけ使ったかも分かりません。作業への適合を見ずに一律に小さくすると、品質も損ないます。","自己申告の数字で確かめても、実際の使用量と合っているかは分からず、200人分の集計の手間もかかります。Console に記録がある以上、頼る理由がなく、支出の上限の要望にも応えていません。","正解。Console のダッシュボードは利用者ごとの支出を示し、Claude Code Analytics API は利用者ごとの日次の指標をプログラムから取得できます。"],"explanation":"公式ドキュメントは、組織の Claude Code の費用管理を、認証の方法ごとに整理しています。Claude Console（API）で使う場合は、ワークスペースの支出の上限で費用を抑え、Console のダッシュボードや Claude Code Analytics API で利用者ごとの数字を確かめます。Team や Enterprise のプランでは claude.ai の管理画面で、クラウド事業者の経由ならそのクラウドの予算の仕組みで管理し、OpenTelemetry のエクスポートはどの構成でも使えます。いきなり全員に広げず、少人数の試行で使用量の基準を取ってから展開することも勧められています。","ref":"試験ガイド 分野7 タスク 7.1（チーム向けの Claude のツールと環境の構成） ／ Claude Code Docs: Manage costs effectively"},{"id":"D7-04","domain":"D7","topic":"AI 生成物のレビュー","type":"multi","question":"医療系 SaaS 企業で、Claude Code が書いたプルリクエストが以前の3倍に増え、レビューの担当者が追いつかなくなりました。先月は、テストのない変更が本番で不具合を起こしています。AI が生成した変更を本番の前に信頼できる状態に保つために、取るべき対応を2つ選んでください。（2つ選択）","options":["テストと型検査を CI の必須の関門にし、通らない変更はマージできないようにする","コードを書いたのと同じセッションで、仕様を満たしているかを Claude 自身に確かめさせる","書いた経緯を知らない別のコンテキストで、仕様と照らし合わせてレビューさせる","`CLAUDE.md` に「IMPORTANT: 必ずテストを書くこと」と大文字で強調して書き加える","不具合を防ぐため、AI が書いたコードは本番のリポジトリに一切入れないと決める"],"answer":[0,2],"notes":["正解。テストや型検査を CI で必須にすれば、モデルが何を判断したかに関係なく、毎回必ず検査されます。決定的な関門です。","書いた本人による自己点検は、当てにならない確かめ方です。同じコンテキストには書いたときの推論が残っており、それに引きずられて見落としに気づきにくくなります。","正解。書いた経緯を見ていないレビュアー（サブエージェントや別のセッション）は、書き手の推論に左右されません。仕様と照らして欠けを探させると、人のレビューの前に問題を絞れます。","指示の強調は、従うかどうかをモデルに委ねたままです。公式ドキュメントも、例外のないルールはフックなどにするよう勧めています。","両極端の判断で、生産性を上げるという目的そのものを捨てています。"],"explanation":"AI 支援で変更の量が増えるほど、品質は人の注意力ではなく仕組みで守る必要があります。公式のベストプラクティスは、Claude に自分の作業を確かめる手段（テスト、型検査、期待する出力）を与えることと、例外のないルールを CI やフックのような決定的な仕組みにすることを勧めています。さらに、書いた経緯を知らない別のコンテキストでレビューさせると、書き手の推論に引きずられない独立した目が得られます。人のレビューは残したうえで、その前段に機械的な関門と独立したレビューを置くのが、AI が生成した成果物のレビューの規律です。","ref":"試験ガイド 分野7 タスク 7.2（AI 支援ツールによる開発者のワークフローの改善） ／ Claude Code Docs: Best practices"},{"id":"D7-05","domain":"D7","topic":"先に計画させる","type":"single","question":"官公庁向けのシステムを開発するチームが、複数のモジュールにまたがる認証処理の作り替えを Claude Code に任せています。前回は、いきなり実装を始めた Claude が想定と違う方針で多くのファイルを書き換え、大きな手戻りになりました。今回の進め方として最も適切なものはどれですか。","options":["plan mode で先にコードを調べさせて方針を提案させ、承認してから実装に移らせる","「認証まわりを良くして」と大きく頼み、途中で止めずに最後まで実装させる","作業をすぐに多数のサブエージェントに分け、モジュールごとに並行して書き換えさせる","手戻りを減らすため、より大きなモデルに切り替えて、前回と同じ頼み方で実装させる"],"answer":[0],"notes":["正解。plan mode では、Claude がコードを調べて進め方を提案し、承認を受けてから実装します。最初の方向が違っていたときの高くつく手戻りを防げます。","曖昧な依頼は広い範囲の探索を招き、前回と同じ手戻りを繰り返すおそれがあります。方向がずれたら早く止めるのが基本です。","方針が決まらないまま並行させると、ずれた方針が複数の場所に同時に広がり、手戻りがかえって大きくなります。","規模で解決しようとする手です。手戻りの原因は、方針を確かめずに実装を始めた進め方にあります。"],"explanation":"公式ドキュメントは、複雑なタスクでは実装の前に plan mode に切り替え、Claude にコードベースを調べさせて方針を提案させ、承認してから進めるよう勧めています。具体的な依頼、早めの軌道修正、検証できる目標（テストケースや期待する出力）の提示も、手戻りと無駄なトークンを減らす習慣として挙げられています。複数のファイルにまたがり、方向を誤ると高くつく作業ほど、計画の確認を先に挟む価値が大きくなります。","ref":"試験ガイド 分野7 タスク 7.2（AI 支援ツールによる開発者のワークフローの改善） ／ Claude Code Docs: Manage costs effectively、Common workflows"},{"id":"D7-06","domain":"D7","topic":"不具合の伝え方","type":"single","question":"EC 事業者の開発者が、「注文の確定がときどき失敗する」という不具合を Claude Code に調べさせています。依頼は「注文の確定が失敗するので直して」の一言だけで、Claude は推測で修正しては別の箇所を疑い直すことを繰り返しています。ログには、失敗が1日に数回、在庫の引き当てが重なったときにだけ記録されています。開発チームを支援するあなたが勧める進め方として、最も適切なものはどれですか。","options":["より能力の高いモデルに切り替え、同じ一言の依頼のまま原因を探させ続ける","失敗した注文を自動で確定し直す処理を足し、利用者に失敗が見えないようにする","エラーの全文と再現の手順、ときどき起きることを伝え、再現するテストを先に書かせる","Claude が挙げた修正の候補をすべて入れ、本番で失敗が止まるかを見て判断する"],"answer":[2],"notes":["規模で解決しようとする手です。足りないのは能力ではなく、エラーの全文や起きる条件といった、リポジトリを読んでも分からない情報です。","症状だけを抑える手です。引き当てが重なったときに失敗する原因は残り、注文の二重の確定のような別の不具合を生むおそれもあります。","正解。再現の手順とエラーの全文、毎回かときどきかを伝えると、Claude は推測ではなく事実から原因を絞れます。失敗を再現するテストがあれば、直ったかどうかを合格か不合格かで確かめられます。","本番の利用者で試すことになり、どの変更が効いたのかも分かりません。直ったかを確かめる手段を先に用意するのが基本です。"],"explanation":"AI 支援ツールでのデバッグでは、Claude がコードを読んでも分からない情報を先に渡し、症状を原因に結びつけさせます。公式ドキュメントは、不具合を直すときに、再現のためのコマンドとスタックトレース、再現の手順、エラーが毎回起きるのかときどきなのかを伝えるよう勧め、具体的な依頼の例として「失敗を再現するテストを書いてから直す」を挙げています。再現するテストがあれば、Claude は修正のたびに自分で結果を確かめられ、推測の修正を繰り返すループから抜けられます。症状を隠す再試行や本番での試行は、原因を残したままにします。","ref":"試験ガイド 分野7 タスク 7.3（デバッグと運用上の問題解決の支援） ／ Claude Code Docs: Common workflows、Best practices"},{"id":"D7-07","domain":"D7","topic":"設定が効かない","type":"single","question":"ソフトウェア企業が、リポジトリにコミットした `.claude/settings.json` に、テストのコマンドを確認なしで実行できる許可のルールを入れました。ほとんどの開発者には効いていますが、ある開発者の環境でだけ、テストのたびに確認を求められるという報告が届きました。チームの Claude Code の環境を支援するあなたが、最初に行うべきことはどれですか。","options":["共有の `.claude/settings.json` の許可を広げ、すべての Bash コマンドを確認なしで実行できるようにする","その開発者に、権限の確認をすべて飛ばすモード（bypassPermissions）で Claude Code を起動してもらう","`CLAUDE.md` に「テストのコマンドは確認なしで実行してよい」と書き加え、Claude に伝える","その開発者の環境で `/status` を開き、読み込まれた設定ファイルの一覧を見て原因を切り分ける"],"answer":[3],"notes":["その開発者にだけ起きている原因を調べずに、全員の権限を広げています。確認なしで動くコマンドが増え、リスクだけが大きくなります。","両極端の手です。テストに限らず、すべての操作の確認がなくなります。原因も分からないままです。","置き場所の取り違えです。`CLAUDE.md` はモデルが読む指示で、Claude Code が行う権限の確認には効きません。","正解。`/status` の `Setting sources` の行には、そのセッションで読み込まれた設定ファイルや管理設定が並びます。それを手がかりに、ほかの設定のルールが優先されているのか、フォルダーを信頼していないために許可のルールがまだ効いていないのかを切り分けます。"],"explanation":"設定が一部の人にだけ効かないときは、症状を、設定のどの層に原因があるかに結びつけて切り分けます。公式ドキュメントは、まず `/status` で読み込まれた設定ファイルを確かめるよう勧めています（この一覧は、どの項目をどのファイルが決めたかまでは示しません）。よくある原因として、上の層やほかの設定ファイルが同じ項目を決めていることと、リポジトリの `permissions.allow` のルールは、その開発者がフォルダーを信頼するまで効かないこと（拒否と確認のルールはすぐに効く）が挙げられています。原因を確かめずに権限を広げたり確認を飛ばしたりすると、問題を隠したままリスクだけを増やします。","ref":"試験ガイド 分野7 タスク 7.3（デバッグと運用上の問題解決の支援） ／ Claude Code Docs: Settings"}];
+
+/* 試験ごとの設定（exam.json）。ビルド時に埋め込まれる */
+const EXAM = {"code":"CCAR-P","name":"Claude Certified Architect – Professional","storage":"ccarp","questions":63,"minutes":120,"passScore":720,"scaleMin":100,"scaleMax":1000,"passRate":0.72,"format":"単一・複数","types":["single","multi"],"weightNote":"配点は、2026年12月6日までの試験に対応する公式試験ガイド（v1.0・v1.1）の比率です。12月7日からの試験は、問題数と分野の配点が変わります。受験する日に合った試験ガイドを確認してください。","domains":[{"code":"D1","name":"ソリューション設計とアーキテクチャ","en":"Solution Design & Architecture","weight":17},{"code":"D2","name":"Claude モデル、プロンプト作成、コンテキストエンジニアリング","en":"Claude Models, Prompting & Context Engineering","weight":13},{"code":"D3","name":"統合","en":"Integration","weight":19},{"code":"D4","name":"評価、テスト、最適化","en":"Evaluation, Testing & Optimization","weight":16},{"code":"D5","name":"ガバナンス、安全性、リスク管理","en":"Governance, Safety & Risk Management","weight":14},{"code":"D6","name":"ステークホルダーとのコミュニケーションとライフサイクル管理","en":"Stakeholder Communication & Lifecycle Management","weight":14},{"code":"D7","name":"開発者の生産性と運用支援","en":"Developer Productivity & Operational Enablement","weight":7}]};
+const DOMAINS = EXAM.domains;
+const SCENARIOS = EXAM.scenarios || [];
+const SKILLS = EXAM.skills || [];
+const SCN = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
+const DOM = Object.fromEntries(DOMAINS.map(d => [d.code, d]));
+const BY_ID = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+const EXAM_COUNT = EXAM.questions;
+const EXAM_MINUTES = EXAM.minutes;
+const PASS_RATE = EXAM.passRate;
+const PASS_PCT = Math.round(PASS_RATE * 100);
+const MAX_WEIGHT = Math.max(...DOMAINS.map(d => d.weight));
+const LETTERS = 'ABCDE';
+const KEY = { stats: `${EXAM.storage}.stats.v1`, session: `${EXAM.storage}.session.v1`, prefs: `${EXAM.storage}.prefs.v1` };
+const DOMAIN_LABEL = EXAM.domainLabel || '分野'; // 公式の日本語版ガイドの呼び方は「分野」
+const WEIGHT_DP = DOMAINS.some(d => !Number.isInteger(d.weight)) ? 1 : 0;
+const fmtWeight = w => w.toFixed(WEIGHT_DP);
+
+const PEN_CIRCLE = '<svg class="pen" viewBox="0 0 60 70" aria-hidden="true"><path d="M34 5C16 3 5 19 6 37c1 17 12 29 27 28 15-1 23-16 22-32C54 16 45 6 27 9"/></svg>';
+const PEN_CHECK = '<svg class="pen pen-check" viewBox="0 0 60 64" aria-hidden="true"><path d="M6 30l16 24L56 6"/></svg>';
+const MARK_OK = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M35 6C17 5 6 18 6 33s12 26 27 25c15-1 25-12 25-27C58 16 47 6 29 9"/></svg>';
+const MARK_NG = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 14L50 50M50 14L14 50"/></svg>';
+
+/* ---------- 保存（このブラウザだけ） ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 保存できない環境では記録なしで動く */ } },
+};
+
+let stats = store.get(KEY.stats, {}) || {};
+let prefs = Object.assign(
+  { domains: DOMAINS.map(d => d.code), count: '20', filter: 'all', order: 'random' },
+  store.get(KEY.prefs, {}) || {}
+);
+prefs.domains = (Array.isArray(prefs.domains) ? prefs.domains : []).filter(c => DOM[c]);
+let session = sanitizeSession(store.get(KEY.session, null));
+let view = 'home';
+let ui = { confirmReset: false, confirmFinish: false, confirmDiscard: false, hint: '', reviewIdx: 0 };
+let lastScrollKey = '';
+
+const saveStats = () => store.set(KEY.stats, stats);
+const saveSession = () => store.set(KEY.session, session);
+const savePrefs = () => store.set(KEY.prefs, prefs);
+
+function sanitizeSession(s) {
+  if (!s || !Array.isArray(s.ids)) return null;
+  s.ids = s.ids.filter(id => BY_ID[id]);
+  if (!s.ids.length) return null;
+  s.order = s.order || {}; s.answers = s.answers || {}; s.submitted = s.submitted || {}; s.flags = s.flags || {};
+  for (const id of s.ids) {
+    const n = BY_ID[id].options.length;
+    const o = s.order[id];
+    const valid = Array.isArray(o) && o.length === n && [...o].sort((a, b) => a - b).every((v, i) => v === i);
+    if (!valid) { s.order[id] = shuffle([...Array(n).keys()]); delete s.answers[id]; delete s.submitted[id]; }
+  }
+  s.idx = Math.min(Math.max(0, s.idx | 0), s.ids.length - 1);
+  return s;
+}
+
+/* ---------- ユーティリティ ---------- */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(s) {
+  return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
+}
+function fmtTime(ms) {
+  const t = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+function isCorrect(q, sel) {
+  return !!sel && sel.length === q.answer.length && q.answer.every(a => sel.includes(a));
+}
+const modeName = m => (m === 'exam' ? '模擬試験' : '練習');
+const st = id => stats[id] || {};
+
+function record(id, ok) {
+  const s = st(id);
+  stats[id] = { ...s, a: (s.a || 0) + 1, c: (s.c || 0) + (ok ? 1 : 0), last: ok };
+}
+
+/* ---------- 出題の組み立て ---------- */
+function matchesFilter(q, filter) {
+  const s = st(q.id);
+  if (filter === 'new') return !s.a;
+  if (filter === 'wrong') return !!s.a && !s.last;
+  if (filter === 'bookmark') return !!s.bm;
+  return true;
+}
+function practicePool() {
+  return QUESTIONS.filter(q => prefs.domains.includes(q.domain) && matchesFilter(q, prefs.filter));
+}
+function practiceCount(pool) {
+  return prefs.count === 'all' ? pool.length : Math.min(Number(prefs.count) || 20, pool.length);
+}
+function makeSession(mode, ids) {
+  const now = Date.now();
+  return {
+    mode, ids, idx: 0, answers: {}, submitted: {}, flags: {}, finished: false,
+    order: Object.fromEntries(ids.map(id => [id, shuffle([...Array(BY_ID[id].options.length).keys()])])),
+    startedAt: now, deadline: mode === 'exam' ? now + EXAM_MINUTES * 60000 : null,
+  };
+}
+function startPractice(ids) {
+  if (!ids) {
+    const pool = practicePool();
+    const list = prefs.order === 'seq' ? pool : shuffle([...pool]);
+    ids = list.slice(0, practiceCount(pool)).map(q => q.id);
+  }
+  if (!ids.length) return;
+  session = makeSession('practice', ids);
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+// total 問を、重み（weight）の比で各単位に割り振る。cap は、その単位に収録されている問題数。
+// 端数は、余りの大きさに比例した確率で切り上げる。毎回同じ単位が切り捨てられると、配点の小さい単位が
+// 一度も出題されなくなるため（平均すると、どの単位も配点どおりの問題数になる）
+function apportion(total, units) {
+  const sum = units.reduce((a, u) => a + u.weight, 0) || 1;
+  const rows = units.map(u => {
+    const exact = total * u.weight / sum;
+    return { code: u.code, exact, cap: u.cap, n: Math.min(Math.floor(exact), u.cap) };
+  });
+  let left = Math.min(total, units.reduce((a, u) => a + u.cap, 0)) - rows.reduce((a, r) => a + r.n, 0);
+  const cands = rows.filter(r => r.n < r.cap && r.exact % 1 > 1e-9).map(r => ({ r, w: r.exact % 1 }));
+  while (left > 0 && cands.length) {
+    let x = Math.random() * cands.reduce((a, c) => a + c.w, 0);
+    let i = 0;
+    while (i < cands.length - 1 && (x -= cands[i].w) > 0) i++;
+    cands[i].r.n++; left--;
+    cands.splice(i, 1);
+  }
+  // 収録数が足りない単位があって余ったぶんは、余りの大きい順にほかの単位へ回す
+  const byRemainder = [...rows].sort((a, b) => (b.exact % 1) - (a.exact % 1));
+  while (left > 0) {
+    let moved = false;
+    for (const r of byRemainder) {
+      if (left > 0 && r.n < r.cap) { r.n++; left--; moved = true; }
+    }
+    if (!moved) break;
+  }
+  return Object.fromEntries(rows.map(r => [r.code, r.n]));
+}
+
+function examPick() {
+  // シナリオ形式の試験（scenarioPick あり）は、本番と同じ数のシナリオを先に選び、その問題だけから出す
+  let bank = QUESTIONS;
+  let chosen = [];
+  if (EXAM.scenarioPick && SCENARIOS.length) {
+    // 分野によっては、問題が特定のシナリオに集まっている。そのシナリオが1つも選ばれないと、その分野を配点どおりに
+    // 出せない（例: 配点20%の分野が2問だけになる）。どれかの分野が配点より大きく不足する組み合わせは引き直す。
+    // 何度引いても不足するときは、不足がいちばん小さい組み合わせを使う
+    const want = Math.min(EXAM_COUNT, QUESTIONS.length);
+    const sumW = DOMAINS.reduce((a, d) => a + d.weight, 0) || 1;
+    const tolerance = Math.max(1, Math.round(want * 0.05));
+    let best = null;
+    for (let t = 0; t < 40 && !(best && best.short <= tolerance); t++) {
+      const ids = shuffle(SCENARIOS.map(s => s.id)).slice(0, EXAM.scenarioPick);
+      const pool = QUESTIONS.filter(q => ids.includes(q.scenario));
+      if (pool.length < want) continue;
+      const short = Math.max(...DOMAINS.map(d => Math.round(want * d.weight / sumW) - pool.filter(q => q.domain === d.code).length));
+      if (!best || short < best.short) best = { ids, pool, short };
+    }
+    if (best) { chosen = best.ids; bank = best.pool; }
+  }
+  const total = Math.min(EXAM_COUNT, bank.length);
+  // 配点に沿って問題数を割り振る。まず分野ごとに割り振り、試験ガイドがスキルごとの配点も示している試験
+  // （exam.json の skills）では、分野の中でさらにスキルごとに割り振る。分野の比率を崩さないため、2段にしている
+  const domainOf = k => 'D' + String(k.code).split('.')[0];
+  const bySkill = SKILLS.length > 0 && bank.every(q => q.skill);
+  const perDomain = apportion(total, DOMAINS.map(d => ({ code: d.code, weight: d.weight, cap: bank.filter(q => q.domain === d.code).length })));
+  const picked = shuffle(DOMAINS.flatMap(d => {
+    const inDomain = shuffle(bank.filter(q => q.domain === d.code));
+    if (!bySkill) return inDomain.slice(0, perDomain[d.code]);
+    const skills = SKILLS.filter(k => domainOf(k) === d.code);
+    const perSkill = apportion(perDomain[d.code], skills.map(k => ({ code: k.code, weight: k.weight, cap: inDomain.filter(q => q.skill === k.code).length })));
+    return skills.flatMap(k => inDomain.filter(q => q.skill === k.code).slice(0, perSkill[k.code]));
+  }));
+  // 本番と同じく、同じシナリオの問題をまとめて出す
+  if (chosen.length) picked.sort((a, b) => chosen.indexOf(a.scenario) - chosen.indexOf(b.scenario));
+  return picked.map(q => q.id);
+}
+function startExam() {
+  session = makeSession('exam', examPick());
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+function finishSession() {
+  const s = session;
+  if (!s || s.finished) return;
+  s.finished = true;
+  s.endedAt = s.deadline ? Math.min(Date.now(), s.deadline) : Date.now();
+  if (s.mode === 'exam') s.ids.forEach(id => record(id, isCorrect(BY_ID[id], s.answers[id])));
+  ui.confirmFinish = false;
+  saveStats(); saveSession();
+  view = 'result';
+}
+function reviewList(s) {
+  return s.mode === 'exam' ? s.ids : s.ids.filter(id => s.submitted[id]);
+}
+
+/* ---------- 画面：ホーム ---------- */
+function viewHome() {
+  const total = QUESTIONS.length;
+  const tried = QUESTIONS.filter(q => st(q.id).a).length;
+  const okLast = QUESTIONS.filter(q => st(q.id).a && st(q.id).last).length;
+  const wrong = QUESTIONS.filter(q => st(q.id).a && !st(q.id).last).length;
+  const inDomains = QUESTIONS.filter(q => prefs.domains.includes(q.domain));
+  const countOf = f => inDomains.filter(q => matchesFilter(q, f)).length;
+  const pool = practicePool();
+  const n = practiceCount(pool);
+  const allOn = prefs.domains.length === DOMAINS.length;
+
+  const chips = DOMAINS.map(d => {
+    const on = prefs.domains.includes(d.code);
+    return `<button type="button" class="chip-btn" id="chip-${d.code}" data-action="toggle-domain" data-domain="${d.code}" aria-pressed="${on}" title="${esc(d.en)}"><b>${d.code}</b>${esc(d.name)}</button>`;
+  }).join('');
+
+  const opt = (v, label, cur) => `<option value="${v}"${String(cur) === v ? ' selected' : ''}>${label}</option>`;
+
+  const rows = DOMAINS.map(d => {
+    const qs = QUESTIONS.filter(q => q.domain === d.code);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    const acc = t ? Math.round(ok / t * 100) : null;
+    return `<div class="bp-row">
+      <span class="bp-code">${d.code}</span>
+      <span class="bp-name"><b>${esc(d.name)}</b><small>${esc(d.en)}・収録 ${qs.length}問</small></span>
+      <span class="meter"><span>配点 <span class="num">${fmtWeight(d.weight)}%</span></span><span class="meter-track"><span style="width:${(d.weight / MAX_WEIGHT * 100).toFixed(1)}%"></span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${acc || 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="dom-go-${d.code}" data-action="domain-practice" data-domain="${d.code}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  const scnRows = SCENARIOS.map(sc => {
+    const qs = QUESTIONS.filter(q => q.scenario === sc.id);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    return `<div class="bp-row">
+      <span class="bp-code">${esc(sc.id)}</span>
+      <span class="bp-name"><b>${esc(sc.name)}</b><small>${fmt(sc.summary)}</small></span>
+      <span class="meter"><span>収録 <span class="num">${qs.length}問</span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${t ? Math.round(ok / t * 100) : 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="scn-go-${esc(sc.id)}" data-action="scenario-practice" data-scenario="${esc(sc.id)}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  return `<div class="wrap wrap-wide">
+    ${resumeBanner()}
+    <header class="hero">
+      <p class="eyebrow">${esc(EXAM.name)}</p>
+      <h1>${esc(EXAM.code)} 問題集</h1>
+      <p class="lead">試験ガイドの配点に合わせて作った全${total}問の練習問題です。練習モードでは1問ごとに正解と解説を確認できます。模擬試験では本番と同じ${EXAM_COUNT}問・${EXAM_MINUTES}分を通して解けます。</p>
+    </header>
+
+    <dl class="spec">
+      <div><dt>問題数</dt><dd>${EXAM_COUNT}<small> 問</small></dd></div>
+      <div><dt>試験時間</dt><dd>${EXAM_MINUTES}<small> 分</small></dd></div>
+      <div><dt>合格ライン</dt><dd>${EXAM.passScore}<small> / ${EXAM.scaleMax}</small></dd></div>
+      <div><dt>出題形式</dt><dd>選択式<small> ${esc(EXAM.format)}</small></dd></div>
+    </dl>
+
+    <section class="modes">
+      <div class="panel">
+        <div class="panel-head"><h2>練習モード</h2><p>1問ずつ解いて、その場で正解と解説を確認します。</p></div>
+        <div class="field">
+          <span class="field-label">${esc(DOMAIN_LABEL)}<button type="button" id="btn-all-dom" data-action="all-domains">${allOn ? 'すべて外す' : 'すべて選ぶ'}</button></span>
+          <div class="chips">${chips}</div>
+        </div>
+        <div class="field-row">
+          <label class="field" for="pref-filter"><span class="field-label">対象</span>
+            <select id="pref-filter" data-pref="filter">
+              ${opt('all', `すべて（${countOf('all')}）`, prefs.filter)}
+              ${opt('new', `未回答（${countOf('new')}）`, prefs.filter)}
+              ${opt('wrong', `間違えた問題（${countOf('wrong')}）`, prefs.filter)}
+              ${opt('bookmark', `ブックマーク（${countOf('bookmark')}）`, prefs.filter)}
+            </select></label>
+          <label class="field" for="pref-count"><span class="field-label">出題数</span>
+            <select id="pref-count" data-pref="count">
+              ${opt('10', '10問', prefs.count)}${opt('20', '20問', prefs.count)}${opt('50', '50問', prefs.count)}${opt('all', 'すべて', prefs.count)}
+            </select></label>
+          <label class="field" for="pref-order"><span class="field-label">順番</span>
+            <select id="pref-order" data-pref="order">
+              ${opt('random', 'ランダム', prefs.order)}${opt('seq', '番号順', prefs.order)}
+            </select></label>
+        </div>
+        <div class="panel-foot">
+          <span class="count">対象 <b>${pool.length}</b> 問から <b>${n}</b> 問を出題</span>
+          <button type="button" class="btn btn-primary" id="btn-practice" data-action="start-practice" ${n ? '' : 'disabled'}>練習を始める</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>模擬試験</h2><p>本番と同じ形式で、時間を計って通しで解きます。</p></div>
+        <ul class="ticks">
+          <li>${EXAM.scenarioPick && SCENARIOS.length ? `${SCENARIOS.length}つのシナリオから${EXAM.scenarioPick}つを無作為に選び、` : ''}${SKILLS.length ? `${esc(DOMAIN_LABEL)}とスキル` : esc(DOMAIN_LABEL)}の配点に沿って${Math.min(EXAM_COUNT, total)}問を抽出します</li>
+          <li>制限時間は${EXAM_MINUTES}分です。ページを閉じてもタイマーは進みます</li>
+          <li>採点するまで正誤は表示されません</li>
+          <li>見直し用のマークと問題一覧で、好きな問題に戻れます</li>
+        </ul>
+        <div class="panel-foot">
+          <span class="count">合格の目安は正答率 <b>${PASS_PCT}%</b></span>
+          <button type="button" class="btn btn-primary" id="btn-exam" data-action="start-exam" ${total ? '' : 'disabled'}>模擬試験を始める</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>出題範囲と学習状況</h2>
+        <p>${esc(EXAM.weightNote || '配点は試験ガイド（公開情報）の比率です。')}正答は各問題の最新の回答で数えます。</p>
+      </div>
+      <div class="bp">${rows}</div>
+    </section>
+    ${SCENARIOS.length ? `<section>
+      <div class="section-head">
+        <h2>シナリオ別に練習する</h2>
+        <p>${esc(EXAM.scenarioNote || '問題は、場面設定（シナリオ）ごとにまとまっています。')}</p>
+      </div>
+      <div class="bp">${scnRows}</div>
+    </section>` : ''}
+
+    <footer class="foot">
+      <div class="foot-stats">
+        <span>解いた問題 <b>${tried}</b> / ${total}</span>
+        <span>最新の回答で正解 <b>${okLast}</b></span>
+        <span>要復習 <b>${wrong}</b></span>
+        <span class="spacer"></span>
+        ${ui.confirmReset
+          ? `<span class="confirm">学習記録とブックマークを消しますか？
+              <button type="button" class="btn btn-small btn-danger" id="btn-reset-yes" data-action="reset-yes">消去する</button>
+              <button type="button" class="btn btn-small" id="btn-reset-no" data-action="reset-no">やめる</button></span>`
+          : `<button type="button" class="btn btn-small btn-ghost" id="btn-reset" data-action="reset" ${tried || QUESTIONS.some(q => st(q.id).bm) ? '' : 'disabled'}>学習記録をリセット</button>`}
+      </div>
+      <p>非公式の学習用問題集です。Anthropic の公式問題ではありません。出題範囲と配点は公開情報をもとにしているので、受験前に公式の試験ガイドで最新の内容を確認してください。学習記録はこのブラウザの中にだけ保存されます。</p>
+    </footer>
+  </div>`;
+}
+
+function resumeBanner() {
+  if (!session) return '';
+  if (session.finished) {
+    return `<div class="banner"><span>前回の${modeName(session.mode)}の結果が残っています。</span>
+      <div class="banner-actions"><button type="button" class="btn btn-small" id="btn-last" data-action="last-result">結果を見る</button></div></div>`;
+  }
+  const done = session.mode === 'exam'
+    ? session.ids.filter(id => (session.answers[id] || []).length).length
+    : Object.keys(session.submitted).length;
+  const left = session.mode === 'exam' ? `・残り ${fmtTime(session.deadline - Date.now())}` : '';
+  const actions = ui.confirmDiscard
+    ? `<span>途中の${modeName(session.mode)}を破棄しますか？</span>
+       <button type="button" class="btn btn-small btn-danger" id="btn-discard-yes" data-action="discard-yes">破棄する</button>
+       <button type="button" class="btn btn-small" id="btn-discard-no" data-action="discard-no">やめる</button>`
+    : `<button type="button" class="btn btn-small btn-primary" id="btn-resume" data-action="resume">続きから再開</button>
+       <button type="button" class="btn btn-small" id="btn-discard" data-action="discard">破棄</button>`;
+  return `<div class="banner"><span>${modeName(session.mode)}の途中です（${done} / ${session.ids.length}問 回答済み${left}）</span>
+    <div class="banner-actions">${actions}</div></div>`;
+}
+
+/* ---------- 画面：問題 ---------- */
+function topBar(left, mid, right, progress) {
+  return `<div class="bar"><div class="bar-inner">${left}<div class="bar-mid">${mid}</div>${right}</div>
+    ${progress == null ? '' : `<div class="bar-progress"><span style="width:${progress.toFixed(1)}%"></span></div>`}</div>`;
+}
+function bookmarkBtn(id) {
+  const on = !!st(id).bm;
+  return `<button type="button" class="icon-btn" id="btn-bm" data-action="bookmark" aria-pressed="${on}" aria-label="ブックマーク" title="ブックマーク">${on ? '★' : '☆'}</button>`;
+}
+
+function questionCard(q, o) {
+  const d = DOM[q.domain];
+  const need = q.answer.length;
+  const sel = o.sel || [];
+  const items = o.order.map((orig, i) => {
+    const chosen = sel.includes(orig);
+    const right = q.answer.includes(orig);
+    let cls = 'opt';
+    if (chosen) cls += ' is-chosen';
+    if (o.reveal) cls += right ? ' is-right' : (chosen ? ' is-wrong' : '');
+    const marks = o.reveal ? (right ? PEN_CIRCLE : (chosen ? PEN_CHECK : '')) : '';
+    const note = o.reveal
+      ? `<span class="opt-note">${right ? '<b class="tag tag-right">正解</b>' : ''}${chosen && !right ? '<b class="tag tag-wrong">あなたの回答</b>' : ''}${fmt(q.notes[orig])}</span>`
+      : '';
+    return `<li role="presentation"><button type="button" class="${cls}" id="opt-${i}" data-action="pick" data-opt="${orig}"
+      role="${need > 1 ? 'checkbox' : 'radio'}" aria-checked="${chosen}"${o.reveal ? ' aria-disabled="true"' : ''}>
+      <span class="bubble" aria-hidden="true">${LETTERS[i]}${marks}</span>
+      <span class="opt-body"><span class="opt-text">${fmt(q.options[orig])}</span>${note}</span></button></li>`;
+  }).join('');
+
+  const instr = need > 1
+    ? `<span>${need}つ選んでください</span><span class="num">${sel.length} / ${need} 選択中</span>`
+    : '<span>最も適切なものを1つ選んでください</span>';
+
+  let after = '';
+  if (o.reveal) {
+    const ok = isCorrect(q, sel);
+    const letters = o.order.map((orig, i) => (q.answer.includes(orig) ? LETTERS[i] : null)).filter(Boolean).join('・');
+    after = `<div class="verdict ${ok ? 'ok' : 'ng'}" role="status">${ok ? MARK_OK : MARK_NG}
+        <div><p class="verdict-title">${ok ? '正解' : (sel.length ? '不正解' : '未回答')}</p><p class="verdict-sub">正解は ${letters}</p></div></div>
+      <div class="explain"><h3>解説</h3><p>${fmt(q.explanation)}</p>${q.ref ? `<p class="ref">参考：${fmt(q.ref)}</p>` : ''}</div>`;
+  }
+
+  // 回答の前に見せる情報は、本番で見えるものに近づける。論点名（topic）は正解の言い回しと重なることが多く、
+  // 手がかりになるので、正解を表示するまで出さない。模擬試験では、分野と問題番号（分野が分かる）も採点まで出さない
+  const meta = o.reveal
+    ? `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-topic">${esc(q.topic)}</span><span class="q-id">${q.id}</span>`
+    : (o.exam ? '' : `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-id">${q.id}</span>`);
+
+  return `<article class="sheet" aria-labelledby="q-title">
+    <div class="q-meta">
+      <span class="q-num" id="q-title"><small>問</small>${o.number}</span>
+      ${meta}
+    </div>
+    ${SCN[q.scenario] ? `<div class="scn"><b>シナリオ：${esc(SCN[q.scenario].name)}</b>${fmt(SCN[q.scenario].summary)}</div>` : ''}
+    <div class="q-text">${fmt(q.question)}</div>
+    ${q.code ? `<pre class="code"><code>${esc(q.code)}</code></pre>` : ''}
+    ${o.reveal ? '' : `<div class="q-instr">${instr}</div>${ui.hint ? `<p class="hint" role="alert">${esc(ui.hint)}</p>` : ''}`}
+    <ul class="opts" role="${need > 1 ? 'group' : 'radiogroup'}" aria-label="選択肢">${items}</ul>
+    ${after}
+  </article>`;
+}
+
+function viewQuiz() {
+  const s = session;
+  const id = s.ids[s.idx];
+  const q = BY_ID[id];
+  const exam = s.mode === 'exam';
+  const sel = s.answers[id] || [];
+  const revealed = !exam && !!s.submitted[id];
+  const last = s.idx === s.ids.length - 1;
+  const answeredCount = s.ids.filter(x => (s.answers[x] || []).length).length;
+  const progress = exam ? answeredCount / s.ids.length * 100 : (Object.keys(s.submitted).length / s.ids.length) * 100;
+
+  const bar = topBar(
+    `<button type="button" class="btn btn-ghost btn-small" id="btn-home" data-action="home">← ${exam ? '中断' : 'ホーム'}</button>`,
+    `<span class="bar-mode">${modeName(s.mode)}</span><span class="bar-count"><b>${s.idx + 1}</b> / ${s.ids.length}</span>`,
+    `<div class="bar-right">${exam ? '<span class="timer" id="timer"></span>' : ''}${bookmarkBtn(id)}</div>`,
+    progress
+  );
+
+  const card = questionCard(q, { sel, order: s.order[id], reveal: revealed, exam, number: s.idx + 1 });
+
+  let actions;
+  if (!exam) {
+    const doneCount = Object.keys(s.submitted).length;
+    actions = revealed
+      ? `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-next" data-action="next">${last ? '結果を見る' : '次の問題へ →'}</button>
+        </div>`
+      : `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-submit" data-action="submit" ${sel.length === q.answer.length ? '' : 'disabled'}>回答する</button>
+        </div>`;
+    actions += '<p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>Enter</kbd> で回答／次へ</p>';
+  } else {
+    const flagged = !!s.flags[id];
+    const flags = s.ids.filter(x => s.flags[x]).length;
+    const nav = s.ids.map((x, i) => {
+      const cls = [(s.answers[x] || []).length ? 'answered' : '', s.flags[x] ? 'flagged' : '', i === s.idx ? 'current' : ''].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" id="nav-${i}" data-action="goto" data-idx="${i}" aria-label="問${i + 1}${(s.answers[x] || []).length ? ' 回答済み' : ''}${s.flags[x] ? ' マークあり' : ''}">${i + 1}</button>`;
+    }).join('');
+    const unanswered = s.ids.length - answeredCount;
+    actions = `<div class="actions">
+        <button type="button" class="btn" id="btn-prev" data-action="prev" ${s.idx ? '' : 'disabled'}>← 前へ</button>
+        <button type="button" class="btn btn-ghost" id="btn-flag" data-action="flag" aria-pressed="${flagged}">${flagged ? '● 見直しマーク中' : '○ 見直しマーク'}</button>
+        <button type="button" class="btn ${last ? '' : 'btn-primary'}" id="btn-next" data-action="next" ${last ? 'disabled' : ''}>次へ →</button>
+      </div>
+      <details class="navbox" open>
+        <summary>問題一覧 <span>回答済み ${answeredCount} / ${s.ids.length}・マーク ${flags}</span></summary>
+        <div class="nav">${nav}</div>
+        <div class="legend"><span><i class="l-ans"></i>回答済み</span><span><i class="l-flag"></i>見直しマーク</span><span><i></i>未回答</span></div>
+      </details>
+      ${ui.confirmFinish
+        ? `<div class="finish-box" role="alert"><span>${unanswered ? `未回答が <b>${unanswered}</b> 問あります。` : 'すべての問題に回答しました。'}採点すると回答は変更できません。</span>
+            <span class="banner-actions"><button type="button" class="btn btn-danger" id="btn-finish-yes" data-action="finish-yes">採点する</button>
+            <button type="button" class="btn" id="btn-finish-no" data-action="finish-no">戻る</button></span></div>`
+        : `<div class="actions"><span class="grow"></span><button type="button" class="btn ${last ? 'btn-primary' : ''}" id="btn-finish" data-action="finish">試験を終了して採点</button></div>`}
+      <p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>←</kbd><kbd>→</kbd> で移動</p>`;
+  }
+
+  return `${bar}<div class="wrap">${card}${actions}</div>`;
+}
+
+/* ---------- 画面：結果と解説 ---------- */
+function resultOf(s) {
+  const rows = reviewList(s).map(id => {
+    const q = BY_ID[id];
+    const sel = s.answers[id] || [];
+    return { id, q, answered: sel.length > 0, correct: isCorrect(q, sel) };
+  });
+  return { rows, ok: rows.filter(r => r.correct).length, total: rows.length };
+}
+
+function viewResult() {
+  const s = session;
+  const r = resultOf(s);
+  const rate = r.total ? r.ok / r.total : 0;
+  const pct = Math.round(rate * 100);
+  const need = Math.max(0, Math.ceil(PASS_RATE * r.total - 1e-9) - r.ok);
+  const wrongIds = r.rows.filter(x => !x.correct).map(x => x.id);
+  const unanswered = r.rows.filter(x => !x.answered).length;
+
+  const doms = DOMAINS.map(d => {
+    const rows = r.rows.filter(x => x.q.domain === d.code);
+    if (!rows.length) return '';
+    const ok = rows.filter(x => x.correct).length;
+    return `<div class="dom-row"><span class="bp-code">${d.code}</span><span>${esc(d.name)}</span><span class="num">${ok} / ${rows.length}</span>
+      <span class="meter-track acc"><span style="width:${(ok / rows.length * 100).toFixed(1)}%"></span></span></div>`;
+  }).join('');
+
+  const list = r.rows.map((x, i) => `<li><button type="button" id="res-${i}" data-action="review" data-idx="${i}">
+      <span class="res-mark ${x.correct ? 'ok' : 'ng'}" aria-label="${x.correct ? '正解' : '不正解'}">${x.correct ? '○' : '×'}</span>
+      <span class="num">問${s.ids.indexOf(x.id) + 1}</span><span class="bp-code">${x.q.domain}</span>
+      <span class="res-topic">${esc(x.q.topic)}${x.answered ? '' : '（未回答）'}</span><span class="res-go">解説 →</span></button></li>`).join('');
+
+  const timeLine = s.mode === 'exam'
+    ? `<span>所要時間 <b>${fmtTime((s.endedAt || Date.now()) - s.startedAt)}</b> / ${fmtTime(EXAM_MINUTES * 60000)}</span>` : '';
+
+  return `<div class="wrap">
+    <header class="score-head">
+      <p class="eyebrow">${modeName(s.mode)}の結果</p>
+      <div class="score-row">
+        <span class="score num">${pct}<small>%</small></span>
+        <span class="score-sub"><span>正解 <b>${r.ok}</b> / ${r.total}問</span>${timeLine}${unanswered ? `<span>未回答 <b>${unanswered}</b>問</span>` : ''}</span>
+      </div>
+      <div class="gauge" role="img" aria-label="正答率 ${pct}%、合格目安 ${PASS_PCT}%"><span style="width:${pct}%"></span><i class="mark" style="left:${PASS_RATE * 100}%" data-label="合格目安 ${PASS_PCT}%"></i></div>
+      <p class="score-msg">${rate >= PASS_RATE ? `合格目安の正答率${PASS_PCT}%を上回りました。` : `合格目安の正答率${PASS_PCT}%まで、あと${need}問です。`}</p>
+      <p class="score-note">本番は${EXAM.scaleMin}〜${EXAM.scaleMax}のスケールスコアで、${EXAM.passScore}以上が合格です。換算式は公開されていないので、ここでは正答率${PASS_PCT}%を目安にしています。</p>
+    </header>
+
+    <section class="sheet">
+      <h2 style="font-size:18px">${esc(DOMAIN_LABEL)}別の正答</h2>
+      <div class="dom-list">${doms}</div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>問題ごとの結果</h2><p>行を選ぶと、正解と解説を確認できます。</p></div>
+      <ul class="res-list">${list}</ul>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btn-res-home" data-action="home">ホームへ</button>
+      <button type="button" class="btn btn-primary" id="btn-retry" data-action="retry-wrong" ${wrongIds.length ? '' : 'disabled'}>間違えた${wrongIds.length}問を解き直す</button>
+    </div>
+  </div>`;
+}
+
+function viewReview() {
+  const s = session;
+  const list = reviewList(s);
+  const i = Math.min(Math.max(0, ui.reviewIdx), list.length - 1);
+  const id = list[i];
+  const q = BY_ID[id];
+  const bar = topBar(
+    '<button type="button" class="btn btn-ghost btn-small" id="btn-back" data-action="back-result">← 結果へ</button>',
+    `<span class="bar-mode">解説</span><span class="bar-count"><b>${i + 1}</b> / ${list.length}</span>`,
+    `<div class="bar-right">${bookmarkBtn(id)}</div>`,
+    null
+  );
+  const card = questionCard(q, { sel: s.answers[id] || [], order: s.order[id], reveal: true, number: s.ids.indexOf(id) + 1 });
+  return `${bar}<div class="wrap">${card}
+    <div class="actions">
+      <button type="button" class="btn" id="btn-rprev" data-action="review-prev" ${i ? '' : 'disabled'}>← 前の問題</button>
+      <button type="button" class="btn btn-primary" id="btn-rnext" data-action="review-next" ${i < list.length - 1 ? '' : 'disabled'}>次の問題 →</button>
+    </div></div>`;
+}
+
+/* ---------- 描画 ---------- */
+const app = document.getElementById('app');
+function render() {
+  if (view !== 'home' && !session) view = 'home';
+  const activeId = document.activeElement && document.activeElement.id;
+  if (view === 'quiz') app.innerHTML = viewQuiz();
+  else if (view === 'result') app.innerHTML = viewResult();
+  else if (view === 'review') app.innerHTML = viewReview();
+  else app.innerHTML = viewHome();
+
+  const scrollKey = view + ':' + (view === 'quiz' ? session.idx : view === 'review' ? ui.reviewIdx : '');
+  if (scrollKey !== lastScrollKey) { window.scrollTo(0, 0); lastScrollKey = scrollKey; }
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el && !el.disabled) el.focus({ preventScroll: true });
+  }
+  tick();
+}
+
+/* ---------- 操作 ---------- */
+function currentQ() { return BY_ID[session.ids[session.idx]]; }
+
+function pick(orig) {
+  const s = session;
+  const q = currentQ();
+  if (s.mode !== 'exam' && s.submitted[q.id]) return;
+  const need = q.answer.length;
+  let sel = [...(s.answers[q.id] || [])];
+  ui.hint = '';
+  if (need === 1) sel = [orig];
+  else if (sel.includes(orig)) sel = sel.filter(x => x !== orig);
+  else if (sel.length >= need) ui.hint = `選べるのは${need}つまでです。ほかの選択肢を選ぶ前に、どれかを外してください。`;
+  else sel.push(orig);
+  s.answers[q.id] = sel;
+  saveSession(); render();
+}
+function submit() {
+  const s = session;
+  const q = currentQ();
+  const sel = s.answers[q.id] || [];
+  if (s.mode === 'exam' || s.submitted[q.id] || sel.length !== q.answer.length) return;
+  s.submitted[q.id] = true;
+  record(q.id, isCorrect(q, sel));
+  saveStats(); saveSession(); render();
+}
+function go(delta) {
+  const s = session;
+  const n = s.idx + delta;
+  if (n < 0 || n >= s.ids.length) return;
+  s.idx = n; ui.hint = ''; ui.confirmFinish = false;
+  saveSession(); render();
+}
+function next() {
+  const s = session;
+  if (s.mode !== 'exam' && s.idx === s.ids.length - 1) { finishSession(); render(); return; }
+  go(1);
+}
+
+// 模擬試験の途中で別の出題を始めようとしたら、先に破棄するかを確かめる（黙って消さない）
+function examInProgress() {
+  if (!session || session.finished || session.mode !== 'exam') return false;
+  ui.confirmDiscard = true;
+  render();
+  window.scrollTo(0, 0);
+  return true;
+}
+
+const actions = {
+  'start-practice': () => { if (!examInProgress()) startPractice(); },
+  'start-exam': () => { if (!examInProgress()) startExam(); },
+  'domain-practice': el => { if (examInProgress()) return; prefs.domains = [el.dataset.domain]; prefs.filter = 'all'; savePrefs(); startPractice(); },
+  'scenario-practice': el => {
+    if (examInProgress()) return;
+    const qs = QUESTIONS.filter(q => q.scenario === el.dataset.scenario);
+    startPractice((prefs.order === 'seq' ? qs : shuffle([...qs])).map(q => q.id));
+  },
+  'toggle-domain': el => {
+    const c = el.dataset.domain;
+    prefs.domains = prefs.domains.includes(c) ? prefs.domains.filter(x => x !== c) : [...prefs.domains, c];
+    savePrefs(); render();
+  },
+  'all-domains': () => {
+    prefs.domains = prefs.domains.length === DOMAINS.length ? [] : DOMAINS.map(d => d.code);
+    savePrefs(); render();
+  },
+  'resume': () => { view = session.finished ? 'result' : 'quiz'; ui.confirmDiscard = false; render(); },
+  'last-result': () => { view = 'result'; render(); },
+  'discard': () => { ui.confirmDiscard = true; render(); },
+  'discard-no': () => { ui.confirmDiscard = false; render(); },
+  'discard-yes': () => { session = null; ui.confirmDiscard = false; saveSession(); render(); },
+  'reset': () => { ui.confirmReset = true; render(); },
+  'reset-no': () => { ui.confirmReset = false; render(); },
+  'reset-yes': () => { stats = {}; ui.confirmReset = false; saveStats(); render(); },
+  'home': () => { view = 'home'; ui.confirmFinish = false; ui.hint = ''; render(); },
+  'pick': el => pick(Number(el.dataset.opt)),
+  'submit': () => submit(),
+  'next': () => next(),
+  'prev': () => go(-1),
+  'goto': el => go(Number(el.dataset.idx) - session.idx),
+  'flag': () => { const id = currentQ().id; session.flags[id] = !session.flags[id]; saveSession(); render(); },
+  'bookmark': () => {
+    const id = view === 'review' ? reviewList(session)[ui.reviewIdx] : currentQ().id;
+    stats[id] = { ...st(id), bm: !st(id).bm }; saveStats(); render();
+  },
+  'finish': () => {
+    if (session.mode === 'exam') { ui.confirmFinish = true; render(); }
+    else { finishSession(); render(); }
+  },
+  'finish-no': () => { ui.confirmFinish = false; render(); },
+  'finish-yes': () => { finishSession(); render(); },
+  'review': el => { ui.reviewIdx = Number(el.dataset.idx); view = 'review'; render(); },
+  'review-prev': () => { ui.reviewIdx = Math.max(0, ui.reviewIdx - 1); render(); },
+  'review-next': () => { ui.reviewIdx = Math.min(reviewList(session).length - 1, ui.reviewIdx + 1); render(); },
+  'back-result': () => { view = 'result'; render(); },
+  'retry-wrong': () => {
+    const ids = resultOf(session).rows.filter(x => !x.correct).map(x => x.id);
+    startPractice(shuffle(ids));
+  },
+};
+
+app.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+  const fn = actions[el.dataset.action];
+  if (fn) fn(el, e);
+});
+app.addEventListener('change', e => {
+  const el = e.target.closest('[data-pref]');
+  if (!el) return;
+  prefs[el.dataset.pref] = el.value;
+  savePrefs(); render();
+});
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest('input, select, textarea, summary')) return;
+  if (view === 'quiz' && session) {
+    const k = e.key.toLowerCase();
+    const map = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, a: 0, b: 1, c: 2, d: 3, e: 4 };
+    const q = currentQ();
+    if (k in map) {
+      const order = session.order[q.id];
+      if (map[k] < order.length) { e.preventDefault(); pick(order[map[k]]); }
+      return;
+    }
+    if (e.key === 'Enter') {
+      const onOther = e.target.closest('button') && !e.target.closest('.opt');
+      if (onOther) return;
+      e.preventDefault();
+      if (session.mode === 'exam') { if (session.idx < session.ids.length - 1) go(1); }
+      else if (session.submitted[q.id]) next();
+      else submit();
+      return;
+    }
+    if (session.mode === 'exam') {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    }
+  } else if (view === 'review' && session) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); actions['review-next'](); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); actions['review-prev'](); }
+  }
+});
+
+/* ---------- タイマー ---------- */
+function tick() {
+  if (!session || session.mode !== 'exam' || session.finished) return;
+  const ms = session.deadline - Date.now();
+  if (ms <= 0) {
+    const wasInQuiz = view === 'quiz';
+    finishSession();
+    if (!wasInQuiz) view = 'home';
+    render();
+    return;
+  }
+  const el = document.getElementById('timer');
+  if (el) {
+    el.textContent = '残り ' + fmtTime(ms);
+    el.classList.toggle('is-low', ms < 10 * 60000);
+  }
+}
+setInterval(tick, 1000);
+
+render();
+})();
+</script>
+
+</html>

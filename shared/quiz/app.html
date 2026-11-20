@@ -1,0 +1,1143 @@
+<title>__EXAM_TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: 一枚の答案用紙。中央1カラムの問題冊子、選択肢はマークシートの楕円、採点は赤ペンの丸付け */
+:root {
+  --bg: #eef1f4;
+  --sheet: #ffffff;
+  --ink: #18202b;
+  --muted: #586473;
+  --line: #d5dbe3;
+  --print: #1b6b83;        /* マークシートの印刷インク */
+  --print-soft: #e2eff3;
+  --graphite: #262b33;     /* 鉛筆で塗った楕円 */
+  --graphite-ink: #ffffff;
+  --pen: #d03a3a;          /* 採点用の赤ペン */
+  --pen-soft: #fbeaea;
+  --ok: #1d7650;
+  --ok-soft: #e5f2ea;
+  --code-bg: #f2f4f7;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+    --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+    --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+  --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+  --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  font-feature-settings: "palt" 0;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px;
+  padding: .05em .35em; overflow-wrap: anywhere;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--print); outline-offset: 2px; }
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 72px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.wrap-wide { max-width: 920px; }
+
+/* ---------- 共通部品 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--sheet); color: var(--ink);
+  font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-primary:hover:not(:disabled) { background: var(--print); border-color: var(--print); color: var(--sheet); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover:not(:disabled) { border-color: transparent; color: var(--ink); }
+.btn-small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
+.btn-danger { background: var(--pen); border-color: var(--pen); color: var(--sheet); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--print);
+}
+.muted { color: var(--muted); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- ホーム ---------- */
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: var(--print-soft); border: 1px solid var(--print);
+}
+.banner > span { min-width: 0; }
+.banner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.hero { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.hero h1 { font-weight: 900; font-size: clamp(36px, 8vw, 56px); line-height: 1.1; letter-spacing: .01em; }
+.hero .lead { max-width: 40em; color: var(--muted); }
+
+.spec {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0; border: 1.5px solid var(--print); border-radius: 8px; overflow: hidden;
+  background: var(--sheet);
+}
+.spec > div { padding: 12px 16px; border-left: 1px solid var(--print); min-width: 0; }
+.spec > div:first-child { border-left: none; }
+.spec dt { font-size: 12px; letter-spacing: .08em; color: var(--print); font-weight: 700; }
+.spec dd { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.3; }
+.spec dd small { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--muted); }
+
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.panel {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
+}
+.panel h2 { font-size: 22px; font-weight: 900; }
+.panel-head { display: flex; flex-direction: column; gap: 4px; }
+.panel-head p { color: var(--muted); font-size: 14px; }
+.panel-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.panel-foot .count { font-size: 14px; color: var(--muted); }
+.panel-foot .count b { color: var(--ink); font-family: var(--font-mono); }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.field-label button { border: none; background: none; padding: 0; color: var(--print); font-size: 12px; font-weight: 700; cursor: pointer; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
+select {
+  font: inherit; font-size: 14px; width: 100%; min-height: 40px;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--sheet); color: var(--ink);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+}
+.chip-btn b { font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
+.chip-btn[aria-pressed="true"] { background: var(--print-soft); border-color: var(--print); color: var(--ink); }
+.ticks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.ticks li { display: flex; gap: 10px; }
+.ticks li::before {
+  content: ""; flex: none; width: 12px; height: 16px; margin-top: 5px;
+  border: 1.5px solid var(--print); border-radius: 50%;
+}
+
+.section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+.section-head h2 { font-size: 22px; font-weight: 900; }
+.section-head p { color: var(--muted); font-size: 14px; }
+.bp { display: flex; flex-direction: column; }
+.bp-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 150px 110px auto;
+  align-items: center; gap: 8px 14px; padding: 12px 0; border-top: 1px solid var(--line);
+}
+.bp-row:last-child { border-bottom: 1px solid var(--line); }
+.bp-code { font-family: var(--font-mono); font-weight: 500; color: var(--print); }
+.bp-name { min-width: 0; line-height: 1.45; }
+.bp-name b { display: block; font-weight: 700; }
+.bp-name small { color: var(--muted); font-size: 12px; }
+.meter { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.meter-track { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.meter-track span { display: block; height: 100%; background: var(--print); }
+.meter-track.acc span { background: var(--ink); }
+.meter .num { color: var(--ink); }
+
+.foot { display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--muted); }
+.foot-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.foot-stats b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.foot-stats .spacer { flex: 1; }
+.confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--ink); }
+
+/* ---------- 上部バー ---------- */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.bar-inner {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 8px;
+  display: flex; align-items: center; gap: 8px 12px;
+}
+.bar-mid { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.bar-mode { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--print); }
+.bar-count { font-family: var(--font-mono); font-size: 14px; color: var(--muted); white-space: nowrap; }
+.bar-count b { color: var(--ink); font-size: 16px; }
+.bar-right { display: flex; align-items: center; gap: 6px; }
+.timer {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px;
+  padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap;
+}
+.timer.is-low { color: var(--pen); border-color: var(--pen); }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 8px; border: 1px solid transparent;
+  background: transparent; cursor: pointer; font-size: 20px; line-height: 1; color: var(--muted);
+}
+.icon-btn:hover { border-color: var(--line); }
+.icon-btn[aria-pressed="true"] { color: var(--pen); }
+.bar-progress { height: 3px; background: var(--line); }
+.bar-progress span { display: block; height: 100%; background: var(--print); transition: width .25s; }
+
+/* ---------- 問題 ---------- */
+.sheet {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px clamp(16px, 4vw, 32px) 28px;
+  display: flex; flex-direction: column; gap: 18px; min-width: 0;
+}
+.q-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; color: var(--muted); }
+.q-num { font-family: var(--font-display); font-weight: 900; font-size: 24px; color: var(--ink); line-height: 1; }
+.q-num small { font-size: 14px; margin-right: 2px; }
+.q-dom { border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+.q-dom b { font-family: var(--font-mono); font-weight: 500; color: var(--print); margin-right: 4px; }
+.q-id { font-family: var(--font-mono); font-size: 12px; margin-left: auto; }
+.q-text { font-size: 17px; line-height: 1.9; }
+.code {
+  margin: 0; padding: 14px 16px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; overflow-x: auto; white-space: pre; tab-size: 2;
+}
+.code code { background: none; border: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.q-instr { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; font-size: 14px; font-weight: 700; }
+.q-instr .num { font-weight: 500; color: var(--muted); }
+.hint { font-size: 14px; color: var(--pen); }
+.scn {
+  border-left: 3px solid var(--print); background: var(--print-soft); border-radius: 0 8px 8px 0;
+  padding: 10px 14px; font-size: 14px; line-height: 1.75;
+}
+.scn b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--print); }
+
+.opts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 16px; width: 100%; text-align: left;
+  padding: 12px 16px 12px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; line-height: 1.7;
+}
+.opt:hover { border-color: var(--print); }
+.opt.is-chosen { border-color: var(--graphite); }
+.opt[aria-disabled="true"] { cursor: default; }
+.opt[aria-disabled="true"]:hover { border-color: var(--line); }
+.opt.is-right, .opt.is-right:hover { background: var(--ok-soft); border-color: var(--ok); }
+.opt.is-wrong, .opt.is-wrong:hover { background: var(--pen-soft); border-color: var(--pen); }
+.bubble {
+  position: relative; flex: none; width: 24px; height: 34px; margin-top: -3px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 1.5px solid var(--print); color: var(--print);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+}
+.opt.is-chosen .bubble { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.opt-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.opt-note { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.tag {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 0 8px; border-radius: 999px; margin-right: 6px; line-height: 1.8; vertical-align: 1px;
+}
+.tag-right { background: var(--ok); color: var(--sheet); }
+.tag-wrong { background: var(--pen); color: var(--sheet); }
+
+.pen {
+  position: absolute; left: 50%; top: 50%; width: 46px; height: 56px;
+  transform: translate(-50%, -50%) rotate(-10deg); overflow: visible; pointer-events: none;
+}
+.pen path, .vmark path {
+  fill: none; stroke: var(--pen); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 260; stroke-dashoffset: 0; animation: draw .6s ease-out both;
+}
+.pen-check { width: 40px; height: 44px; transform: translate(-30%, -60%) rotate(-4deg); }
+@keyframes draw { from { stroke-dashoffset: 260; } }
+
+.verdict { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 8px; }
+.verdict.ok { background: var(--ok-soft); }
+.verdict.ng { background: var(--pen-soft); }
+.vmark { width: 48px; height: 48px; flex: none; overflow: visible; }
+.verdict-title { font-family: var(--font-display); font-weight: 900; font-size: 24px; line-height: 1.2; }
+.verdict-sub { font-size: 14px; color: var(--muted); }
+.explain { display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.explain h3 { font-size: 15px; font-weight: 900; color: var(--print); letter-spacing: .06em; }
+.explain p { line-height: 1.9; }
+.ref { font-size: 13px; color: var(--muted); }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.actions .grow { flex: 1; }
+.keys { font-size: 12px; color: var(--muted); text-align: center; }
+.keys kbd {
+  font-family: var(--font-mono); font-size: 11px; padding: 0 5px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--sheet);
+}
+
+.navbox { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.navbox summary { cursor: pointer; font-weight: 700; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.navbox summary span { font-weight: 400; color: var(--muted); font-size: 13px; }
+.nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin-top: 12px; }
+.nav button {
+  position: relative; height: 36px; border-radius: 6px; border: 1px solid var(--line);
+  background: transparent; cursor: pointer; font-family: var(--font-mono); font-size: 13px;
+}
+.nav button.answered { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.nav button.current { outline: 2px solid var(--print); outline-offset: 1px; }
+.nav button.flagged::after {
+  content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--pen);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); }
+.legend .l-ans { background: var(--graphite); border-color: var(--graphite); }
+.legend .l-flag { background: var(--pen); border-color: var(--pen); border-radius: 50%; }
+.finish-box {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--pen); background: var(--pen-soft);
+}
+
+/* ---------- 結果 ---------- */
+.score-head { display: flex; flex-direction: column; gap: 14px; }
+.score-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; }
+.score { font-family: var(--font-display); font-weight: 900; font-size: clamp(56px, 14vw, 88px); line-height: .95; }
+.score small { font-size: .4em; margin-left: 4px; }
+.score-sub { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; font-size: 14px; color: var(--muted); }
+.score-sub b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.gauge { position: relative; height: 10px; border-radius: 5px; background: var(--line); margin-top: 18px; }
+.gauge > span { display: block; height: 100%; border-radius: 5px; background: var(--ink); }
+.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 2px; background: var(--pen); }
+.gauge .mark::before {
+  content: attr(data-label); position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--pen); white-space: nowrap; font-weight: 700;
+}
+.score-msg { font-weight: 700; }
+.score-note { font-size: 13px; color: var(--muted); }
+
+.dom-list { display: flex; flex-direction: column; gap: 10px; }
+.dom-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 72px; gap: 4px 14px; align-items: center; font-size: 14px; }
+.dom-row .meter-track { grid-column: 2 / 3; }
+.dom-row .num { text-align: right; }
+.res-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.res-list button {
+  width: 100%; display: grid; grid-template-columns: 28px 52px 40px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px; padding: 10px 4px; border: none; border-bottom: 1px solid var(--line);
+  background: transparent; text-align: left; cursor: pointer; font-size: 14px;
+}
+.res-list button:hover { background: var(--sheet); }
+.res-mark { font-size: 20px; line-height: 1; font-weight: 700; text-align: center; }
+.res-mark.ok { color: var(--pen); }
+.res-mark.ng { color: var(--muted); }
+.res-topic { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-go { color: var(--print); font-size: 13px; font-weight: 700; }
+
+@media (max-width: 680px) {
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec > div:nth-child(3) { border-left: none; }
+  .spec > div:nth-child(n+3) { border-top: 1px solid var(--print); }
+  .modes { grid-template-columns: minmax(0, 1fr); }
+  .bp-row { grid-template-columns: 36px minmax(0, 1fr) auto; }
+  .bp-row .meter { grid-column: 2 / 3; }
+  .bp-row .bp-go { grid-column: 3; grid-row: 1; }
+  .res-list button { grid-template-columns: 24px 44px 34px minmax(0, 1fr); }
+  .res-go { display: none; }
+  .q-id { margin-left: 0; }
+  .keys { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen path, .vmark path { animation: none; }
+  .bar-progress span { transition: none; }
+}
+</style>
+
+<div id="app"></div>
+<noscript><p style="padding:24px">この問題集は JavaScript を使います。ブラウザの設定で JavaScript を有効にしてください。</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+const QUESTIONS = /*__QUESTIONS__*/[];
+
+/* 試験ごとの設定（exam.json）。ビルド時に埋め込まれる */
+const EXAM = /*__EXAM__*/{};
+const DOMAINS = EXAM.domains;
+const SCENARIOS = EXAM.scenarios || [];
+const SKILLS = EXAM.skills || [];
+const SCN = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
+const DOM = Object.fromEntries(DOMAINS.map(d => [d.code, d]));
+const BY_ID = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+const EXAM_COUNT = EXAM.questions;
+const EXAM_MINUTES = EXAM.minutes;
+const PASS_RATE = EXAM.passRate;
+const PASS_PCT = Math.round(PASS_RATE * 100);
+const MAX_WEIGHT = Math.max(...DOMAINS.map(d => d.weight));
+const LETTERS = 'ABCDE';
+const KEY = { stats: `${EXAM.storage}.stats.v1`, session: `${EXAM.storage}.session.v1`, prefs: `${EXAM.storage}.prefs.v1` };
+const DOMAIN_LABEL = EXAM.domainLabel || '分野'; // 公式の日本語版ガイドの呼び方は「分野」
+const WEIGHT_DP = DOMAINS.some(d => !Number.isInteger(d.weight)) ? 1 : 0;
+const fmtWeight = w => w.toFixed(WEIGHT_DP);
+
+const PEN_CIRCLE = '<svg class="pen" viewBox="0 0 60 70" aria-hidden="true"><path d="M34 5C16 3 5 19 6 37c1 17 12 29 27 28 15-1 23-16 22-32C54 16 45 6 27 9"/></svg>';
+const PEN_CHECK = '<svg class="pen pen-check" viewBox="0 0 60 64" aria-hidden="true"><path d="M6 30l16 24L56 6"/></svg>';
+const MARK_OK = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M35 6C17 5 6 18 6 33s12 26 27 25c15-1 25-12 25-27C58 16 47 6 29 9"/></svg>';
+const MARK_NG = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 14L50 50M50 14L14 50"/></svg>';
+
+/* ---------- 保存（このブラウザだけ） ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 保存できない環境では記録なしで動く */ } },
+};
+
+let stats = store.get(KEY.stats, {}) || {};
+let prefs = Object.assign(
+  { domains: DOMAINS.map(d => d.code), count: '20', filter: 'all', order: 'random' },
+  store.get(KEY.prefs, {}) || {}
+);
+prefs.domains = (Array.isArray(prefs.domains) ? prefs.domains : []).filter(c => DOM[c]);
+let session = sanitizeSession(store.get(KEY.session, null));
+let view = 'home';
+let ui = { confirmReset: false, confirmFinish: false, confirmDiscard: false, hint: '', reviewIdx: 0 };
+let lastScrollKey = '';
+
+const saveStats = () => store.set(KEY.stats, stats);
+const saveSession = () => store.set(KEY.session, session);
+const savePrefs = () => store.set(KEY.prefs, prefs);
+
+function sanitizeSession(s) {
+  if (!s || !Array.isArray(s.ids)) return null;
+  s.ids = s.ids.filter(id => BY_ID[id]);
+  if (!s.ids.length) return null;
+  s.order = s.order || {}; s.answers = s.answers || {}; s.submitted = s.submitted || {}; s.flags = s.flags || {};
+  for (const id of s.ids) {
+    const n = BY_ID[id].options.length;
+    const o = s.order[id];
+    const valid = Array.isArray(o) && o.length === n && [...o].sort((a, b) => a - b).every((v, i) => v === i);
+    if (!valid) { s.order[id] = shuffle([...Array(n).keys()]); delete s.answers[id]; delete s.submitted[id]; }
+  }
+  s.idx = Math.min(Math.max(0, s.idx | 0), s.ids.length - 1);
+  return s;
+}
+
+/* ---------- ユーティリティ ---------- */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(s) {
+  return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
+}
+function fmtTime(ms) {
+  const t = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+function isCorrect(q, sel) {
+  return !!sel && sel.length === q.answer.length && q.answer.every(a => sel.includes(a));
+}
+const modeName = m => (m === 'exam' ? '模擬試験' : '練習');
+const st = id => stats[id] || {};
+
+function record(id, ok) {
+  const s = st(id);
+  stats[id] = { ...s, a: (s.a || 0) + 1, c: (s.c || 0) + (ok ? 1 : 0), last: ok };
+}
+
+/* ---------- 出題の組み立て ---------- */
+function matchesFilter(q, filter) {
+  const s = st(q.id);
+  if (filter === 'new') return !s.a;
+  if (filter === 'wrong') return !!s.a && !s.last;
+  if (filter === 'bookmark') return !!s.bm;
+  return true;
+}
+function practicePool() {
+  return QUESTIONS.filter(q => prefs.domains.includes(q.domain) && matchesFilter(q, prefs.filter));
+}
+function practiceCount(pool) {
+  return prefs.count === 'all' ? pool.length : Math.min(Number(prefs.count) || 20, pool.length);
+}
+function makeSession(mode, ids) {
+  const now = Date.now();
+  return {
+    mode, ids, idx: 0, answers: {}, submitted: {}, flags: {}, finished: false,
+    order: Object.fromEntries(ids.map(id => [id, shuffle([...Array(BY_ID[id].options.length).keys()])])),
+    startedAt: now, deadline: mode === 'exam' ? now + EXAM_MINUTES * 60000 : null,
+  };
+}
+function startPractice(ids) {
+  if (!ids) {
+    const pool = practicePool();
+    const list = prefs.order === 'seq' ? pool : shuffle([...pool]);
+    ids = list.slice(0, practiceCount(pool)).map(q => q.id);
+  }
+  if (!ids.length) return;
+  session = makeSession('practice', ids);
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+// total 問を、重み（weight）の比で各単位に割り振る。cap は、その単位に収録されている問題数。
+// 端数は、余りの大きさに比例した確率で切り上げる。毎回同じ単位が切り捨てられると、配点の小さい単位が
+// 一度も出題されなくなるため（平均すると、どの単位も配点どおりの問題数になる）
+function apportion(total, units) {
+  const sum = units.reduce((a, u) => a + u.weight, 0) || 1;
+  const rows = units.map(u => {
+    const exact = total * u.weight / sum;
+    return { code: u.code, exact, cap: u.cap, n: Math.min(Math.floor(exact), u.cap) };
+  });
+  let left = Math.min(total, units.reduce((a, u) => a + u.cap, 0)) - rows.reduce((a, r) => a + r.n, 0);
+  const cands = rows.filter(r => r.n < r.cap && r.exact % 1 > 1e-9).map(r => ({ r, w: r.exact % 1 }));
+  while (left > 0 && cands.length) {
+    let x = Math.random() * cands.reduce((a, c) => a + c.w, 0);
+    let i = 0;
+    while (i < cands.length - 1 && (x -= cands[i].w) > 0) i++;
+    cands[i].r.n++; left--;
+    cands.splice(i, 1);
+  }
+  // 収録数が足りない単位があって余ったぶんは、余りの大きい順にほかの単位へ回す
+  const byRemainder = [...rows].sort((a, b) => (b.exact % 1) - (a.exact % 1));
+  while (left > 0) {
+    let moved = false;
+    for (const r of byRemainder) {
+      if (left > 0 && r.n < r.cap) { r.n++; left--; moved = true; }
+    }
+    if (!moved) break;
+  }
+  return Object.fromEntries(rows.map(r => [r.code, r.n]));
+}
+
+function examPick() {
+  // シナリオ形式の試験（scenarioPick あり）は、本番と同じ数のシナリオを先に選び、その問題だけから出す
+  let bank = QUESTIONS;
+  let chosen = [];
+  if (EXAM.scenarioPick && SCENARIOS.length) {
+    // 分野によっては、問題が特定のシナリオに集まっている。そのシナリオが1つも選ばれないと、その分野を配点どおりに
+    // 出せない（例: 配点20%の分野が2問だけになる）。どれかの分野が配点より大きく不足する組み合わせは引き直す。
+    // 何度引いても不足するときは、不足がいちばん小さい組み合わせを使う
+    const want = Math.min(EXAM_COUNT, QUESTIONS.length);
+    const sumW = DOMAINS.reduce((a, d) => a + d.weight, 0) || 1;
+    const tolerance = Math.max(1, Math.round(want * 0.05));
+    let best = null;
+    for (let t = 0; t < 40 && !(best && best.short <= tolerance); t++) {
+      const ids = shuffle(SCENARIOS.map(s => s.id)).slice(0, EXAM.scenarioPick);
+      const pool = QUESTIONS.filter(q => ids.includes(q.scenario));
+      if (pool.length < want) continue;
+      const short = Math.max(...DOMAINS.map(d => Math.round(want * d.weight / sumW) - pool.filter(q => q.domain === d.code).length));
+      if (!best || short < best.short) best = { ids, pool, short };
+    }
+    if (best) { chosen = best.ids; bank = best.pool; }
+  }
+  const total = Math.min(EXAM_COUNT, bank.length);
+  // 配点に沿って問題数を割り振る。まず分野ごとに割り振り、試験ガイドがスキルごとの配点も示している試験
+  // （exam.json の skills）では、分野の中でさらにスキルごとに割り振る。分野の比率を崩さないため、2段にしている
+  const domainOf = k => 'D' + String(k.code).split('.')[0];
+  const bySkill = SKILLS.length > 0 && bank.every(q => q.skill);
+  const perDomain = apportion(total, DOMAINS.map(d => ({ code: d.code, weight: d.weight, cap: bank.filter(q => q.domain === d.code).length })));
+  const picked = shuffle(DOMAINS.flatMap(d => {
+    const inDomain = shuffle(bank.filter(q => q.domain === d.code));
+    if (!bySkill) return inDomain.slice(0, perDomain[d.code]);
+    const skills = SKILLS.filter(k => domainOf(k) === d.code);
+    const perSkill = apportion(perDomain[d.code], skills.map(k => ({ code: k.code, weight: k.weight, cap: inDomain.filter(q => q.skill === k.code).length })));
+    return skills.flatMap(k => inDomain.filter(q => q.skill === k.code).slice(0, perSkill[k.code]));
+  }));
+  // 本番と同じく、同じシナリオの問題をまとめて出す
+  if (chosen.length) picked.sort((a, b) => chosen.indexOf(a.scenario) - chosen.indexOf(b.scenario));
+  return picked.map(q => q.id);
+}
+function startExam() {
+  session = makeSession('exam', examPick());
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+function finishSession() {
+  const s = session;
+  if (!s || s.finished) return;
+  s.finished = true;
+  s.endedAt = s.deadline ? Math.min(Date.now(), s.deadline) : Date.now();
+  if (s.mode === 'exam') s.ids.forEach(id => record(id, isCorrect(BY_ID[id], s.answers[id])));
+  ui.confirmFinish = false;
+  saveStats(); saveSession();
+  view = 'result';
+}
+function reviewList(s) {
+  return s.mode === 'exam' ? s.ids : s.ids.filter(id => s.submitted[id]);
+}
+
+/* ---------- 画面：ホーム ---------- */
+function viewHome() {
+  const total = QUESTIONS.length;
+  const tried = QUESTIONS.filter(q => st(q.id).a).length;
+  const okLast = QUESTIONS.filter(q => st(q.id).a && st(q.id).last).length;
+  const wrong = QUESTIONS.filter(q => st(q.id).a && !st(q.id).last).length;
+  const inDomains = QUESTIONS.filter(q => prefs.domains.includes(q.domain));
+  const countOf = f => inDomains.filter(q => matchesFilter(q, f)).length;
+  const pool = practicePool();
+  const n = practiceCount(pool);
+  const allOn = prefs.domains.length === DOMAINS.length;
+
+  const chips = DOMAINS.map(d => {
+    const on = prefs.domains.includes(d.code);
+    return `<button type="button" class="chip-btn" id="chip-${d.code}" data-action="toggle-domain" data-domain="${d.code}" aria-pressed="${on}" title="${esc(d.en)}"><b>${d.code}</b>${esc(d.name)}</button>`;
+  }).join('');
+
+  const opt = (v, label, cur) => `<option value="${v}"${String(cur) === v ? ' selected' : ''}>${label}</option>`;
+
+  const rows = DOMAINS.map(d => {
+    const qs = QUESTIONS.filter(q => q.domain === d.code);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    const acc = t ? Math.round(ok / t * 100) : null;
+    return `<div class="bp-row">
+      <span class="bp-code">${d.code}</span>
+      <span class="bp-name"><b>${esc(d.name)}</b><small>${esc(d.en)}・収録 ${qs.length}問</small></span>
+      <span class="meter"><span>配点 <span class="num">${fmtWeight(d.weight)}%</span></span><span class="meter-track"><span style="width:${(d.weight / MAX_WEIGHT * 100).toFixed(1)}%"></span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${acc || 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="dom-go-${d.code}" data-action="domain-practice" data-domain="${d.code}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  const scnRows = SCENARIOS.map(sc => {
+    const qs = QUESTIONS.filter(q => q.scenario === sc.id);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    return `<div class="bp-row">
+      <span class="bp-code">${esc(sc.id)}</span>
+      <span class="bp-name"><b>${esc(sc.name)}</b><small>${fmt(sc.summary)}</small></span>
+      <span class="meter"><span>収録 <span class="num">${qs.length}問</span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${t ? Math.round(ok / t * 100) : 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="scn-go-${esc(sc.id)}" data-action="scenario-practice" data-scenario="${esc(sc.id)}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  return `<div class="wrap wrap-wide">
+    ${resumeBanner()}
+    <header class="hero">
+      <p class="eyebrow">${esc(EXAM.name)}</p>
+      <h1>${esc(EXAM.code)} 問題集</h1>
+      <p class="lead">試験ガイドの配点に合わせて作った全${total}問の練習問題です。練習モードでは1問ごとに正解と解説を確認できます。模擬試験では本番と同じ${EXAM_COUNT}問・${EXAM_MINUTES}分を通して解けます。</p>
+    </header>
+
+    <dl class="spec">
+      <div><dt>問題数</dt><dd>${EXAM_COUNT}<small> 問</small></dd></div>
+      <div><dt>試験時間</dt><dd>${EXAM_MINUTES}<small> 分</small></dd></div>
+      <div><dt>合格ライン</dt><dd>${EXAM.passScore}<small> / ${EXAM.scaleMax}</small></dd></div>
+      <div><dt>出題形式</dt><dd>選択式<small> ${esc(EXAM.format)}</small></dd></div>
+    </dl>
+
+    <section class="modes">
+      <div class="panel">
+        <div class="panel-head"><h2>練習モード</h2><p>1問ずつ解いて、その場で正解と解説を確認します。</p></div>
+        <div class="field">
+          <span class="field-label">${esc(DOMAIN_LABEL)}<button type="button" id="btn-all-dom" data-action="all-domains">${allOn ? 'すべて外す' : 'すべて選ぶ'}</button></span>
+          <div class="chips">${chips}</div>
+        </div>
+        <div class="field-row">
+          <label class="field" for="pref-filter"><span class="field-label">対象</span>
+            <select id="pref-filter" data-pref="filter">
+              ${opt('all', `すべて（${countOf('all')}）`, prefs.filter)}
+              ${opt('new', `未回答（${countOf('new')}）`, prefs.filter)}
+              ${opt('wrong', `間違えた問題（${countOf('wrong')}）`, prefs.filter)}
+              ${opt('bookmark', `ブックマーク（${countOf('bookmark')}）`, prefs.filter)}
+            </select></label>
+          <label class="field" for="pref-count"><span class="field-label">出題数</span>
+            <select id="pref-count" data-pref="count">
+              ${opt('10', '10問', prefs.count)}${opt('20', '20問', prefs.count)}${opt('50', '50問', prefs.count)}${opt('all', 'すべて', prefs.count)}
+            </select></label>
+          <label class="field" for="pref-order"><span class="field-label">順番</span>
+            <select id="pref-order" data-pref="order">
+              ${opt('random', 'ランダム', prefs.order)}${opt('seq', '番号順', prefs.order)}
+            </select></label>
+        </div>
+        <div class="panel-foot">
+          <span class="count">対象 <b>${pool.length}</b> 問から <b>${n}</b> 問を出題</span>
+          <button type="button" class="btn btn-primary" id="btn-practice" data-action="start-practice" ${n ? '' : 'disabled'}>練習を始める</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>模擬試験</h2><p>本番と同じ形式で、時間を計って通しで解きます。</p></div>
+        <ul class="ticks">
+          <li>${EXAM.scenarioPick && SCENARIOS.length ? `${SCENARIOS.length}つのシナリオから${EXAM.scenarioPick}つを無作為に選び、` : ''}${SKILLS.length ? `${esc(DOMAIN_LABEL)}とスキル` : esc(DOMAIN_LABEL)}の配点に沿って${Math.min(EXAM_COUNT, total)}問を抽出します</li>
+          <li>制限時間は${EXAM_MINUTES}分です。ページを閉じてもタイマーは進みます</li>
+          <li>採点するまで正誤は表示されません</li>
+          <li>見直し用のマークと問題一覧で、好きな問題に戻れます</li>
+        </ul>
+        <div class="panel-foot">
+          <span class="count">合格の目安は正答率 <b>${PASS_PCT}%</b></span>
+          <button type="button" class="btn btn-primary" id="btn-exam" data-action="start-exam" ${total ? '' : 'disabled'}>模擬試験を始める</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>出題範囲と学習状況</h2>
+        <p>${esc(EXAM.weightNote || '配点は試験ガイド（公開情報）の比率です。')}正答は各問題の最新の回答で数えます。</p>
+      </div>
+      <div class="bp">${rows}</div>
+    </section>
+    ${SCENARIOS.length ? `<section>
+      <div class="section-head">
+        <h2>シナリオ別に練習する</h2>
+        <p>${esc(EXAM.scenarioNote || '問題は、場面設定（シナリオ）ごとにまとまっています。')}</p>
+      </div>
+      <div class="bp">${scnRows}</div>
+    </section>` : ''}
+
+    <footer class="foot">
+      <div class="foot-stats">
+        <span>解いた問題 <b>${tried}</b> / ${total}</span>
+        <span>最新の回答で正解 <b>${okLast}</b></span>
+        <span>要復習 <b>${wrong}</b></span>
+        <span class="spacer"></span>
+        ${ui.confirmReset
+          ? `<span class="confirm">学習記録とブックマークを消しますか？
+              <button type="button" class="btn btn-small btn-danger" id="btn-reset-yes" data-action="reset-yes">消去する</button>
+              <button type="button" class="btn btn-small" id="btn-reset-no" data-action="reset-no">やめる</button></span>`
+          : `<button type="button" class="btn btn-small btn-ghost" id="btn-reset" data-action="reset" ${tried || QUESTIONS.some(q => st(q.id).bm) ? '' : 'disabled'}>学習記録をリセット</button>`}
+      </div>
+      <p>非公式の学習用問題集です。Anthropic の公式問題ではありません。出題範囲と配点は公開情報をもとにしているので、受験前に公式の試験ガイドで最新の内容を確認してください。学習記録はこのブラウザの中にだけ保存されます。</p>
+    </footer>
+  </div>`;
+}
+
+function resumeBanner() {
+  if (!session) return '';
+  if (session.finished) {
+    return `<div class="banner"><span>前回の${modeName(session.mode)}の結果が残っています。</span>
+      <div class="banner-actions"><button type="button" class="btn btn-small" id="btn-last" data-action="last-result">結果を見る</button></div></div>`;
+  }
+  const done = session.mode === 'exam'
+    ? session.ids.filter(id => (session.answers[id] || []).length).length
+    : Object.keys(session.submitted).length;
+  const left = session.mode === 'exam' ? `・残り ${fmtTime(session.deadline - Date.now())}` : '';
+  const actions = ui.confirmDiscard
+    ? `<span>途中の${modeName(session.mode)}を破棄しますか？</span>
+       <button type="button" class="btn btn-small btn-danger" id="btn-discard-yes" data-action="discard-yes">破棄する</button>
+       <button type="button" class="btn btn-small" id="btn-discard-no" data-action="discard-no">やめる</button>`
+    : `<button type="button" class="btn btn-small btn-primary" id="btn-resume" data-action="resume">続きから再開</button>
+       <button type="button" class="btn btn-small" id="btn-discard" data-action="discard">破棄</button>`;
+  return `<div class="banner"><span>${modeName(session.mode)}の途中です（${done} / ${session.ids.length}問 回答済み${left}）</span>
+    <div class="banner-actions">${actions}</div></div>`;
+}
+
+/* ---------- 画面：問題 ---------- */
+function topBar(left, mid, right, progress) {
+  return `<div class="bar"><div class="bar-inner">${left}<div class="bar-mid">${mid}</div>${right}</div>
+    ${progress == null ? '' : `<div class="bar-progress"><span style="width:${progress.toFixed(1)}%"></span></div>`}</div>`;
+}
+function bookmarkBtn(id) {
+  const on = !!st(id).bm;
+  return `<button type="button" class="icon-btn" id="btn-bm" data-action="bookmark" aria-pressed="${on}" aria-label="ブックマーク" title="ブックマーク">${on ? '★' : '☆'}</button>`;
+}
+
+function questionCard(q, o) {
+  const d = DOM[q.domain];
+  const need = q.answer.length;
+  const sel = o.sel || [];
+  const items = o.order.map((orig, i) => {
+    const chosen = sel.includes(orig);
+    const right = q.answer.includes(orig);
+    let cls = 'opt';
+    if (chosen) cls += ' is-chosen';
+    if (o.reveal) cls += right ? ' is-right' : (chosen ? ' is-wrong' : '');
+    const marks = o.reveal ? (right ? PEN_CIRCLE : (chosen ? PEN_CHECK : '')) : '';
+    const note = o.reveal
+      ? `<span class="opt-note">${right ? '<b class="tag tag-right">正解</b>' : ''}${chosen && !right ? '<b class="tag tag-wrong">あなたの回答</b>' : ''}${fmt(q.notes[orig])}</span>`
+      : '';
+    return `<li role="presentation"><button type="button" class="${cls}" id="opt-${i}" data-action="pick" data-opt="${orig}"
+      role="${need > 1 ? 'checkbox' : 'radio'}" aria-checked="${chosen}"${o.reveal ? ' aria-disabled="true"' : ''}>
+      <span class="bubble" aria-hidden="true">${LETTERS[i]}${marks}</span>
+      <span class="opt-body"><span class="opt-text">${fmt(q.options[orig])}</span>${note}</span></button></li>`;
+  }).join('');
+
+  const instr = need > 1
+    ? `<span>${need}つ選んでください</span><span class="num">${sel.length} / ${need} 選択中</span>`
+    : '<span>最も適切なものを1つ選んでください</span>';
+
+  let after = '';
+  if (o.reveal) {
+    const ok = isCorrect(q, sel);
+    const letters = o.order.map((orig, i) => (q.answer.includes(orig) ? LETTERS[i] : null)).filter(Boolean).join('・');
+    after = `<div class="verdict ${ok ? 'ok' : 'ng'}" role="status">${ok ? MARK_OK : MARK_NG}
+        <div><p class="verdict-title">${ok ? '正解' : (sel.length ? '不正解' : '未回答')}</p><p class="verdict-sub">正解は ${letters}</p></div></div>
+      <div class="explain"><h3>解説</h3><p>${fmt(q.explanation)}</p>${q.ref ? `<p class="ref">参考：${fmt(q.ref)}</p>` : ''}</div>`;
+  }
+
+  // 回答の前に見せる情報は、本番で見えるものに近づける。論点名（topic）は正解の言い回しと重なることが多く、
+  // 手がかりになるので、正解を表示するまで出さない。模擬試験では、分野と問題番号（分野が分かる）も採点まで出さない
+  const meta = o.reveal
+    ? `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-topic">${esc(q.topic)}</span><span class="q-id">${q.id}</span>`
+    : (o.exam ? '' : `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-id">${q.id}</span>`);
+
+  return `<article class="sheet" aria-labelledby="q-title">
+    <div class="q-meta">
+      <span class="q-num" id="q-title"><small>問</small>${o.number}</span>
+      ${meta}
+    </div>
+    ${SCN[q.scenario] ? `<div class="scn"><b>シナリオ：${esc(SCN[q.scenario].name)}</b>${fmt(SCN[q.scenario].summary)}</div>` : ''}
+    <div class="q-text">${fmt(q.question)}</div>
+    ${q.code ? `<pre class="code"><code>${esc(q.code)}</code></pre>` : ''}
+    ${o.reveal ? '' : `<div class="q-instr">${instr}</div>${ui.hint ? `<p class="hint" role="alert">${esc(ui.hint)}</p>` : ''}`}
+    <ul class="opts" role="${need > 1 ? 'group' : 'radiogroup'}" aria-label="選択肢">${items}</ul>
+    ${after}
+  </article>`;
+}
+
+function viewQuiz() {
+  const s = session;
+  const id = s.ids[s.idx];
+  const q = BY_ID[id];
+  const exam = s.mode === 'exam';
+  const sel = s.answers[id] || [];
+  const revealed = !exam && !!s.submitted[id];
+  const last = s.idx === s.ids.length - 1;
+  const answeredCount = s.ids.filter(x => (s.answers[x] || []).length).length;
+  const progress = exam ? answeredCount / s.ids.length * 100 : (Object.keys(s.submitted).length / s.ids.length) * 100;
+
+  const bar = topBar(
+    `<button type="button" class="btn btn-ghost btn-small" id="btn-home" data-action="home">← ${exam ? '中断' : 'ホーム'}</button>`,
+    `<span class="bar-mode">${modeName(s.mode)}</span><span class="bar-count"><b>${s.idx + 1}</b> / ${s.ids.length}</span>`,
+    `<div class="bar-right">${exam ? '<span class="timer" id="timer"></span>' : ''}${bookmarkBtn(id)}</div>`,
+    progress
+  );
+
+  const card = questionCard(q, { sel, order: s.order[id], reveal: revealed, exam, number: s.idx + 1 });
+
+  let actions;
+  if (!exam) {
+    const doneCount = Object.keys(s.submitted).length;
+    actions = revealed
+      ? `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-next" data-action="next">${last ? '結果を見る' : '次の問題へ →'}</button>
+        </div>`
+      : `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-submit" data-action="submit" ${sel.length === q.answer.length ? '' : 'disabled'}>回答する</button>
+        </div>`;
+    actions += '<p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>Enter</kbd> で回答／次へ</p>';
+  } else {
+    const flagged = !!s.flags[id];
+    const flags = s.ids.filter(x => s.flags[x]).length;
+    const nav = s.ids.map((x, i) => {
+      const cls = [(s.answers[x] || []).length ? 'answered' : '', s.flags[x] ? 'flagged' : '', i === s.idx ? 'current' : ''].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" id="nav-${i}" data-action="goto" data-idx="${i}" aria-label="問${i + 1}${(s.answers[x] || []).length ? ' 回答済み' : ''}${s.flags[x] ? ' マークあり' : ''}">${i + 1}</button>`;
+    }).join('');
+    const unanswered = s.ids.length - answeredCount;
+    actions = `<div class="actions">
+        <button type="button" class="btn" id="btn-prev" data-action="prev" ${s.idx ? '' : 'disabled'}>← 前へ</button>
+        <button type="button" class="btn btn-ghost" id="btn-flag" data-action="flag" aria-pressed="${flagged}">${flagged ? '● 見直しマーク中' : '○ 見直しマーク'}</button>
+        <button type="button" class="btn ${last ? '' : 'btn-primary'}" id="btn-next" data-action="next" ${last ? 'disabled' : ''}>次へ →</button>
+      </div>
+      <details class="navbox" open>
+        <summary>問題一覧 <span>回答済み ${answeredCount} / ${s.ids.length}・マーク ${flags}</span></summary>
+        <div class="nav">${nav}</div>
+        <div class="legend"><span><i class="l-ans"></i>回答済み</span><span><i class="l-flag"></i>見直しマーク</span><span><i></i>未回答</span></div>
+      </details>
+      ${ui.confirmFinish
+        ? `<div class="finish-box" role="alert"><span>${unanswered ? `未回答が <b>${unanswered}</b> 問あります。` : 'すべての問題に回答しました。'}採点すると回答は変更できません。</span>
+            <span class="banner-actions"><button type="button" class="btn btn-danger" id="btn-finish-yes" data-action="finish-yes">採点する</button>
+            <button type="button" class="btn" id="btn-finish-no" data-action="finish-no">戻る</button></span></div>`
+        : `<div class="actions"><span class="grow"></span><button type="button" class="btn ${last ? 'btn-primary' : ''}" id="btn-finish" data-action="finish">試験を終了して採点</button></div>`}
+      <p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>←</kbd><kbd>→</kbd> で移動</p>`;
+  }
+
+  return `${bar}<div class="wrap">${card}${actions}</div>`;
+}
+
+/* ---------- 画面：結果と解説 ---------- */
+function resultOf(s) {
+  const rows = reviewList(s).map(id => {
+    const q = BY_ID[id];
+    const sel = s.answers[id] || [];
+    return { id, q, answered: sel.length > 0, correct: isCorrect(q, sel) };
+  });
+  return { rows, ok: rows.filter(r => r.correct).length, total: rows.length };
+}
+
+function viewResult() {
+  const s = session;
+  const r = resultOf(s);
+  const rate = r.total ? r.ok / r.total : 0;
+  const pct = Math.round(rate * 100);
+  const need = Math.max(0, Math.ceil(PASS_RATE * r.total - 1e-9) - r.ok);
+  const wrongIds = r.rows.filter(x => !x.correct).map(x => x.id);
+  const unanswered = r.rows.filter(x => !x.answered).length;
+
+  const doms = DOMAINS.map(d => {
+    const rows = r.rows.filter(x => x.q.domain === d.code);
+    if (!rows.length) return '';
+    const ok = rows.filter(x => x.correct).length;
+    return `<div class="dom-row"><span class="bp-code">${d.code}</span><span>${esc(d.name)}</span><span class="num">${ok} / ${rows.length}</span>
+      <span class="meter-track acc"><span style="width:${(ok / rows.length * 100).toFixed(1)}%"></span></span></div>`;
+  }).join('');
+
+  const list = r.rows.map((x, i) => `<li><button type="button" id="res-${i}" data-action="review" data-idx="${i}">
+      <span class="res-mark ${x.correct ? 'ok' : 'ng'}" aria-label="${x.correct ? '正解' : '不正解'}">${x.correct ? '○' : '×'}</span>
+      <span class="num">問${s.ids.indexOf(x.id) + 1}</span><span class="bp-code">${x.q.domain}</span>
+      <span class="res-topic">${esc(x.q.topic)}${x.answered ? '' : '（未回答）'}</span><span class="res-go">解説 →</span></button></li>`).join('');
+
+  const timeLine = s.mode === 'exam'
+    ? `<span>所要時間 <b>${fmtTime((s.endedAt || Date.now()) - s.startedAt)}</b> / ${fmtTime(EXAM_MINUTES * 60000)}</span>` : '';
+
+  return `<div class="wrap">
+    <header class="score-head">
+      <p class="eyebrow">${modeName(s.mode)}の結果</p>
+      <div class="score-row">
+        <span class="score num">${pct}<small>%</small></span>
+        <span class="score-sub"><span>正解 <b>${r.ok}</b> / ${r.total}問</span>${timeLine}${unanswered ? `<span>未回答 <b>${unanswered}</b>問</span>` : ''}</span>
+      </div>
+      <div class="gauge" role="img" aria-label="正答率 ${pct}%、合格目安 ${PASS_PCT}%"><span style="width:${pct}%"></span><i class="mark" style="left:${PASS_RATE * 100}%" data-label="合格目安 ${PASS_PCT}%"></i></div>
+      <p class="score-msg">${rate >= PASS_RATE ? `合格目安の正答率${PASS_PCT}%を上回りました。` : `合格目安の正答率${PASS_PCT}%まで、あと${need}問です。`}</p>
+      <p class="score-note">本番は${EXAM.scaleMin}〜${EXAM.scaleMax}のスケールスコアで、${EXAM.passScore}以上が合格です。換算式は公開されていないので、ここでは正答率${PASS_PCT}%を目安にしています。</p>
+    </header>
+
+    <section class="sheet">
+      <h2 style="font-size:18px">${esc(DOMAIN_LABEL)}別の正答</h2>
+      <div class="dom-list">${doms}</div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>問題ごとの結果</h2><p>行を選ぶと、正解と解説を確認できます。</p></div>
+      <ul class="res-list">${list}</ul>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btn-res-home" data-action="home">ホームへ</button>
+      <button type="button" class="btn btn-primary" id="btn-retry" data-action="retry-wrong" ${wrongIds.length ? '' : 'disabled'}>間違えた${wrongIds.length}問を解き直す</button>
+    </div>
+  </div>`;
+}
+
+function viewReview() {
+  const s = session;
+  const list = reviewList(s);
+  const i = Math.min(Math.max(0, ui.reviewIdx), list.length - 1);
+  const id = list[i];
+  const q = BY_ID[id];
+  const bar = topBar(
+    '<button type="button" class="btn btn-ghost btn-small" id="btn-back" data-action="back-result">← 結果へ</button>',
+    `<span class="bar-mode">解説</span><span class="bar-count"><b>${i + 1}</b> / ${list.length}</span>`,
+    `<div class="bar-right">${bookmarkBtn(id)}</div>`,
+    null
+  );
+  const card = questionCard(q, { sel: s.answers[id] || [], order: s.order[id], reveal: true, number: s.ids.indexOf(id) + 1 });
+  return `${bar}<div class="wrap">${card}
+    <div class="actions">
+      <button type="button" class="btn" id="btn-rprev" data-action="review-prev" ${i ? '' : 'disabled'}>← 前の問題</button>
+      <button type="button" class="btn btn-primary" id="btn-rnext" data-action="review-next" ${i < list.length - 1 ? '' : 'disabled'}>次の問題 →</button>
+    </div></div>`;
+}
+
+/* ---------- 描画 ---------- */
+const app = document.getElementById('app');
+function render() {
+  if (view !== 'home' && !session) view = 'home';
+  const activeId = document.activeElement && document.activeElement.id;
+  if (view === 'quiz') app.innerHTML = viewQuiz();
+  else if (view === 'result') app.innerHTML = viewResult();
+  else if (view === 'review') app.innerHTML = viewReview();
+  else app.innerHTML = viewHome();
+
+  const scrollKey = view + ':' + (view === 'quiz' ? session.idx : view === 'review' ? ui.reviewIdx : '');
+  if (scrollKey !== lastScrollKey) { window.scrollTo(0, 0); lastScrollKey = scrollKey; }
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el && !el.disabled) el.focus({ preventScroll: true });
+  }
+  tick();
+}
+
+/* ---------- 操作 ---------- */
+function currentQ() { return BY_ID[session.ids[session.idx]]; }
+
+function pick(orig) {
+  const s = session;
+  const q = currentQ();
+  if (s.mode !== 'exam' && s.submitted[q.id]) return;
+  const need = q.answer.length;
+  let sel = [...(s.answers[q.id] || [])];
+  ui.hint = '';
+  if (need === 1) sel = [orig];
+  else if (sel.includes(orig)) sel = sel.filter(x => x !== orig);
+  else if (sel.length >= need) ui.hint = `選べるのは${need}つまでです。ほかの選択肢を選ぶ前に、どれかを外してください。`;
+  else sel.push(orig);
+  s.answers[q.id] = sel;
+  saveSession(); render();
+}
+function submit() {
+  const s = session;
+  const q = currentQ();
+  const sel = s.answers[q.id] || [];
+  if (s.mode === 'exam' || s.submitted[q.id] || sel.length !== q.answer.length) return;
+  s.submitted[q.id] = true;
+  record(q.id, isCorrect(q, sel));
+  saveStats(); saveSession(); render();
+}
+function go(delta) {
+  const s = session;
+  const n = s.idx + delta;
+  if (n < 0 || n >= s.ids.length) return;
+  s.idx = n; ui.hint = ''; ui.confirmFinish = false;
+  saveSession(); render();
+}
+function next() {
+  const s = session;
+  if (s.mode !== 'exam' && s.idx === s.ids.length - 1) { finishSession(); render(); return; }
+  go(1);
+}
+
+// 模擬試験の途中で別の出題を始めようとしたら、先に破棄するかを確かめる（黙って消さない）
+function examInProgress() {
+  if (!session || session.finished || session.mode !== 'exam') return false;
+  ui.confirmDiscard = true;
+  render();
+  window.scrollTo(0, 0);
+  return true;
+}
+
+const actions = {
+  'start-practice': () => { if (!examInProgress()) startPractice(); },
+  'start-exam': () => { if (!examInProgress()) startExam(); },
+  'domain-practice': el => { if (examInProgress()) return; prefs.domains = [el.dataset.domain]; prefs.filter = 'all'; savePrefs(); startPractice(); },
+  'scenario-practice': el => {
+    if (examInProgress()) return;
+    const qs = QUESTIONS.filter(q => q.scenario === el.dataset.scenario);
+    startPractice((prefs.order === 'seq' ? qs : shuffle([...qs])).map(q => q.id));
+  },
+  'toggle-domain': el => {
+    const c = el.dataset.domain;
+    prefs.domains = prefs.domains.includes(c) ? prefs.domains.filter(x => x !== c) : [...prefs.domains, c];
+    savePrefs(); render();
+  },
+  'all-domains': () => {
+    prefs.domains = prefs.domains.length === DOMAINS.length ? [] : DOMAINS.map(d => d.code);
+    savePrefs(); render();
+  },
+  'resume': () => { view = session.finished ? 'result' : 'quiz'; ui.confirmDiscard = false; render(); },
+  'last-result': () => { view = 'result'; render(); },
+  'discard': () => { ui.confirmDiscard = true; render(); },
+  'discard-no': () => { ui.confirmDiscard = false; render(); },
+  'discard-yes': () => { session = null; ui.confirmDiscard = false; saveSession(); render(); },
+  'reset': () => { ui.confirmReset = true; render(); },
+  'reset-no': () => { ui.confirmReset = false; render(); },
+  'reset-yes': () => { stats = {}; ui.confirmReset = false; saveStats(); render(); },
+  'home': () => { view = 'home'; ui.confirmFinish = false; ui.hint = ''; render(); },
+  'pick': el => pick(Number(el.dataset.opt)),
+  'submit': () => submit(),
+  'next': () => next(),
+  'prev': () => go(-1),
+  'goto': el => go(Number(el.dataset.idx) - session.idx),
+  'flag': () => { const id = currentQ().id; session.flags[id] = !session.flags[id]; saveSession(); render(); },
+  'bookmark': () => {
+    const id = view === 'review' ? reviewList(session)[ui.reviewIdx] : currentQ().id;
+    stats[id] = { ...st(id), bm: !st(id).bm }; saveStats(); render();
+  },
+  'finish': () => {
+    if (session.mode === 'exam') { ui.confirmFinish = true; render(); }
+    else { finishSession(); render(); }
+  },
+  'finish-no': () => { ui.confirmFinish = false; render(); },
+  'finish-yes': () => { finishSession(); render(); },
+  'review': el => { ui.reviewIdx = Number(el.dataset.idx); view = 'review'; render(); },
+  'review-prev': () => { ui.reviewIdx = Math.max(0, ui.reviewIdx - 1); render(); },
+  'review-next': () => { ui.reviewIdx = Math.min(reviewList(session).length - 1, ui.reviewIdx + 1); render(); },
+  'back-result': () => { view = 'result'; render(); },
+  'retry-wrong': () => {
+    const ids = resultOf(session).rows.filter(x => !x.correct).map(x => x.id);
+    startPractice(shuffle(ids));
+  },
+};
+
+app.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+  const fn = actions[el.dataset.action];
+  if (fn) fn(el, e);
+});
+app.addEventListener('change', e => {
+  const el = e.target.closest('[data-pref]');
+  if (!el) return;
+  prefs[el.dataset.pref] = el.value;
+  savePrefs(); render();
+});
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest('input, select, textarea, summary')) return;
+  if (view === 'quiz' && session) {
+    const k = e.key.toLowerCase();
+    const map = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, a: 0, b: 1, c: 2, d: 3, e: 4 };
+    const q = currentQ();
+    if (k in map) {
+      const order = session.order[q.id];
+      if (map[k] < order.length) { e.preventDefault(); pick(order[map[k]]); }
+      return;
+    }
+    if (e.key === 'Enter') {
+      const onOther = e.target.closest('button') && !e.target.closest('.opt');
+      if (onOther) return;
+      e.preventDefault();
+      if (session.mode === 'exam') { if (session.idx < session.ids.length - 1) go(1); }
+      else if (session.submitted[q.id]) next();
+      else submit();
+      return;
+    }
+    if (session.mode === 'exam') {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    }
+  } else if (view === 'review' && session) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); actions['review-next'](); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); actions['review-prev'](); }
+  }
+});
+
+/* ---------- タイマー ---------- */
+function tick() {
+  if (!session || session.mode !== 'exam' || session.finished) return;
+  const ms = session.deadline - Date.now();
+  if (ms <= 0) {
+    const wasInQuiz = view === 'quiz';
+    finishSession();
+    if (!wasInQuiz) view = 'home';
+    render();
+    return;
+  }
+  const el = document.getElementById('timer');
+  if (el) {
+    el.textContent = '残り ' + fmtTime(ms);
+    el.classList.toggle('is-low', ms < 10 * 60000);
+  }
+}
+setInterval(tick, 1000);
+
+render();
+})();
+</script>

@@ -1,0 +1,32 @@
+{
+  "code": "CCAR-F",
+  "name": "Claude Certified Architect – Foundations",
+  "storage": "ccarf",
+  "questions": 60,
+  "minutes": 120,
+  "passScore": 720,
+  "scaleMin": 100,
+  "scaleMax": 1000,
+  "passRate": 0.72,
+  "format": "単一・複数",
+  "types": ["single", "multi"],
+  "weightNote": "配点は公式試験ガイド v1.1（2026年11月発効。配点は v1.0 と同じ）の比率です。",
+  "domains": [
+    { "code": "D1", "name": "エージェントアーキテクチャとオーケストレーション", "en": "Agentic Architecture & Orchestration", "weight": 27 },
+    { "code": "D2", "name": "ツール設計と MCP 統合", "en": "Tool Design & MCP Integration", "weight": 18 },
+    { "code": "D3", "name": "Claude Code の設定とワークフロー", "en": "Claude Code Configuration & Workflows", "weight": 20 },
+    { "code": "D4", "name": "プロンプトエンジニアリングと構造化出力", "en": "Prompt Engineering & Structured Output", "weight": 20 },
+    { "code": "D5", "name": "コンテキスト管理と信頼性", "en": "Context Management & Reliability", "weight": 15 }
+  ],
+  "scenarioPick": 4,
+  "scenarioNote": "本番では、試験ガイドにある6つのシナリオのうち4つが無作為に選ばれ、それぞれが一連の問題の前提になります。模擬試験でも4つを無作為に選びます（分野の配点を保てない組み合わせは、選び直します）。",
+  "scenarios": [
+    { "id": "S1", "name": "カスタマーサポート解決エージェント", "summary": "Claude Agent SDK で、返品・請求の異議・アカウントの問題などを扱うサポートエージェントを構築しています。バックエンドには自作の MCP ツール（`get_customer`、`lookup_order`、`process_refund`、`escalate_to_human`）でつながります。エスカレーションすべき場面を見極めながら、初回解決率 80% 以上を目指します。" },
+    { "id": "S2", "name": "Claude Code によるコード生成", "summary": "チームの開発に Claude Code を使っています。コード生成、リファクタリング、デバッグ、ドキュメント作成が対象です。カスタムスラッシュコマンドと CLAUDE.md で開発フローに組み込み、プランモードと直接実行を使い分けます。" },
+    { "id": "S3", "name": "マルチエージェントリサーチシステム", "summary": "Claude Agent SDK でリサーチシステムを構築しています。コーディネーターが、Web 検索、文書分析、調査結果の統合、レポート生成の各サブエージェントに作業を委任し、出典付きの包括的なレポートを作ります。" },
+    { "id": "S4", "name": "Claude による開発者の生産性向上", "summary": "Claude Agent SDK で開発者向けの支援ツールを構築しています。不慣れなコードベースの探索、レガシーシステムの理解、ボイラープレートの生成、繰り返し作業の自動化を支援します。組み込みツール（Read、Write、Bash、Grep、Glob）と MCP サーバーを使います。" },
+    { "id": "S5", "name": "継続的インテグレーションのための Claude Code", "summary": "CI/CD パイプラインに Claude Code を組み込み、コードレビューの自動化、テストケースの生成、プルリクエストへのフィードバックを行います。実行可能なフィードバックを返し、誤検知を最小限に抑えるプロンプトを設計します。" },
+    { "id": "S6", "name": "構造化データ抽出", "summary": "非構造化の文書から情報を抽出し、JSON スキーマで検証して高い精度を保つシステムを構築しています。エッジケースを適切に扱い、下流のシステムと連携します。" }
+  ],
+  "_artifact": "https://claude.ai/artifact/E5YvRTQKYTuHbq9tydtsEE"
+}

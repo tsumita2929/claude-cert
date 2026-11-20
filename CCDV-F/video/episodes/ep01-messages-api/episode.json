@@ -1,0 +1,600 @@
+{
+  "number": 1,
+  "title": "Messages API の基本",
+  "subtitle": "リクエストの形、レスポンスの読み方、ストリーミング",
+  "thumbnail": {
+    "headline": "必須は\n3つだけ",
+    "sub": "Messages API の基本"
+  },
+  "scenes": [
+    {
+      "id": "open",
+      "type": "title",
+      "chapter": "オープニング",
+      "lines": [
+        {
+          "text": "CCDV-F キャッチアップ講座、第1回です。"
+        },
+        {
+          "text": "今回は、すべての土台になる Messages API の基本を、まとめて押さえます。"
+        },
+        {
+          "text": "リクエストの形、レスポンスの読み方、そしてストリーミング。順に見ていきましょう。"
+        }
+      ]
+    },
+    {
+      "id": "params",
+      "type": "points",
+      "chapter": "リクエストの形",
+      "props": {
+        "heading": "必須パラメータは3つ",
+        "lead": "どれか1つでも欠けると、リクエストは受け付けられない",
+        "items": [
+          {
+            "label": "model",
+            "mono": true,
+            "desc": "使うモデルの ID"
+          },
+          {
+            "label": "max_tokens",
+            "mono": true,
+            "desc": "1回の応答で生成する出力の上限"
+          },
+          {
+            "label": "messages",
+            "mono": true,
+            "desc": "`user` と `assistant` が並ぶ、会話の中身"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "リクエストの必須パラメータは、3つです。"
+        },
+        {
+          "text": "使うモデルを表す、`model`。",
+          "step": 1
+        },
+        {
+          "text": "出力の上限を決める、`max_tokens`。",
+          "step": 2
+        },
+        {
+          "text": "そして、会話の中身である、`messages` です。",
+          "step": 3
+        },
+        {
+          "text": "この3つは、必ず覚えてください。"
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "type": "code",
+      "props": {
+        "heading": "`system` はトップレベルで渡す",
+        "lead": "`messages` の配列には入れない",
+        "lang": "json",
+        "code": "{\n  \"model\": \"claude-sonnet-5-5\",\n  \"max_tokens\": 1024,\n  \"system\": \"あなたは丁寧なサポート担当です。\",\n  \"messages\": [\n    {\"role\": \"user\", \"content\": \"返品方法を教えて\"}\n  ]\n}",
+        "focus": [
+          [
+            4
+          ],
+          [
+            5,
+            6,
+            7
+          ]
+        ],
+        "notes": [
+          "システムプロンプトはここ",
+          "ここは会話だけ"
+        ]
+      },
+      "lines": [
+        {
+          "text": "システムプロンプトの渡し方にも、決まりがあります。"
+        },
+        {
+          "text": "システムプロンプトは、トップレベルの `system` パラメータで渡します。",
+          "step": 1
+        },
+        {
+          "text": "`messages` の配列に入れるのは、会話だけです。",
+          "step": 2
+        },
+        {
+          "text": "他社の API から移植するとき、`role` が `system` のメッセージを先頭に入れてしまうのは、典型的な間違いです。"
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "type": "code",
+      "chapter": "会話の続け方",
+      "props": {
+        "heading": "会話の続きは、履歴ごと送る",
+        "lead": "API はステートレス。前のやり取りを覚えていない",
+        "lang": "json",
+        "code": "\"messages\": [\n  {\"role\": \"user\", \"content\": \"返品方法を教えて\"},\n  {\"role\": \"assistant\", \"content\": \"30日以内なら可能です\"},\n  {\"role\": \"user\", \"content\": \"送料はかかる？\"}\n]",
+        "focus": [
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "notes": [
+          "これまで",
+          "新しい質問"
+        ]
+      },
+      "lines": [
+        {
+          "text": "次は、会話の続け方です。"
+        },
+        {
+          "text": "Messages API は、ステートレスです。サーバーは、前のやり取りを覚えていません。"
+        },
+        {
+          "text": "ですから、2回目の質問をするときは、これまでのやり取りも一緒に送ります。",
+          "step": 1
+        },
+        {
+          "text": "新しい質問は、その最後に足します。",
+          "step": 2
+        },
+        {
+          "text": "履歴を保存して、毎回まとめて送るのは、アプリ側の仕事です。"
+        }
+      ]
+    },
+    {
+      "id": "response",
+      "type": "code",
+      "chapter": "レスポンスの読み方",
+      "props": {
+        "heading": "`content` はブロックの配列",
+        "lead": "文字列ではない。種類の違うブロックが並ぶ",
+        "lang": "json",
+        "code": "{\n  \"role\": \"assistant\",\n  \"content\": [\n    {\"type\": \"text\", \"text\": \"30日以内なら可能です\"}\n  ],\n  \"stop_reason\": \"end_turn\",\n  \"usage\": {\"input_tokens\": 25, \"output_tokens\": 12}\n}",
+        "focus": [
+          [
+            3,
+            4,
+            5
+          ],
+          [
+            7
+          ],
+          [
+            6
+          ]
+        ],
+        "notes": [
+          "ブロックの配列",
+          "トークン数",
+          "止まった理由"
+        ]
+      },
+      "lines": [
+        {
+          "text": "続いて、レスポンスの読み方です。"
+        },
+        {
+          "text": "応答の本文は、`content` に入っています。文字列ではなく、ブロックの配列です。",
+          "step": 1
+        },
+        {
+          "text": "トークンの使用量は、`usage` で確認できます。",
+          "step": 2
+        },
+        {
+          "text": "そして `stop_reason` には、モデルが止まった理由が入ります。",
+          "step": 3
+        }
+      ]
+    },
+    {
+      "id": "blocks",
+      "type": "points",
+      "props": {
+        "heading": "ブロックには種類がある",
+        "lead": "最初の要素が文章とは限らない",
+        "items": [
+          {
+            "label": "text",
+            "mono": true,
+            "desc": "文章。画面に表示する本文"
+          },
+          {
+            "label": "thinking",
+            "mono": true,
+            "desc": "モデルの思考"
+          },
+          {
+            "label": "tool_use",
+            "mono": true,
+            "desc": "ツールの呼び出し"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "ブロックには、種類があります。"
+        },
+        {
+          "text": "文章が入る、`text`。",
+          "step": 1
+        },
+        {
+          "text": "モデルの思考が入る、`thinking`。",
+          "step": 2
+        },
+        {
+          "text": "ツールの呼び出しを表す、`tool_use`。",
+          "step": 3
+        },
+        {
+          "text": "ですから、最初の要素が文章だと、決めつけてはいけません。"
+        },
+        {
+          "text": "表示する文章は、`type` が `text` のブロックを集めて作ります。",
+          "mark": 0
+        }
+      ]
+    },
+    {
+      "id": "stop1",
+      "type": "points",
+      "chapter": "stop_reason",
+      "props": {
+        "heading": "`stop_reason` を先に確認する",
+        "lead": "`content` を読む前に、なぜ止まったかを見る",
+        "items": [
+          {
+            "label": "end_turn",
+            "mono": true,
+            "desc": "自然に話し終えた。そのまま使える"
+          },
+          {
+            "label": "max_tokens",
+            "mono": true,
+            "desc": "上限で打ち切られた。文が途中の可能性がある"
+          },
+          {
+            "label": "stop_sequence",
+            "mono": true,
+            "desc": "指定した停止文字列に一致して止まった"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "ここからは、大事なポイント、`stop_reason` の話です。"
+        },
+        {
+          "text": "`end_turn` は、自然に話し終えた状態です。",
+          "step": 1
+        },
+        {
+          "text": "`max_tokens` は、出力が上限で打ち切られた状態。文章が途中で切れているかもしれません。",
+          "step": 2,
+          "mark": 1
+        },
+        {
+          "text": "`stop_sequence` は、指定した停止文字列に一致して、止まった状態です。",
+          "step": 3
+        }
+      ]
+    },
+    {
+      "id": "stop2",
+      "type": "points",
+      "props": {
+        "heading": "続きの対応が必要な止まり方",
+        "lead": "このほか、コンテキストの上限で止まる値もある",
+        "items": [
+          {
+            "label": "tool_use",
+            "mono": true,
+            "desc": "ツールの実行を求めている。実行して結果を返す"
+          },
+          {
+            "label": "pause_turn",
+            "mono": true,
+            "desc": "サーバーツールの処理が上限に達して一時停止"
+          },
+          {
+            "label": "refusal",
+            "mono": true,
+            "desc": "安全性の判定で、応答の生成を断った"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "`tool_use` は、Claude がツールの実行を求めている状態です。アプリが実行して、結果を返します。",
+          "step": 1
+        },
+        {
+          "text": "`pause_turn` は、ウェブ検索などのサーバーツールの処理が、上限に達して一時停止した状態です。",
+          "step": 2
+        },
+        {
+          "text": "エラーではありません。返ってきた内容を履歴に足して、もう一度送れば、続きから再開します。"
+        },
+        {
+          "text": "`refusal` は、安全性の判定によって、Claude が応答を断った状態です。",
+          "step": 3
+        },
+        {
+          "text": "このほか、コンテキストウィンドウの上限に達して止まった場合の値もあります。"
+        },
+        {
+          "text": "鉄則は、`content` を読む前に、必ず `stop_reason` を確認することです。",
+          "pause": 0.6
+        }
+      ]
+    },
+    {
+      "id": "limits",
+      "type": "compare",
+      "props": {
+        "heading": "`max_tokens` は出力だけの上限",
+        "left": {
+          "title": "max_tokens",
+          "items": [
+            {
+              "label": "1回の応答の出力",
+              "desc": "超えると、そこで打ち切られる"
+            },
+            {
+              "label": "モデルは値を知らない",
+              "desc": "上限に合わせて書いてはくれない"
+            }
+          ]
+        },
+        "right": {
+          "title": "コンテキストウィンドウ",
+          "items": [
+            {
+              "label": "入力と出力の合計",
+              "desc": "モデルが一度に扱える総量"
+            },
+            {
+              "label": "モデルごとに決まる",
+              "desc": "大きさはモデルの一覧で確認する"
+            }
+          ]
+        }
+      },
+      "lines": [
+        {
+          "text": "`max_tokens` について、もう一つ。これは、1回の応答で生成できる出力の上限です。",
+          "step": 1
+        },
+        {
+          "text": "モデル自身は、この値を知りません。単に、そこで打ち切られるだけです。"
+        },
+        {
+          "text": "入力と出力を合わせた総量である、コンテキストウィンドウとは、別の制限です。",
+          "step": 2
+        }
+      ]
+    },
+    {
+      "id": "stream",
+      "type": "code",
+      "chapter": "ストリーミング",
+      "props": {
+        "heading": "`stream: true` で少しずつ届く",
+        "lead": "応答が Server-Sent Events で送られてくる",
+        "lang": "json",
+        "code": "{\n  \"model\": \"claude-sonnet-5-5\",\n  \"max_tokens\": 1024,\n  \"stream\": true,\n  \"messages\": [{\"role\": \"user\", \"content\": \"こんにちは\"}]\n}",
+        "focus": [
+          [
+            4
+          ]
+        ],
+        "notes": [
+          "これを足す"
+        ]
+      },
+      "lines": [
+        {
+          "text": "続いて、ストリーミングです。"
+        },
+        {
+          "text": "リクエストに `stream: true` を足すと、応答が少しずつ届きます。",
+          "read": "リクエストに、ストリーム・トゥルーを足すと、応答が少しずつ届きます。",
+          "step": 1
+        },
+        {
+          "text": "形式は、Server-Sent Events、略して SSE です。"
+        },
+        {
+          "text": "長い出力が必要なときは、ストリーミングで受け取るのが推奨です。一度に待つと、タイムアウトしやすいからです。"
+        }
+      ]
+    },
+    {
+      "id": "events",
+      "type": "points",
+      "props": {
+        "heading": "イベントが届く順番",
+        "ordered": true,
+        "items": [
+          {
+            "label": "message_start",
+            "mono": true,
+            "desc": "応答の始まり"
+          },
+          {
+            "label": "content_block_delta",
+            "mono": true,
+            "desc": "本文の断片。ブロックごとに繰り返す"
+          },
+          {
+            "label": "message_delta",
+            "mono": true,
+            "desc": "`stop_reason` と出力トークン数が確定する"
+          },
+          {
+            "label": "message_stop",
+            "mono": true,
+            "desc": "応答の終わり"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "イベントが届く順番を、見ておきましょう。"
+        },
+        {
+          "text": "最初に、`message_start`。",
+          "step": 1
+        },
+        {
+          "text": "次に、ブロックごとに、開始、断片、終了のイベントが繰り返されます。",
+          "step": 2
+        },
+        {
+          "text": "そのあとに、`message_delta`。",
+          "step": 3
+        },
+        {
+          "text": "最後が、`message_stop` です。",
+          "step": 4
+        },
+        {
+          "text": "`stop_reason` と、最終的な出力トークン数が確定するのは、終盤の `message_delta` です。",
+          "mark": 2
+        }
+      ]
+    },
+    {
+      "id": "toolargs",
+      "type": "points",
+      "props": {
+        "heading": "ツールの引数は断片で届く",
+        "lead": "断片だけでは、正しい JSON にならない",
+        "ordered": true,
+        "items": [
+          {
+            "label": "受け取る",
+            "desc": "`input_json_delta` で、引数の断片が届く"
+          },
+          {
+            "label": "つなげる",
+            "desc": "同じ index の断片を、順につないでおく"
+          },
+          {
+            "label": "解析する",
+            "desc": "`content_block_stop` が来てから、一度だけ"
+          }
+        ]
+      },
+      "lines": [
+        {
+          "text": "ストリーミング中のツール呼び出しにも、注意が必要です。"
+        },
+        {
+          "text": "ツールの引数は、専用のイベントで、断片として届きます。",
+          "step": 1
+        },
+        {
+          "text": "断片は、単独では正しい JSON ではありません。同じインデックスの断片を、つなげておきます。",
+          "step": 2
+        },
+        {
+          "text": "そして、ブロックの終わりを知らせるイベントが来てから、一度だけ解析します。",
+          "step": 3
+        },
+        {
+          "text": "自分で組み立てたくなければ、SDK のヘルパーで、完成したメッセージを受け取れます。"
+        }
+      ]
+    },
+    {
+      "id": "quiz",
+      "type": "quiz",
+      "chapter": "ミニクイズ",
+      "props": {
+        "question": "ストリーミングで、`stop_reason` が確定するのは、どのイベントでしょうか。",
+        "options": [
+          "`message_start`",
+          "`content_block_stop`",
+          "`message_delta`",
+          "`message_stop`"
+        ],
+        "answer": 2,
+        "explain": "最後の `message_stop` ではない点に注意。"
+      },
+      "lines": [
+        {
+          "text": "それでは、ミニクイズです。"
+        },
+        {
+          "text": "ストリーミングで、`stop_reason` が確定するのは、どのイベントでしょうか。",
+          "step": 1
+        },
+        {
+          "wait": 5,
+          "step": 2
+        },
+        {
+          "text": "正解は C。`message_delta` です。",
+          "read": "正解は、シー。メッセージデルタです。",
+          "step": 3
+        },
+        {
+          "text": "最後の `message_stop` ではないので、注意してください。",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "id": "wrap",
+      "type": "summary",
+      "chapter": "まとめ",
+      "props": {
+        "items": [
+          "必須は `model`・`max_tokens`・`messages`",
+          "会話の続きは、履歴ごと送る",
+          "`content` の前に `stop_reason` を確認",
+          "`stop_reason` の確定は `message_delta`"
+        ],
+        "next": "エラー処理と本番運用"
+      },
+      "lines": [
+        {
+          "text": "今回のまとめです。"
+        },
+        {
+          "text": "必須パラメータは、`model`、`max_tokens`、`messages` の3つ。",
+          "step": 1
+        },
+        {
+          "text": "会話の続きは、履歴ごと送る。",
+          "step": 2
+        },
+        {
+          "text": "`content` を読む前に、`stop_reason` を確認する。",
+          "step": 3
+        },
+        {
+          "text": "そして、ストリーミングで `stop_reason` が確定するのは、`message_delta` です。",
+          "step": 4
+        },
+        {
+          "text": "次回は、エラー処理と本番運用を取り上げます。",
+          "step": 5
+        }
+      ]
+    }
+  ]
+}

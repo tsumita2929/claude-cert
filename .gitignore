@@ -1,0 +1,45 @@
+# このリポジトリは公開（public）。ここで外したものは GitHub に上がらない。
+# 入れるのは、素材（data/、course/、台本、スクリプト）と、配る完成品（index.html、m4a、pptx）。
+
+# --- 公式の試験ガイド（PDF と、そこから取り出したテキスト）---
+# リポジトリは公開なので、入れると再配布になる。手元の reference/ にだけ置く。
+# 入手先は shared/program.md の「3. 公式の一次情報の場所」
+*_exam_guide_*.pdf
+*_exam_guide_*.txt
+
+# --- 作り直せるもの ---
+# 公開用のサイトの書き出し先（`python3 shared/site/build.py`）
+_site/
+
+# npm のパッケージ（shared/slides と各試験の video は `npm install` で入れ直せる）
+node_modules/
+
+# 解説動画の書き出し先と途中のファイル（cert-video スキルが作る。mp4、音声、キャッシュ）。
+# 各 video/ の .gitignore にも同じ指定がある。こちらは、それが無いフォルダのための保険
+/*/video/out/
+/*/video/.cache/
+/*/video/public/ep/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# ログ
+*.log
+
+# --- 手元だけのファイル ---
+# macOS
+.DS_Store
+
+# PowerPoint や LibreOffice で pptx を開いているあいだにできるロックファイル
+~$*
+.~lock.*#
+
+# Claude Code の個人設定（許可したコマンドなど）と、作業用のコピー
+**/.claude/settings.local.json
+**/.claude/worktrees/
+
+# 秘密情報（API キーなど）。いまは使っていないが、公開リポジトリなので先に外しておく
+.env
+.env.*

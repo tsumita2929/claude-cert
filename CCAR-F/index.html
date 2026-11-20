@@ -1,0 +1,1150 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CCAR-F 問題集</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap">
+<style>
+/* Layout: 一枚の答案用紙。中央1カラムの問題冊子、選択肢はマークシートの楕円、採点は赤ペンの丸付け */
+:root {
+  --bg: #eef1f4;
+  --sheet: #ffffff;
+  --ink: #18202b;
+  --muted: #586473;
+  --line: #d5dbe3;
+  --print: #1b6b83;        /* マークシートの印刷インク */
+  --print-soft: #e2eff3;
+  --graphite: #262b33;     /* 鉛筆で塗った楕円 */
+  --graphite-ink: #ffffff;
+  --pen: #d03a3a;          /* 採点用の赤ペン */
+  --pen-soft: #fbeaea;
+  --ok: #1d7650;
+  --ok-soft: #e5f2ea;
+  --code-bg: #f2f4f7;
+  --font-display: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+    --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+    --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1318; --sheet: #171c23; --ink: #e6e9ee; --muted: #9aa4b2; --line: #2a323d;
+  --print: #6bbfd5; --print-soft: #15303a; --graphite: #e6e9ee; --graphite-ink: #0f1318;
+  --pen: #ff716b; --pen-soft: #3a1e21; --ok: #5cc898; --ok-soft: #13302a; --code-bg: #11161c;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  font-feature-settings: "palt" 0;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--bg);
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+code {
+  font-family: var(--font-mono); font-size: .88em;
+  background: var(--code-bg); border: 1px solid var(--line); border-radius: 4px;
+  padding: .05em .35em; overflow-wrap: anywhere;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--print); outline-offset: 2px; }
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 72px;
+  display: flex; flex-direction: column; gap: 28px;
+}
+.wrap-wide { max-width: 920px; }
+
+/* ---------- 共通部品 ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 8px 18px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--sheet); color: var(--ink);
+  font-weight: 700; font-size: 15px; cursor: pointer; white-space: nowrap;
+}
+.btn:hover:not(:disabled) { border-color: var(--ink); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn-primary:hover:not(:disabled) { background: var(--print); border-color: var(--print); color: var(--sheet); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover:not(:disabled) { border-color: transparent; color: var(--ink); }
+.btn-small { min-height: 36px; padding: 4px 12px; font-size: 14px; }
+.btn-danger { background: var(--pen); border-color: var(--pen); color: var(--sheet); }
+.eyebrow {
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--print);
+}
+.muted { color: var(--muted); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- ホーム ---------- */
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: var(--print-soft); border: 1px solid var(--print);
+}
+.banner > span { min-width: 0; }
+.banner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+.hero { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.hero h1 { font-weight: 900; font-size: clamp(36px, 8vw, 56px); line-height: 1.1; letter-spacing: .01em; }
+.hero .lead { max-width: 40em; color: var(--muted); }
+
+.spec {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0; border: 1.5px solid var(--print); border-radius: 8px; overflow: hidden;
+  background: var(--sheet);
+}
+.spec > div { padding: 12px 16px; border-left: 1px solid var(--print); min-width: 0; }
+.spec > div:first-child { border-left: none; }
+.spec dt { font-size: 12px; letter-spacing: .08em; color: var(--print); font-weight: 700; }
+.spec dd { margin: 2px 0 0; font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.3; }
+.spec dd small { font-family: var(--font-body); font-size: 13px; font-weight: 500; color: var(--muted); }
+
+.modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.panel {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0;
+}
+.panel h2 { font-size: 22px; font-weight: 900; }
+.panel-head { display: flex; flex-direction: column; gap: 4px; }
+.panel-head p { color: var(--muted); font-size: 14px; }
+.panel-foot { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.panel-foot .count { font-size: 14px; color: var(--muted); }
+.panel-foot .count b { color: var(--ink); font-family: var(--font-mono); }
+
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field-label { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.field-label button { border: none; background: none; padding: 0; color: var(--print); font-size: 12px; font-weight: 700; cursor: pointer; }
+.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; }
+select {
+  font: inherit; font-size: 14px; width: 100%; min-height: 40px;
+  padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line);
+  background: var(--sheet); color: var(--ink);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; padding: 4px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+}
+.chip-btn b { font-family: var(--font-mono); font-weight: 500; font-size: 12px; }
+.chip-btn[aria-pressed="true"] { background: var(--print-soft); border-color: var(--print); color: var(--ink); }
+.ticks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.ticks li { display: flex; gap: 10px; }
+.ticks li::before {
+  content: ""; flex: none; width: 12px; height: 16px; margin-top: 5px;
+  border: 1.5px solid var(--print); border-radius: 50%;
+}
+
+.section-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+.section-head h2 { font-size: 22px; font-weight: 900; }
+.section-head p { color: var(--muted); font-size: 14px; }
+.bp { display: flex; flex-direction: column; }
+.bp-row {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) 150px 110px auto;
+  align-items: center; gap: 8px 14px; padding: 12px 0; border-top: 1px solid var(--line);
+}
+.bp-row:last-child { border-bottom: 1px solid var(--line); }
+.bp-code { font-family: var(--font-mono); font-weight: 500; color: var(--print); }
+.bp-name { min-width: 0; line-height: 1.45; }
+.bp-name b { display: block; font-weight: 700; }
+.bp-name small { color: var(--muted); font-size: 12px; }
+.meter { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.meter-track { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.meter-track span { display: block; height: 100%; background: var(--print); }
+.meter-track.acc span { background: var(--ink); }
+.meter .num { color: var(--ink); }
+
+.foot { display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: var(--muted); }
+.foot-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.foot-stats b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.foot-stats .spacer { flex: 1; }
+.confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--ink); }
+
+/* ---------- 上部バー ---------- */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.bar-inner {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 8px;
+  display: flex; align-items: center; gap: 8px 12px;
+}
+.bar-mid { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 10px; }
+.bar-mode { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--print); }
+.bar-count { font-family: var(--font-mono); font-size: 14px; color: var(--muted); white-space: nowrap; }
+.bar-count b { color: var(--ink); font-size: 16px; }
+.bar-right { display: flex; align-items: center; gap: 6px; }
+.timer {
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 14px;
+  padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap;
+}
+.timer.is-low { color: var(--pen); border-color: var(--pen); }
+.icon-btn {
+  width: 40px; height: 40px; border-radius: 8px; border: 1px solid transparent;
+  background: transparent; cursor: pointer; font-size: 20px; line-height: 1; color: var(--muted);
+}
+.icon-btn:hover { border-color: var(--line); }
+.icon-btn[aria-pressed="true"] { color: var(--pen); }
+.bar-progress { height: 3px; background: var(--line); }
+.bar-progress span { display: block; height: 100%; background: var(--print); transition: width .25s; }
+
+/* ---------- 問題 ---------- */
+.sheet {
+  background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px clamp(16px, 4vw, 32px) 28px;
+  display: flex; flex-direction: column; gap: 18px; min-width: 0;
+}
+.q-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; font-size: 13px; color: var(--muted); }
+.q-num { font-family: var(--font-display); font-weight: 900; font-size: 24px; color: var(--ink); line-height: 1; }
+.q-num small { font-size: 14px; margin-right: 2px; }
+.q-dom { border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+.q-dom b { font-family: var(--font-mono); font-weight: 500; color: var(--print); margin-right: 4px; }
+.q-id { font-family: var(--font-mono); font-size: 12px; margin-left: auto; }
+.q-text { font-size: 17px; line-height: 1.9; }
+.code {
+  margin: 0; padding: 14px 16px; border-radius: 8px; background: var(--code-bg); border: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 13.5px; line-height: 1.65; overflow-x: auto; white-space: pre; tab-size: 2;
+}
+.code code { background: none; border: none; padding: 0; font-size: inherit; overflow-wrap: normal; }
+.q-instr { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; font-size: 14px; font-weight: 700; }
+.q-instr .num { font-weight: 500; color: var(--muted); }
+.hint { font-size: 14px; color: var(--pen); }
+.scn {
+  border-left: 3px solid var(--print); background: var(--print-soft); border-radius: 0 8px 8px 0;
+  padding: 10px 14px; font-size: 14px; line-height: 1.75;
+}
+.scn b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--print); }
+
+.opts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 16px; width: 100%; text-align: left;
+  padding: 12px 16px 12px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: transparent; line-height: 1.7;
+}
+.opt:hover { border-color: var(--print); }
+.opt.is-chosen { border-color: var(--graphite); }
+.opt[aria-disabled="true"] { cursor: default; }
+.opt[aria-disabled="true"]:hover { border-color: var(--line); }
+.opt.is-right, .opt.is-right:hover { background: var(--ok-soft); border-color: var(--ok); }
+.opt.is-wrong, .opt.is-wrong:hover { background: var(--pen-soft); border-color: var(--pen); }
+.bubble {
+  position: relative; flex: none; width: 24px; height: 34px; margin-top: -3px;
+  display: grid; place-items: center; border-radius: 50%;
+  border: 1.5px solid var(--print); color: var(--print);
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+}
+.opt.is-chosen .bubble { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.opt-body { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.opt-note { font-size: 14px; color: var(--muted); line-height: 1.7; }
+.tag {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  padding: 0 8px; border-radius: 999px; margin-right: 6px; line-height: 1.8; vertical-align: 1px;
+}
+.tag-right { background: var(--ok); color: var(--sheet); }
+.tag-wrong { background: var(--pen); color: var(--sheet); }
+
+.pen {
+  position: absolute; left: 50%; top: 50%; width: 46px; height: 56px;
+  transform: translate(-50%, -50%) rotate(-10deg); overflow: visible; pointer-events: none;
+}
+.pen path, .vmark path {
+  fill: none; stroke: var(--pen); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 260; stroke-dashoffset: 0; animation: draw .6s ease-out both;
+}
+.pen-check { width: 40px; height: 44px; transform: translate(-30%, -60%) rotate(-4deg); }
+@keyframes draw { from { stroke-dashoffset: 260; } }
+
+.verdict { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 8px; }
+.verdict.ok { background: var(--ok-soft); }
+.verdict.ng { background: var(--pen-soft); }
+.vmark { width: 48px; height: 48px; flex: none; overflow: visible; }
+.verdict-title { font-family: var(--font-display); font-weight: 900; font-size: 24px; line-height: 1.2; }
+.verdict-sub { font-size: 14px; color: var(--muted); }
+.explain { display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.explain h3 { font-size: 15px; font-weight: 900; color: var(--print); letter-spacing: .06em; }
+.explain p { line-height: 1.9; }
+.ref { font-size: 13px; color: var(--muted); }
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.actions .grow { flex: 1; }
+.keys { font-size: 12px; color: var(--muted); text-align: center; }
+.keys kbd {
+  font-family: var(--font-mono); font-size: 11px; padding: 0 5px; border-radius: 4px;
+  border: 1px solid var(--line); background: var(--sheet);
+}
+
+.navbox { background: var(--sheet); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.navbox summary { cursor: pointer; font-weight: 700; font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.navbox summary span { font-weight: 400; color: var(--muted); font-size: 13px; }
+.nav { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin-top: 12px; }
+.nav button {
+  position: relative; height: 36px; border-radius: 6px; border: 1px solid var(--line);
+  background: transparent; cursor: pointer; font-family: var(--font-mono); font-size: 13px;
+}
+.nav button.answered { background: var(--graphite); border-color: var(--graphite); color: var(--graphite-ink); }
+.nav button.current { outline: 2px solid var(--print); outline-offset: 1px; }
+.nav button.flagged::after {
+  content: ""; position: absolute; top: 3px; right: 3px; width: 7px; height: 7px; border-radius: 50%; background: var(--pen);
+}
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1px solid var(--line); }
+.legend .l-ans { background: var(--graphite); border-color: var(--graphite); }
+.legend .l-flag { background: var(--pen); border-color: var(--pen); border-radius: 50%; }
+.finish-box {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 14px 16px; border-radius: var(--radius); border: 1px solid var(--pen); background: var(--pen-soft);
+}
+
+/* ---------- 結果 ---------- */
+.score-head { display: flex; flex-direction: column; gap: 14px; }
+.score-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 24px; }
+.score { font-family: var(--font-display); font-weight: 900; font-size: clamp(56px, 14vw, 88px); line-height: .95; }
+.score small { font-size: .4em; margin-left: 4px; }
+.score-sub { display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px; font-size: 14px; color: var(--muted); }
+.score-sub b { color: var(--ink); font-family: var(--font-mono); font-weight: 500; }
+.gauge { position: relative; height: 10px; border-radius: 5px; background: var(--line); margin-top: 18px; }
+.gauge > span { display: block; height: 100%; border-radius: 5px; background: var(--ink); }
+.gauge .mark { position: absolute; top: -7px; bottom: -7px; width: 2px; background: var(--pen); }
+.gauge .mark::before {
+  content: attr(data-label); position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--pen); white-space: nowrap; font-weight: 700;
+}
+.score-msg { font-weight: 700; }
+.score-note { font-size: 13px; color: var(--muted); }
+
+.dom-list { display: flex; flex-direction: column; gap: 10px; }
+.dom-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 72px; gap: 4px 14px; align-items: center; font-size: 14px; }
+.dom-row .meter-track { grid-column: 2 / 3; }
+.dom-row .num { text-align: right; }
+.res-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.res-list button {
+  width: 100%; display: grid; grid-template-columns: 28px 52px 40px minmax(0, 1fr) auto;
+  align-items: center; gap: 10px; padding: 10px 4px; border: none; border-bottom: 1px solid var(--line);
+  background: transparent; text-align: left; cursor: pointer; font-size: 14px;
+}
+.res-list button:hover { background: var(--sheet); }
+.res-mark { font-size: 20px; line-height: 1; font-weight: 700; text-align: center; }
+.res-mark.ok { color: var(--pen); }
+.res-mark.ng { color: var(--muted); }
+.res-topic { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.res-go { color: var(--print); font-size: 13px; font-weight: 700; }
+
+@media (max-width: 680px) {
+  .spec { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .spec > div:nth-child(3) { border-left: none; }
+  .spec > div:nth-child(n+3) { border-top: 1px solid var(--print); }
+  .modes { grid-template-columns: minmax(0, 1fr); }
+  .bp-row { grid-template-columns: 36px minmax(0, 1fr) auto; }
+  .bp-row .meter { grid-column: 2 / 3; }
+  .bp-row .bp-go { grid-column: 3; grid-row: 1; }
+  .res-list button { grid-template-columns: 24px 44px 34px minmax(0, 1fr); }
+  .res-go { display: none; }
+  .q-id { margin-left: 0; }
+  .keys { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pen path, .vmark path { animation: none; }
+  .bar-progress span { transition: none; }
+}
+</style>
+
+<div id="app"></div>
+<noscript><p style="padding:24px">この問題集は JavaScript を使います。ブラウザの設定で JavaScript を有効にしてください。</p></noscript>
+
+<script>
+(() => {
+'use strict';
+
+const QUESTIONS = [{"id":"D1-01","domain":"D1","scenario":"S1","topic":"ループの制御","type":"multi","question":"サポートエージェントのループを自前で実装しました。回答を書き終えたあとも会話が終わらず、同じ説明を何度も繰り返してタイムアウトする会話が約15%あります。また、ツールを実行した直後のリクエストで、Claude が同じ `lookup_order` を何度も呼び直します。ループの中心部分は次のとおりです。この2つの不具合を直すために行うべき変更はどれですか。（2つ選択）","code":"while True:\n    resp = client.messages.create(model=MODEL, system=SYSTEM,\n                                  tools=TOOLS, messages=messages)\n    text = \"\".join(b.text for b in resp.content if b.type == \"text\")\n    if \"完了\" in text:\n        break                      # 「完了」と書けば終わりとみなす\n    run_tools(resp.content)        # 結果はログに書くだけ\n    messages.append({\"role\": \"user\", \"content\": \"続けてください。\"})","options":["応答を履歴に足し、各結果を `tool_use_id` 付きの `tool_result` にして次のリクエストで返す","`stop_reason` が `\"tool_use\"` の間はツールを実行して続け、`\"end_turn\"` で終える","反復回数の上限を3回に固定し、上限に達したら会話の状態にかかわらず必ずループを終えるようにする","システムプロンプトに「回答の最後には必ず『完了』と書くこと」と加え、いまの語による判定を続ける","応答にテキストのブロックが1つでも含まれていれば、その時点で完了とみなしてループを終える"],"answer":[0,1],"notes":["正解。モデルが次の行動を推論できるのは、ツールの結果が会話履歴に入っているときだけです。いまは結果がログにしか残らないので、Claude は同じツールを呼び直しています。","正解。ループを続けるか終えるかは `stop_reason` で決めます。言い回しは毎回変わるので、「完了」のような語の有無では、終わったかどうかを判定できません。","根拠のない反復回数の上限を主な停止手段にするのもアンチパターンです。繰り返しは止まっても、必要な調査が終わる前に打ち切られ、結果が履歴に戻らない問題も残ります。","自然言語の合図で終了を決めるという誤りそのものが残ります。指示に従うかどうかは確率的で、ツールの結果が履歴に戻らない問題にも効きません。","テキストの有無で完了を判定するのも、試験ガイドが挙げるアンチパターンです。Claude はツールを呼ぶ前に説明の文を書くことがあるので、調査の途中でループが終わってしまいます。"],"explanation":"エージェントループは、リクエストを送り、`stop_reason` を確かめ、要求されたツールを実行し、結果を履歴に戻す、の繰り返しです。`stop_reason` が `\"tool_use\"` の間は続け、`\"end_turn\"` で終えます。応答の文章の言い回しは毎回変わるので、特定の語やテキストの有無を終了の合図にはしません。結果は、アシスタントの応答のあとのユーザーメッセージに、`tool_use_id` で対応づけた `tool_result` として入れます。2026年11月時点のドキュメントでは、`tool_use` 以外の停止理由（`max_tokens` など）ではループを抜け、理由ごとに扱うよう説明されています。","ref":"試験ガイド タスク 1.1 ／ Claude Docs: How tool use works、Handle tool calls、Define tools"},{"id":"D1-02","domain":"D1","scenario":"S1","topic":"反復回数の上限","type":"single","question":"エージェントループは、`stop_reason` に関係なく、5回の反復で必ず打ち切る作りになっています。請求に関する異議のケースでは、複数の注文を順に調べるうちに反復が5回を超えることがあり、そのケースの9%が途中で打ち切られて、根拠のない回答のまま会話が終わっています。最も適切な対応はどれですか。","options":["上限を8回に引き上げ、いまの請求に関する異議のケースがすべて上限の中に収まるように設定し直す","終了は `stop_reason` で判定し、回数の上限は大きな安全網にして、達したら人に引き継ぐ","応答に「解決しました」という文言が出たら終えるように変え、回数による打ち切りはやめる","システムプロンプトで、ツールの呼び出しを5回以内に収めてから回答をまとめるよう、明確に指示する"],"answer":[1],"notes":["数字を変えただけで、根拠のない上限が主な停止手段であることは変わりません。もっと調査が要るケースが来れば、また打ち切られます。","正解。完了の判定は `stop_reason` に任せ、上限は暴走を防ぐための安全網として使います。上限に達したときの扱い（人への引き継ぎ）も決めておきます。","自然言語の文言で終了を決めるのはアンチパターンです。言い回しのぶれで、終わっていないのに終えたり、終わったのに続けたりします。","必要な調査を削らせるだけで、根拠のない回答が増えます。打ち切りという症状を、別の形で抑えているにすぎません。"],"explanation":"試験ガイドは、根拠のない（恣意的な）反復回数の上限を主な停止手段にすることを、避けるべきアンチパターンとして挙げています。ループの終了は `stop_reason` で決め、回数の上限は想定外の暴走を止める安全網に位置づけます。Agent SDK の `max_turns` も既定では上限がなく、上限に達すると結果が `error_max_turns` になる、安全のための仕組みとして説明されています。上限に達したら、黙って終えず、引き継ぎなどの扱いを決めておくのが実務的です。","ref":"試験ガイド タスク 1.1 ／ Agent SDK Docs: How the agent loop works"},{"id":"D1-03","domain":"D1","scenario":"S1","topic":"モデル主導の判断","type":"single","question":"開発者の1人が、メッセージに「返品」が含まれたら `lookup_order` から `process_refund` へ、「請求」が含まれたら `get_customer` から `escalate_to_human` へ、と決まった順にツールを呼ぶ分岐をコードに組み込みました。その結果、「返品したのに二重に請求された」のような依頼で、どの注文が対象かを確かめないまま返金の手続きが進む例が増えています。最も適切な対応はどれですか。","options":["分岐をやめ、次に呼ぶツールは結果をふまえて Claude に判断させ、必須の規則だけをコードで強制する","キーワードの分岐をさらに増やし、「返品」と「請求」が両方含まれる場合の手順もコードで決めておく","最初の応答でこのケースに必要なツールの順番を Claude にすべて出させ、その順にまとめて実行する","依頼の種類を判定する専用のモデルを学習させ、判定した種類ごとに決まったツールの順番を割り当てる"],"answer":[0],"notes":["正解。曖昧さの大きい依頼では、ツールの結果を見て次の一手を決めるモデル主導の判断が向きます。本人確認のような必須の順序だけは、コードで強制します。","決定木を細かくしても、組み合わせの数だけ分岐が要ります。想定していない言い回しの依頼で、また誤った順序の手続きが走ります。","最初に計画を固定すると、途中のツールの結果（対象の注文、請求の状態）を次の判断に生かせません。決まった順序で呼ぶのと同じ弱点が残ります。","分類の精度を上げても、種類ごとに固定の順序で呼ぶという設計は変わりません。ラベル付きのデータと学習の基盤も要り、最初の手としては重すぎます。"],"explanation":"試験ガイドは、Claude が文脈から次に呼ぶツールを推論するモデル主導の意思決定と、事前に決めた決定木やツールの順序を区別しています。返品、請求、アカウントが入り混じる依頼は、調べた結果によって次の手が変わるので、結果を履歴に戻しながらモデルに判断させるのが基本です。そのうえで、金銭に関わる操作の前の本人確認のように例外なく守らせたい順序だけを、プログラムで強制します。","ref":"試験ガイド タスク 1.1 ／ Anthropic Engineering: Building effective agents"},{"id":"D1-04","domain":"D1","scenario":"S1","topic":"前提条件ゲート","type":"single","question":"本人確認のため、「`get_customer` が呼ばれるまで `process_refund` を止める」というゲートをコードに実装しました。ところが監査で、`get_customer` が「該当なし」を返したあとに、顧客が名乗った顧客IDのまま返金が実行された例が見つかりました。ゲートをどう直すのが最も適切ですか。","options":["システムプロンプトに「`get_customer` で確認できなかった顧客には返金しない」と明記する","顧客が名乗った顧客IDの形式（桁数や接頭辞）が正しいことをゲートの条件に加え、形式の誤りを止める","`get_customer` が確認済みの顧客IDを返したことを条件にし、返金先がそのIDでなければ止める","返金を実行したあとに、顧客IDと本人確認の結果を照らし合わせる日次のバッチ処理を追加する"],"answer":[2],"notes":["ゲートの穴をプロンプトで埋めても、守るかどうかは確率的です。金銭に関わる操作の前の本人確認には、決定論的な保証が要ります。","形式が正しくても、そのIDが本人のものかは分かりません。`get_customer` が「該当なし」を返した顧客でも、形式の合うIDを名乗れば返金が通ってしまいます。","正解。前提条件は「呼ばれたか」ではなく「検証済みの顧客IDが返ったか」で判定します。返金の対象をそのIDに結び付ければ、名乗っただけのIDでは通りません。","実行後に見つけても、誤った返金はすでに起きています。事後の監査は、実行前に止める仕組みの代わりになりません。"],"explanation":"前提条件ゲートは、前のステップが完了するまで下流のツール呼び出しを止める、プログラムによる強制です。試験ガイドの例は「`get_customer` が検証済みの顧客IDを返すまで `process_refund` を止める」で、条件は呼び出しの有無ではなく、確認の結果です。ゲートを作るときは、何をもって前提が満たされたとみなすかを、ツールの結果の中身で定めます。","ref":"試験ガイド タスク 1.4"},{"id":"D1-05","domain":"D1","scenario":"S1","topic":"ハンドオフサマリー","type":"single","question":"ポリシーの例外が必要な請求の異議を、エージェントが `escalate_to_human` で人間の担当者に引き継いでいます。担当者は会話の記録を見られず、受け取るのは「返金のご相談です。対応をお願いします」程度の一文だけです。そのため顧客に最初から説明し直してもらうことになり、平均処理時間が伸びています。最も適切な対応はどれですか。","options":["引き継ぎの一文に、顧客が最後に送ったメッセージをそのまま添えて、担当者が用件をつかめるようにする","担当者が会話の記録を検索して読めるように、専用の閲覧システムを新しく構築する","エージェントが自己申告した確信度を引き継ぎに添え、担当者が優先順位を決められるようにする","顧客ID、根本原因の分析、返金額、推奨する対応をまとめた構造化ハンドオフサマリーを渡す"],"answer":[3],"notes":["最後のメッセージだけでは、それまでに調べた注文や金額、原因の見立てが伝わりません。担当者は結局、顧客に経緯を聞き直すことになります。","効く可能性はありますが、担当者は長い記録を読み解く必要があり、処理時間は大きく縮みません。最初の手としては作り込みすぎです。","自己申告の確信度はキャリブレーションが不十分で、当てになりません。担当者が判断に使う事実（金額や原因）も伝わりません。","正解。会話の記録にアクセスできない担当者には、すぐ動けるだけの事実と見立てを構造化して渡します。担当者は説明を聞き直さずに対応を始められます。"],"explanation":"プロセスの途中でエスカレーションするときは、受け手が会話の記録を見られない前提で、顧客の詳細、根本原因の分析、推奨する対応を含む構造化されたハンドオフを作ります。試験ガイドは、項目として顧客ID、根本原因、返金額、推奨アクションを挙げています。`escalate_to_human` の入力にこれらの項目を定義しておくと、引き継ぎの品質がそろいます。","ref":"試験ガイド タスク 1.4"},{"id":"D1-06","domain":"D1","scenario":"S1","topic":"複数の用件の分解","type":"single","question":"顧客から1通で「注文Aが破損して届いた。注文Bの請求が二重になっている。今後の配送先も変えたい」というメッセージが届きました。いまのエージェントは最初の用件だけを処理して返信を終え、残りの2つは顧客が送り直すまで手付かずです。最も適切な対応はどれですか。","options":["用件ごとに別のチケットを起票し、それぞれを新しいセッションで最初から処理させる","依頼を3つの項目に分け、共有の顧客情報を使って並行して調べ、1つの回答にまとめる","最初の用件を解決したあとに「ほかにご用件はありますか」と尋ね、1往復に1件ずつ処理する","`max_tokens` を引き上げて長い返信を書けるようにし、3件分をまとめて答えさせる"],"answer":[1],"notes":["共有の文脈が失われ、本人確認や顧客情報の取得を3回やり直すことになります。顧客にも3つの回答が別々に届きます。","正解。複数の懸案は個別の項目に分け、共有のコンテキストを使って並行して調べ、統一された解決策にまとめます。1回の対応で3件とも片付きます。","顧客が尋ね返されるまで残りの用件が進まず、往復が増えます。初回対応での解決率を下げる作りです。","返信が途中で切れる問題ではありません。用件を分解して調べる手順がないままでは、長く書けても2件目以降の調査は行われません。"],"explanation":"試験ガイドは、複数の懸案を含むリクエストを個別の項目に分解し、共有コンテキストを使って並列に調べ、1つの解決策にまとめるスキルを挙げています。確認済みの顧客IDのような共通の事実は一度だけ取得して全項目で使い、注文ごとの調査は1つの応答の中で複数のツール呼び出しとして並べられます。最後に、用件ごとの結論を1通の回答に統合します。","ref":"試験ガイド タスク 1.4 ／ Claude Docs: Parallel tool use"},{"id":"D1-07","domain":"D1","scenario":"S1","topic":"強制と誘導の使い分け","type":"single","question":"サポート部門から2つの要件が届きました。1つめは法務からの要請で、本人確認が済む前に返金を実行してはならない。2つめは、在庫がある商品なら返金より先に交換を提案するのが望ましい、というもので、顧客が断れば返金に進んでかまいません。この2つの実装として最も適切なものはどれですか。","options":["2つともシステムプロンプトに書き、重要度が伝わるよう1つめの要件を太字で強調しておく","2つともコードで強制し、交換を提案した記録が残るまで `process_refund` を止める","1つめは前提条件ゲートでコードから強制し、2つめはシステムプロンプトの指針として書く","1つめはシステムプロンプトに書き、2つめは前提条件ゲートで提案の有無をコードで確かめる"],"answer":[2],"notes":["強調しても、プロンプトの指示だけでは失敗率はゼロになりません。法務の要件には決定論的な保証が要ります。","交換の提案は状況しだいの望ましい振る舞いで、例外なく守らせる規則ではありません。コードで縛ると、交換が合わない場面でも手続きが止まります。","正解。例外を許さない順序はプログラムで強制し、状況に応じた判断の余地がある方針はプロンプトで誘導します。要件の性質で置き場所を分けます。","強制と誘導の割り当てが逆です。法務の要件が確率的な遵守に任され、柔軟でよい方針のほうが硬く縛られます。"],"explanation":"ワークフローの順序付けには、フックや前提条件ゲートによるプログラムの強制と、プロンプトによるガイダンスがあります。金銭に関わる操作の前の本人確認のように決定論的な遵守が要る規則は、プロンプトだけでは失敗率がゼロにならないので、コードで強制します。一方、顧客の反応しだいで変わる望ましい振る舞いは、プロンプトで伝えてモデルの判断に任せます。何でもコードで縛るのではなく、守らせ方の強さを要件に合わせることが判断の軸です。","ref":"試験ガイド タスク 1.4"},{"id":"D1-08","domain":"D1","scenario":"S1","topic":"PostToolUse で正規化","type":"single","question":"`lookup_order` は配送日を Unix タイムスタンプで返し、`get_customer` は請求日を ISO 8601 の文字列で返します。注文の状態も `3` や `4` のような数値のコードです。エージェントが返品期限（配送から30日）を計算し誤ったり、「返送済み」を「配送済み」と読み違えたりしています。MCP サーバーは別のチームの管理で、すぐには変えられません。最も適切な対応はどれですか。","options":["`PostToolUse` フックで、モデルが処理する前に結果の日付の形式をそろえ、状態コードを意味の分かる値に変える","システムプロンプトに状態コードの対応表と日付の換算方法を書き、ツールの結果を毎回それに従って読むよう指示する","`PreToolUse` フックで、ツールを呼ぶ前に入力の形式をそろえ、返ってくる値の形式もあわせて統一させるようにする","日付の計算を誤りにくくするため、より大きなモデルに切り替え、あわせてコンテキストウィンドウも広げておく"],"answer":[0],"notes":["正解。`PostToolUse` は、ツールの結果をエージェントが処理する前に横取りして変換できます。サーバーに手を入れずに、不均一な形式を1か所で正規化できます。","換算をモデルに任せる限り、読み違いは確率的に残ります。対応表のぶんだけ、毎回のコンテキストも消費します。","`PreToolUse` はツールを実行する前に呼ばれるフックで、まだ存在しない結果は変換できません。タイミングを取り違えています。","原因は、形式がばらばらな入力を毎回モデルに解釈させていることです。規模を上げても、この原因は残ります。"],"explanation":"試験ガイドは、異なる MCP ツールから返る Unix タイムスタンプ、ISO 8601、数値のステータスコードを、エージェントが処理する前に正規化する `PostToolUse` フックを挙げています。正規化をコードで行えば、モデルが形式を解釈する余地がなくなり、結果が決定論的に安定します。2026年11月時点の Agent SDK のドキュメントでは、`PostToolUse` の `hookSpecificOutput` に `updatedToolOutput` を返すと、組み込みツールと MCP ツールのどちらでも、Claude が見る前に出力を差し替えられます。","ref":"試験ガイド タスク 1.5 ／ Agent SDK Docs: Hooks"},{"id":"D1-09","domain":"D1","scenario":"S1","topic":"ブロックと代替の流れ","type":"single","question":"500ドルを超える返金には人の承認が要る、というポリシーを守るため、`process_refund` の呼び出しを横取りするフックを入れました。いまのフックは、金額が500ドルを超えると例外を投げてセッションごと終わらせます。そのため顧客には「エラーが発生しました」と表示され、会話がそこで切れてしまいます。最も適切な改善はどれですか。","options":["フックで返金額を500ドルに書き換えて実行を許可し、残りの差額は後日あらためて別に手続きする","実行前の判定をやめ、`PostToolUse` で500ドルを超えた返金を記録して監査に回す","例外を投げる代わりに、システムプロンプトで500ドルを超える返金を控えるよう強く指示する","呼び出しを拒否し、理由と「`escalate_to_human` で人の承認に回す」ことをモデルに返す"],"answer":[3],"notes":["入力の書き換え自体はフックでできますが、顧客の依頼と違う金額を黙って返金することになります。ポリシーが求める人の承認も行われません。","ツールが実行されたあとに記録しても、承認なしの返金はすでに行われています。事前に止めるという要件を満たしません。","確率的な遵守に戻ってしまいます。金額のしきい値のように確実な遵守が要る規則は、フックで強制します。","正解。ポリシー違反の呼び出しを止めたうえで、代替のワークフロー（人へのエスカレーション）に向かわせます。会話は切れず、顧客は次の手続きに進めます。"],"explanation":"ツール呼び出しを横取りするフックは、ポリシーに違反するアクションを止めるだけでなく、代替のワークフローへ導くことまで設計します。Agent SDK では、`PreToolUse` フックが `permissionDecision` に `\"deny\"` を返すと呼び出しが止まり、`permissionDecisionReason` に書いた理由が Claude に伝わります。理由に次の手（`escalate_to_human`）を書けば、エージェントは会話を続けたまま人の承認に回せます。","ref":"試験ガイド タスク 1.5 ／ Agent SDK Docs: Hooks"},{"id":"D1-10","domain":"D1","scenario":"S1","topic":"フックで確実に守る","type":"single","question":"長い会話で顧客が同じ要望を繰り返すと、エージェントが同じ注文に2回返金してしまうことがあり、返金全体の0.3%で起きています。「1つの注文への返金は1回まで」は例外のない規則です。チームで出ている次の案のうち、最も適切なものはどれですか。","options":["システムプロンプトに「同じ注文へ二重に返金しない」と書き、二重返金を断る対応の例を添える","返金済みの注文番号を「ケースの事実情報」ブロックに残し、毎回のプロンプトに入れて確かめさせる","`process_refund` を横取りするフックで注文の返金履歴を確かめ、返金済みなら拒否する","会話が長いほど起きやすいので、エージェントループの反復回数の上限を下げて会話を短く保つ"],"answer":[2],"notes":["指示と例で発生率は下がるかもしれませんが、守るかどうかは確率的です。例外のない規則には、決定論的な保証が要ります。","長い会話で事実を保つには有効な手ですが、返金済みかどうかの判断は依然としてモデルに任されています。二重返金をゼロにする保証にはなりません。","正解。フックはモデルの判断と関係なく毎回動き、返金履歴という事実で判定します。規則の遵守を、確率ではなく仕組みで保証できます。","根拠のない反復回数の上限で会話を切ると、必要な調査まで打ち切られます。二重返金という原因にも直接効きません。"],"explanation":"試験ガイドは、決定論的な保証のためにフックを使うことと、確率的な遵守のためにプロンプトの指示に頼ることを区別し、ビジネスルールで確実な遵守が求められる場合はフックを選ぶよう求めています。プロンプトの改善や文脈の整理は、エージェントの振る舞いを良くする手としては有効ですが、例外のない規則の保証にはなりません。金銭に関わる規則は、ツールの呼び出しの手前で、事実に基づいてコードで判定します。","ref":"試験ガイド タスク 1.5 ／ Agent SDK Docs: Hooks"},{"id":"D1-11","domain":"D1","scenario":"S2","topic":"要約で新しく始める","type":"single","question":"あなたは昨日、`claude -n pay-audit` で名前を付けたセッションで、決済モジュールの30ファイルを読み、処理の流れと問題点の一覧をまとめました。今朝、モジュールを作り直す大きなプルリクエストがマージされ、30ファイルのうち24ファイルが分割・改名・書き換えられました。昨日の結論のうち、どこに問題がありそうかという見立ては今も参考になりますが、ファイルを読んだ結果の大半は今のコードと合いません。調査を続けるうえで最も適切な進め方はどれですか。","options":["`claude --resume pay-audit` で再開し、変わった24ファイルの名前を伝えて、それらを読み直させる","`claude --resume pay-audit` で再開し、変更には触れずに、昨日の問題点の一覧の続きから作業させる","昨日の見立てと未解決の点を構造化した要約にまとめ、それを渡して新しいセッションで調べ直させる","新しいセッションを始め、昨日の結論は使わずに、モジュール全体を何も前提にせず最初から調べさせる"],"answer":[2],"notes":["再開したセッションには、24ファイルの古い読み取り結果がそのまま残ります。新旧の内容が混ざった文脈で考えることになり、古い結果に引きずられるおそれがあります。","大半が古くなったツール結果をもとに作業を続けることになります。今のコードと合わない結論を出すおそれが大きくなります。","正解。以前のツール結果の多くが古くなったときは、まだ役に立つ結論を構造化した要約にして、新しいセッションに渡します。古い読み取り結果を持ち込まずに、見立てだけを引き継げます。","昨日の見立てという、まだ役に立つ情報まで捨てています。要約にして渡せば、調べ直しの出発点にできます。"],"explanation":"再開するか、要約を持って新しく始めるかは、以前の文脈がどれだけ有効かで決めます。以前のツール結果の大半が古くなったなら、古い結果を抱えたまま再開するより、構造化した要約を渡して新しいセッションを始めるほうが確実です。逆に、変わったのが一部のファイルだけで大半が有効なら、`--resume <セッション名>` で再開し、変わったファイルを具体的に伝えて、そこだけ読み直させます。どちらの場合も、まだ役に立つ結論は捨てずに引き継ぎます。","ref":"試験ガイド タスク 1.7 ／ Agent SDK Docs: Sessions ／ Claude Code Docs: CLI reference（--resume、--name）"},{"id":"D1-12","domain":"D1","scenario":"S2","topic":"名前付きで再開","type":"single","question":"あなたは同じリポジトリで、2つの調査を並行して進めています。1つは注文 API のメモリリーク、もう1つは在庫の集計が遅い原因で、どちらもあと数日かかる見込みです。今朝 `claude --continue` で再開すると、昨日最後に触っていた在庫の調査の会話が開きました。どちらの調査も、これまでの分析はそのまま使えます。調査ごとに会話を続けるための方法として、最も適切なものはどれですか。","options":["調査ごとのセッションに名前を付けておき、`claude --resume <名前>` で目的の会話を再開する","毎朝 `claude --continue` で再開し、最初のメッセージで、今日はどちらの調査を続けるのかを伝える","2つの調査を1つのセッションにまとめ、調査ごとに見出しを付けて、同じ会話の中で切り替えて進める","毎朝新しいセッションを始め、前日の調査のメモを貼り付けてから、その日の調査を続けさせる"],"answer":[0],"notes":["正解。名前を付けたセッションは、`--resume` に名前を渡して、その会話を指定して再開できます。調査ごとの文脈を混ぜずに、作業日をまたいで続けられます。","`--continue` は、そのディレクトリでいちばん最近の会話を開くだけです。別の調査の会話の中で話題を切り替えることになり、2つの調査の文脈が混ざります。","1つの会話に2つの調査の検索結果や仮説が混ざり、互いの結論に引きずられます。コンテキストも2つ分を使います。","メモや要約を渡して新しく始めるのは、以前のツール結果が古くなった場合の手です。分析がそのまま使えるなら、再開したほうが情報を失いません。"],"explanation":"作業日をまたいで特定の調査を続けるなら、セッションに名前を付けておき、`--resume <セッション名>` で再開します。`--continue` は直近の会話を開くだけなので、並行する調査が複数あると、目的の会話を確実には選べません。再開した会話には、それまでの分析がそのまま残るので、文脈が有効なうちは、新しく始めるより多くの情報を引き継げます。Claude Code では、起動時に `-n`（`--name`）で名前を付けるか、作業中に `/rename` で名前を付け直せます。","ref":"試験ガイド タスク 1.7 ／ Claude Code Docs: CLI reference（--resume、--name、--continue）／ Claude Code Docs: Commands（/rename）"},{"id":"D1-13","domain":"D1","scenario":"S3","topic":"結果を履歴に足す","type":"single","question":"コーディネーターのエージェントループを、Messages API を直接呼んで次のように実装しています。前の段の結果を使う3段階の調査を順に委任した依頼で、コーディネーターが済んだ段をもう一度依頼したり、最終レポートに最後の段の内容しか載らなかったりする例がありました。最も適切な修正はどれですか。","code":"messages = [{\"role\": \"user\", \"content\": request}]\nlatest = \"\"\nwhile True:\n    resp = client.messages.create(\n        model=MODEL, tools=tools, messages=messages,\n        system=BASE_PROMPT + \"\\n最新の結果:\\n\" + latest,\n    )\n    if resp.stop_reason != \"tool_use\":\n        break\n    latest = run_subagents(resp)  # 結果は最新の1回分だけを保持","options":["システムプロンプトに、一度依頼した段の調査は二度と依頼しないよう明記し、重複の依頼を防ぐ","サブエージェントの結果をファイルに追記して保存し、最終レポートを作るときにまとめて読み込ませる","応答と各結果の `tool_result` を `messages` に足し、次のリクエストで返す","コンテキストウィンドウの大きいモデルに切り替え、長い調査の途中でも結果を見落とさないようにする"],"answer":[2],"notes":["確率的な手で、原因が残ります。自分がどの調査を依頼し、何が返ってきたかが履歴にないので、モデルには何が済んだかを判断する材料がありません。","最終レポートの抜けは減るかもしれませんが、途中の判断（どの段が済んだか、次に何を調べるか）に結果を使えないので、同じ依頼の繰り返しは直りません。","正解。アシスタントの応答と、`tool_use_id` で呼び出しに対応づけた `tool_result` を履歴に足して返せば、モデルはそれまでの結果をふまえて次の行動を推論できます。","規模で解決しようとする手です。結果が履歴に入っていないことが原因なので、コンテキストが大きくても、上書きで消えた結果は見えません。"],"explanation":"エージェントループでは、`stop_reason` が `\"tool_use\"` のとき、要求されたツールを実行し、アシスタントの応答と、各結果を `tool_use_id` で呼び出しに対応づけた `tool_result` を会話履歴に足して、次のリクエストを送ります。モデルは積み上がった履歴を見て、何が済み、次に何をするかを推論します。結果を毎回上書きする欄に入れると、前の結果も、自分がどの呼び出しをしたかも消えるので、同じ依頼の繰り返しや抜けが起きます。トークンを減らしたいなら、履歴から結果を外すのではなく、サブエージェントに要点と出典だけを返させるなど、結果そのものを絞ります。","ref":"試験ガイド タスク 1.1 ／ Claude API Docs: How tool use works、Handle tool calls"},{"id":"D1-14","domain":"D1","scenario":"S3","topic":"呼ぶエージェントの選択","type":"single","question":"利用ログを分析すると、依頼の約6割は「ある業界団体の設立年」のような単純な事実確認でした。しかし今のコーディネーターは、どの依頼でもウェブ検索、文書分析、統合、レポート生成の全サブエージェントを順に呼んでおり、単純な依頼でも回答まで平均4分かかり、コストもかさんでいます。複雑な調査の品質は保ちたいと考えています。最も適切な対応はどれですか。","options":["コーディネーターに依頼の要件を分析させ、単純な事実確認では検索だけを呼ぶなど、呼ぶ相手を動的に選ばせる","全サブエージェントを並列に起動し、パイプライン全体を通したときの待ち時間を短くして応答を早める","すべてのサブエージェントをより小さく応答の速いモデルに切り替え、1回あたりの処理時間を短くして返す","過去の依頼で学習させた分類モデルを前段に置き、依頼ごとに処理の経路を予測して自動的に振り分ける"],"answer":[0],"notes":["正解。クエリの複雑さに応じて呼ぶサブエージェントを決めるのはコーディネーターの役割です。単純な依頼で不要な処理を省けば、複雑な調査の流れはそのまま残せます。","統合やレポート生成は前段の結果を使うので、単純に並列化はできません。単純な依頼で不要なサブエージェントを呼ぶこと自体も変わりません。","規模で解決しようとする手です。複雑な調査の品質を下げるおそれがあり、不要なサブエージェントを毎回呼ぶという原因は残ります。","効くかもしれませんが、ラベル付きのデータと別の基盤が必要で、最初の一手には重すぎます。コーディネーター自身に判断させる方法をまだ試していません。"],"explanation":"コーディネーターは、毎回パイプライン全体を通すのではなく、クエリの要件を分析して呼ぶサブエージェントを動的に選びます。Anthropic のマルチエージェントのリサーチシステムでも、エージェントは作業量の見積もりが苦手なため、単純な事実確認は1つのエージェントで足りる、複雑な調査は役割を分けた多数のサブエージェントを使う、といった目安をプロンプトに入れています。モデルを小さくする、分類モデルを足すといった手より、原因である「一律にパイプラインを通す設計」を直すほうが、品質を保ったまま効きます。","ref":"試験ガイド タスク 1.2 ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D1-15","domain":"D1","scenario":"S3","topic":"調査範囲の分割","type":"single","question":"「電気自動車の普及を妨げる要因」という依頼に対し、コーディネーターは3つのウェブ検索サブエージェントを並列に起動し、それぞれに同じ依頼文をそのまま渡しています。結果を調べると、3つが集めた情報源の約7割が重複しており、消費したトークンの割に得られる情報が増えていません。最も適切な対応はどれですか。","options":["各サブエージェントのプロンプトに「ほかのサブエージェントと重ならない情報源を選ぶこと」と書き加える","統合サブエージェントに重複した情報源を取り除く手順を加え、レポートに重複が出ないようにする","検索サブエージェントを1つに減らし、その1つのエージェントにすべての検索をまとめて任せる","充電インフラ、価格と補助金、消費者の意識のように、サブトピックや情報源の種類を分けて割り当てる"],"answer":[3],"notes":["サブエージェントは分離されたコンテキストで動き、ほかのサブエージェントが何を集めているかを知りません。重ならないよう指示されても、避ける手がかりがありません。","下流で症状を消すだけです。重複した検索に使ったトークンと時間は戻らず、集まる情報の幅も広がりません。","両極端の手です。重複はなくなりますが、並列に広く調べるという利点まで捨ててしまいます。","正解。コーディネーターがサブトピックや情報源の種類で範囲を分け、境界をはっきり伝えれば、重複が減り、全体のカバー範囲も広がります。"],"explanation":"重複を減らすには、コーディネーターが調査範囲をサブエージェント間で分割し、各エージェントに異なるサブトピックや情報源の種類を割り当てます。サブエージェントはコーディネーターや互いの会話履歴を引き継がないので、何をどこまで調べるかはプロンプトで明示するしかありません。Anthropic のリサーチシステムの記事も、詳しい担当範囲を示さないとエージェントが作業を重複させたり抜けを作ったりすると述べています。","ref":"試験ガイド タスク 1.2 ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D1-16","domain":"D1","scenario":"S3","topic":"反復的な改善ループ","type":"single","question":"「国内の再生可能エネルギー政策の変遷」のレポートを確かめたところ、2023年以降の制度改正がほとんど扱われていませんでした。追加で調べると、該当する公的資料はウェブで公開されています。今のシステムは、検索、分析、統合を1回ずつ実行して終わる構成です。最も適切な対応はどれですか。","options":["統合サブエージェントに、資料が足りない期間はモデル自身の知識で補ってレポートを書くよう指示する","コーディネーターが統合の出力の不足を評価し、的を絞って検索と分析に再委任してから統合し直す","最初の検索で取得する結果の件数を大幅に増やし、1回の実行ですべての期間を網羅できるようにする","レポートに「2023年以降の制度改正は対象外」と注記を加え、カバー範囲の限界を読者に示す"],"answer":[1],"notes":["出典のない記述が増え、出典を明記したレポートという目的に反します。モデルの知識は古い可能性もあります。","正解。統合の結果に抜けがないかをコーディネーターが評価し、足りない部分だけを狙って再委任し、カバー範囲が十分になるまで統合を繰り返します。","規模で解決しようとする手です。何が抜けるかは結果を見るまで分からず、件数を増やしても関係の薄い結果が増えて統合の負担が重くなります。","カバレッジの注記は、情報源が得られない欠落を正直に伝えるための手です。今回は資料が公開されていて調べられるので、抜けを埋めないまま残すことになります。"],"explanation":"1回で終わる構成では、最初の分解や検索で落ちた部分を取り戻せません。コーディネーターが統合の出力を評価し、不足している範囲に絞ったクエリで検索と分析のサブエージェントに再委任し、十分になるまで統合を呼び直す反復的な改善ループを組みます。Anthropic のリサーチシステムでも、リードエージェントが結果をまとめたうえで、さらに調査が必要かを判断し、サブエージェントを追加したり方針を変えたりしています。資料が手に入るのに注記だけで済ませるのは、調べられない欠落を伝える手との取り違えです。","ref":"試験ガイド タスク 1.2 ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D1-17","domain":"D1","scenario":"S3","topic":"通信の経路","type":"single","question":"開発者の一人が、待ち時間を減らすために「文書分析サブエージェントが分析を終えたら、統合サブエージェントを直接呼び出して結果を渡す」構成を提案しました。チームは、どのサブエージェントで何が失敗したかを一か所で把握できることと、エラーの扱いがどの経路でもそろっていることを重視しています。最も適切な判断はどれですか。","options":["採用する。直接渡せば往復が1回減り、エラーの扱いはそれぞれのサブエージェントの判断に任せられる","採用する。そのうえで各サブエージェントが自分のログを別々のファイルに書き出し、あとでまとめて突き合わせる","採用しない。サブエージェント間の通信はすべてコーディネーター経由にし、可観測性とエラー処理をそろえる","採用しない。代わりに文書分析と統合を1つのサブエージェントにまとめ、受け渡しの経路そのものをなくす"],"answer":[2],"notes":["エラーの扱いが経路ごとにばらばらになり、失敗を一か所で把握するという要件に反します。","ログが分散し、失敗が起きてから突き合わせる運用になります。エラーの扱いをそろえるという要件も満たせません。","正解。ハブアンドスポーク型では、コーディネーターがすべての通信、エラー処理、情報のルーティングを管理するので、何がどこで起きたかを一か所で追えます。","論点がずれています。役割を合わせると専門化の利点を失い、ほかのサブエージェントとの通信をどう管理するかという問題は残ります。"],"explanation":"コーディネーターとサブエージェントのパターンでは、サブエージェント間の通信をすべてコーディネーター経由にします。そうすると、可観測性、一貫したエラー処理、制御された情報フローが得られます。サブエージェント同士を直接つなぐと往復は減るかもしれませんが、失敗の把握とエラーの扱いが経路ごとに分かれてしまいます。要件に「一か所で把握」「扱いをそろえる」とあるときは、ハブアンドスポーク型を守るのが答えです。","ref":"試験ガイド タスク 1.2"},{"id":"D1-18","domain":"D1","scenario":"S3","topic":"委任ツールの許可","type":"single","question":"Agent SDK でコーディネーターを次のように設定しました。サブエージェントの定義は読み込まれていますが、実行ログを見ると、サブエージェントは一度も起動されず、コーディネーター自身が `WebSearch` で検索してレポートを書いています。最も可能性の高い原因と対処はどれですか。","code":"options = ClaudeAgentOptions(\n    allowed_tools=[\"WebSearch\", \"Read\"],\n    agents={\n        \"web-searcher\": AgentDefinition(...),\n        \"doc-analyzer\": AgentDefinition(...),\n        \"synthesizer\": AgentDefinition(...),\n    },\n)","options":["コーディネーターの `allowed_tools` に `\"Task\"` がないため委任できない。`\"Task\"` を加える","システムプロンプトの委任の指示が弱い。「調査は必ずサブエージェントに委任すること」と明記する","各サブエージェントの `tools` に `\"Task\"` がない。サブエージェント側の各定義に `\"Task\"` を加える","`AgentDefinition` の `description` が短い。いつ使うかを詳しく書き、選ばれやすくする"],"answer":[0],"notes":["正解。サブエージェントは `Task` ツールで起動します。コーディネーターがサブエージェントを呼ぶには、その `allowed_tools`（試験ガイドの表記では `allowedTools`）に `\"Task\"` を含める必要があります。","起動の手段がない状態でプロンプトを強めても、委任はできません。確率的な手で、仕組みの欠けを補おうとしています。","置き場所の取り違えです。サブエージェントを起動するのはコーディネーターなので、`\"Task\"` が要るのはコーディネーターの側です。","`description` はどのサブエージェントを選ぶかの手がかりですが、`Task` ツールが使えなければどれも起動できません。"],"explanation":"Agent SDK では、コーディネーターは `Task` ツールでサブエージェントを生成するので、`allowedTools`（Python の SDK では `allowed_tools`）に `\"Task\"` が必要です。`AgentDefinition` で種類ごとの説明、システムプロンプト、ツールの制限を定めても、起動の手段がなければ使われず、この例のように手元のツールで自分で作業してしまいます。なお2026年11月時点のドキュメントでは、このツールは Claude Code v2.1.63 で `Agent` という名前に変わっており、例では `allowed_tools` に `\"Agent\"` を書いています（設定の `Task` は別名として使えます）。","ref":"試験ガイド タスク 1.3 ／ Agent SDK Docs: Subagents in the SDK"},{"id":"D1-19","domain":"D1","scenario":"S3","topic":"文脈の明示的な受け渡し","type":"single","question":"コーディネーターはユーザーとのやり取りで「対象は2020年以降の国内市場に限る」という条件を確かめ、検索と文書分析も終えました。ところが統合サブエージェントを起動する `Task` のプロンプトは「これまでの調査結果を統合してレポートの素案を作って」の1文だけで、統合サブエージェントは海外の事例まで含めた一般論を返してきました。最も適切な対応はどれですか。","options":["統合サブエージェントのシステムプロンプトに、コーディネーターの会話履歴を確かめてから作業するよう書く","検索と文書分析の結果全体と、期間と地域の条件を、統合を依頼する `Task` のプロンプトに直接含める","統合サブエージェントの出力を受け取ったあと、条件に合わない部分をコーディネーターが削ってから使う","統合サブエージェントのモデルを、コンテキストウィンドウのより大きいモデルに切り替えて余裕を持たせる"],"answer":[1],"notes":["サブエージェントはコーディネーターの会話履歴を自動的には引き継ぎません。見られない履歴を確かめるよう指示しても効きません。","正解。サブエージェントに必要な文脈は、プロンプトで明示的に渡します。先行するエージェントの調査結果全体と、ユーザーが決めた条件をそのまま含めます。","下流で症状を抑えるだけです。統合サブエージェントは調査結果も受け取っていないので、削っても正しい素案にはなりません。","規模で解決しようとする手です。コンテキストが大きくても、渡されていない情報は使えません。"],"explanation":"サブエージェントは分離されたコンテキストで動き、親の会話履歴を自動的には継承せず、呼び出しをまたいでメモリも共有しません。そのため、統合サブエージェントには、ウェブ検索と文書分析の結果全体と、範囲の条件を、`Task` のプロンプトに直接含めて渡します。「これまでの」のような言い方は、受け取る側には何も指していません。2026年11月時点の Claude Code と Agent SDK には会話を丸ごと引き継ぐフォークという種類のサブエージェントもありますが、通常のサブエージェントは今も引き継ぎません。","ref":"試験ガイド タスク 1.3 ／ Agent SDK Docs: Subagents in the SDK（What subagents inherit）"},{"id":"D1-20","domain":"D1","scenario":"S3","topic":"並列の起動","type":"single","question":"コーディネーターは独立した4つのサブトピックを調べるため、1つの応答で `Task` を1回呼び、結果が返ってから次のターンで次の `Task` を呼ぶ、という形で4回に分けて起動しています。各サブエージェントの所要時間はほぼ同じで、全体の調査時間は1つ分の約4倍です。調査の品質を変えずに時間を短くしたいと考えています。最も適切な対応はどれですか。","options":["4つのサブトピックを1つのサブエージェントにまとめて渡し、起動の回数そのものを1回だけに減らしておく","各サブエージェントの最大ターン数を減らし、1つあたりの調査を早めに切り上げさせて時間を縮める","すべてのサブエージェントを、より小さく応答の速いモデルに切り替えて1回あたりの時間を縮める","コーディネーターの1つの応答で4つの `Task` 呼び出しを出させ、サブエージェントを並列に起動する"],"answer":[3],"notes":["1つのコンテキストに4つのテーマを詰め込むと注意が分散し、順に調べるので時間もほとんど縮みません。","調査を途中で切り上げるので、品質を変えないという条件に反します。","規模で解決しようとする手です。品質が変わるおそれがあり、1つずつ順に起動するという原因も残ります。","正解。独立したサブタスクは、1つの応答で複数の `Task` 呼び出しを出して並列に起動します。全体の時間は、合計ではなくいちばん遅い1つの時間に近づきます。"],"explanation":"サブエージェントを並列に生成するには、ターンを分けるのではなく、コーディネーターの単一の応答で複数の `Task` ツール呼び出しを出力します。Agent SDK のドキュメントも、並列に動かせば独立したサブタスクは合計の時間ではなく最も遅いものの時間で終わると説明しています。Anthropic のリサーチシステムでは、サブエージェントの並列起動などで複雑な調査の時間を大きく縮めました。2026年11月時点の Agent SDK では、サブエージェントは既定でバックグラウンドで動き、ツールの名前は `Agent` に変わっています。","ref":"試験ガイド タスク 1.3 ／ Agent SDK Docs: Subagents in the SDK ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D1-21","domain":"D1","scenario":"S3","topic":"目標と品質基準を渡す","type":"single","question":"コーディネーターは検索サブエージェントに「1. 『〇〇 市場規模』で検索する 2. 上位3件を読む 3. 要約を返す」という手順をそのまま指示しています。新しい分野のトピックでは、最初のクエリで役に立たない結果しか出なくても手順どおりに進み、根拠の薄い要約が返ってきます。最も適切な改善はどれですか。","options":["分野ごとに検索語と読む件数を細かく決めた手順書を用意し、トピックに合わせて使い分けさせる","上位3件ではなく上位10件を読むよう手順を変え、1回の検索で集めて読む情報の量を大きく増やす","調査の目標、独立した情報源の数や一次資料の優先などの品質基準、返す形式を示し、進め方は任せる","結果が3件未満なら同じクエリで検索をやり直す、という分岐を手順の2番目の前に加える"],"answer":[2],"notes":["手順を細かくするほど、想定外の結果への適応の余地がなくなります。分野が増えるたびに手順書を作る負担も残ります。","規模で解決しようとする手です。クエリそのものが合っていなければ、読む件数を増やしても役に立つ情報は増えません。","正解。目標と品質基準を示せば、サブエージェントは結果を見てクエリを変えるなど、状況に合わせて進め方を変えられます。","同じクエリをやり直しても、同じような結果が返るだけです。決まった分岐を足しても手順の硬さは変わりません。"],"explanation":"コーディネーターのプロンプトでは、段階的な手順ではなく、調査の目標と品質基準を指定し、サブエージェントが適応できるようにします。Anthropic のリサーチシステムの記事も、各サブエージェントには目的、出力の形式、使うツールと情報源の指針、明確な担当範囲が必要だと述べ、短く広いクエリから始めて徐々に絞る進め方を勧めています。固定の手順は、結果が想定どおりのときにしかうまく働きません。","ref":"試験ガイド タスク 1.3 ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D1-22","domain":"D1","scenario":"S3","topic":"分解パターンの選択","type":"single","question":"このシステムでは、すべての依頼を「検索→分析→統合→レポート」の固定のプロンプトチェーンで処理しています。毎週の競合動向レポート（財務、製品、提携、ニュースの4項目が毎回同じ）は安定しています。一方、「新素材Xの商用化の見通し」のような依頼では、途中で規制が大きな論点だと分かっても進め方を変えられず、レポートに反映されませんでした。最も適切な対応はどれですか。","options":["定型の週次レポートはチェーンのまま、先の見えない調査は途中の発見からサブタスクを作る動的な分解にする","固定のチェーンに「規制の調査」のステップを足し、どの依頼でも必ず規制の動向を調べるようにする","週次レポートも含めたすべての依頼を、コーディネーターが毎回その場で分解を決める動的な方式に切り替える","チェーンの各ステップのプロンプトに「重要な論点を見落とさないこと」という注意書きをはっきり加える"],"answer":[0],"notes":["正解。手順が予測できる多面的な処理にはプロンプトチェーン、オープンエンドな調査には中間的な発見に基づく動的な分解、と使い分けます。","今回の論点だけに対応する手です。次の依頼で別の論点が出れば同じことが起き、規制が関係ない依頼にも不要な処理が増えます。","安定している定型の処理まで動的にすると、毎回の出力の一貫性が下がり、手間とコストも増えます。","チェーンの構造は固定のままなので、途中で分かった論点に合わせてサブタスクを足すことはできません。"],"explanation":"固定の逐次パイプライン（プロンプトチェーン）は、毎回同じ項目を調べる予測可能な処理に向きます。何を調べるべきかが途中の発見で変わるオープンエンドな調査には、各ステップで見つかった内容からサブタスクを作る動的で適応的な分解が向きます。1つの方式をすべてに当てはめるのではなく、ワークフローの性質で選ぶのが判断の軸です。","ref":"試験ガイド タスク 1.6 ／ Anthropic Engineering: Building effective agents"},{"id":"D1-23","domain":"D1","scenario":"S3","topic":"文書ごとのパス","type":"single","question":"文書分析サブエージェントに、ある技術分野の論文25本をまとめて渡し、各論文の手法、結果、限界を分析させています。出力を見ると、最初の数本は詳しいのに後半の論文は1〜2行しかなく、同じ評価手法を、ある論文では妥当、別の論文では問題ありと矛盾して評価していました。最も適切な分析の構成はどれですか。","options":["論文を発表年の新しい順に並べ替えて渡し、重要度の高い新しい論文から先に分析されるようにする","各論文の要旨だけを渡して入力を短くし、25本を1回のパスでも無理なく扱えるようにしておく","分析の観点を細かく並べたチェックリストをプロンプトに加え、どの論文にも同じ観点を漏れなく当てさせる","論文ごとに個別の分析パスを実行し、そのあとで論文を横断して比較と整合を取る統合パスを別に実行する"],"answer":[3],"notes":["順番を変えても、後ろに置かれた論文が薄くなる問題は残ります。新しい論文ほど重要とも限りません。","手法や限界の詳細は本文にあることが多く、分析に要る情報を捨ててしまいます。","観点をそろえても、25本を1度に扱うことによる注意の分散は解消しません。論文の間の矛盾を整理する段階もありません。","正解。1本ずつのパスで分析の深さをそろえ、別の統合パスで論文をまたぐ比較と矛盾の整理を行います。"],"explanation":"多くの入力を1回で扱うと注意が分散し、深さがばらつき、同じものへの評価が食い違います。大きな分析は、1件ずつの局所的な分析パスと、横断の統合パスに分けるプロンプトチェーンにします。試験ガイドはコードレビューを例に挙げていますが、リサーチの文書分析でも同じ考え方が当てはまります。","ref":"試験ガイド タスク 1.6"},{"id":"D1-24","domain":"D1","scenario":"S3","topic":"先の見えない調査の分解","type":"multi","question":"社内に蓄積された過去10年分の調査資料（約3,000件）から、今後取り組むべき研究テーマの候補を洗い出す依頼を受けました。資料がどう分類できるかも、どの資料が重要かも、まだ分かっていません。この依頼の分解の進め方として、取るべき対応はどれですか。（2つ選択）","options":["3,000件を30のサブエージェントに100件ずつ均等に割り振り、全件を同じ深さで分析させる","まず資料の分類、年次、テーマの分布を把握し、影響の大きい領域を特定して優先順位を付けた計画を作る","最初に依頼者と調べる観点を10項目に確定させ、途中で計画を変えずにすべて実行する","「今後の課題」などの語を含む資料だけを検索で抜き出し、その資料から候補をまとめる","調べる中で見つかった資料どうしの関連や新しい論点に応じて、サブタスクを足したり組み替えたりする"],"answer":[1,4],"notes":["重要度を見ずに機械的に割ると、価値の低い資料にも同じ手間をかけます。資料をまたぐ関連も各エージェントの担当の境目で切れます。","正解。オープンエンドなタスクは、まず全体の構造を把握し、影響の大きい領域を特定して優先順位付きの計画を作ることから始めます。","資料の中身を見る前に観点を固定すると、調べる中で見つかる重要な論点や資料どうしのつながりを計画に取り込めません。","語の一致だけで対象を絞ると、別の言い方で書かれた重要な資料を落とします。全体の構造を把握しないまま範囲を狭めることにもなります。","正解。適応的な調査計画では、各ステップで分かったことに応じてサブタスクを作り直します。"],"explanation":"終わりの見えない調査は、最初にすべてのサブタスクを決めることができません。まず構造を把握し、影響の大きい領域を特定して優先順位付きの計画を作り、見つかった依存関係や論点に合わせて計画を更新します。試験ガイドは「レガシーなコードベースに包括的なテストを追加する」を例にしていますが、大量の資料の調査でも同じ進め方をします。機械的な均等割りや語の一致による絞り込みは全体の構造を見ないまま進め、観点の固定は途中の発見を取り込めないので劣ります。","ref":"試験ガイド タスク 1.6 ／ Anthropic Engineering: Building effective agents"},{"id":"D1-25","domain":"D1","scenario":"S4","topic":"完了の判定","type":"single","question":"Agent SDK に移る前の試作として、Messages API を直接呼ぶエージェントループを次のように自作しました。ツールの結果は履歴に足していますが、調査の途中で「まず呼び出し元を Grep で探します。」のような一言だけが回答として返り、ループが終わってしまう例が約3割あります。ログを見ると、そうした応答には、テキストと一緒に `tool_use` のブロックが含まれていました。最も適切な修正はどれですか。","code":"while True:\n    resp = client.messages.create(model=MODEL, system=SYSTEM,\n                                  tools=TOOLS, messages=messages)\n    messages.append({\"role\": \"assistant\", \"content\": resp.content})\n    if any(b.type == \"text\" for b in resp.content):\n        break                      # テキストがあれば回答とみなす\n    messages.append({\"role\": \"user\", \"content\": run_tools(resp.content)})","options":["`stop_reason` が `\"tool_use\"` の間はツールを実行して続け、`\"end_turn\"` で終える","システムプロンプトに「ツールを呼ぶ応答には説明の文章を書かないこと」と加え、今のテキストによる判定を続ける","テキストが200字を超えたときだけ回答が出たとみなすように、ループを終える条件を書き換えておく","反復回数の上限を5回に固定し、上限に達したときの最後の応答を、そのまま回答として返すようにする"],"answer":[0],"notes":["正解。続けるか終えるかは `stop_reason` で判断します。`\"tool_use\"` なら、テキストが含まれていてもツールを実行して結果を返し、`\"end_turn\"` で終えます。","書き方をプロンプトで縛っても、テキストの有無で完了を判定するアンチパターンは残ります。指示が守られない応答があれば、同じように途中で終わります。","目安を文字数に変えても、テキストの中身から完了を推測していることは同じです。長い説明と一緒にツールを呼ぶ応答では、やはり途中で終わります。","根拠のない反復回数の上限を主な停止の仕組みにするアンチパターンです。調査の進み具合と関係なく打ち切られ、終わっていない調査が回答になります。"],"explanation":"Claude は、ツールを呼ぶ応答でも、「〜を調べます」のようなテキストのブロックを `tool_use` の前に含めることがあります。そのため、テキストの有無や、テキストに含まれる言葉で完了を判断すると、調査の途中でループが終わります。エージェントループは `stop_reason` で制御し、`\"tool_use\"` の間はツールを実行して `tool_result` を返し、`\"end_turn\"` で終えます。`\"max_tokens\"` のようなほかの停止理由は、正常な完了とは分けて扱います。","ref":"試験ガイド タスク 1.1 ／ Claude API Docs: How tool use works（The agentic loop）、Handle tool calls"},{"id":"D1-26","domain":"D1","scenario":"S4","topic":"根拠を分けて渡す","type":"single","question":"コーディネーターは、依存関係を調べるサブエージェントの報告を、レガシーシステムの解説文書を書くサブエージェントに渡しています。調査役の報告には根拠のファイルと行番号が書かれていますが、コーディネーターはそれを短い文章に要約してから解説役に渡しています。その結果、できた文書では、どの説明がどのコードに基づくのかが分からず、レビュー担当が根拠を確かめられません。最も適切な対応はどれですか。","options":["調査の結果を、発見の内容と根拠のファイルパス・行番号を分けた構造化データにして渡す","解説役のシステムプロンプトに、説明ごとに根拠のファイル名と行番号を必ず書くよう指示を加える","解説役にも Read と Grep を与え、文書を書く前に根拠の場所をコード全体から探し直させる","要約の文章をもっと長くし、調査役の報告の言い回しをできるだけ残したまま解説役に渡す"],"answer":[0],"notes":["正解。発見の本文とメタデータ（ファイルパス、行番号など）を分けた構造化データで渡すと、どの記述がどこに基づくかが最後まで保たれます。","解説役は渡されたものしか知りません。根拠の場所が要約で落ちている以上、指示を足しても正しい場所は書けず、推測が混ざります。","調査役がすでに突き止めたことを、もう一度探させる二重の作業です。探し直した結果が、調査役の根拠と食い違うおそれもあります。","文章のまま渡す限り、根拠の場所は本文に埋もれるか抜け落ちます。長くしても、記述と根拠の対応は確実には保てません。"],"explanation":"サブエージェントは親の会話履歴を引き継がず、起動のときにプロンプトで渡されたものだけをもとに作業します。そのため、前のエージェントの結果を渡すときは、内容とメタデータ（ウェブの調査なら出典の URL や文書名、ページ番号、コードの調査ならファイルパスや行番号）を分けた構造化データにして、情報源の帰属を保ちます。自然な文章に要約すると、内容は伝わっても「どこから来た情報か」が落ちやすくなります。受け取る側に指示を足すより、渡す情報の形を直すほうが原因に直接効きます。","ref":"試験ガイド タスク 1.3 ／ Agent SDK Docs: Subagents in the SDK"},{"id":"D1-27","domain":"D1","scenario":"S4","topic":"実行前に止めるフック","type":"single","question":"反復作業を自動化するエージェントに、Bash、Write、Edit を許可しています。チームの決まりでは、本番に適用済みの `db/migrations/` 配下の既存ファイルは書き換えてはいけません。システムプロンプトに書くだけでは500回の実行のうち2回破られたため、チームはフックで強制することに決めました。決まりを確実に守らせるフックの使い方として、最も適切なものはどれですか。","options":["`PostToolUse` フックで書き込み後の差分を調べ、違反が見つかったら元に戻すようエージェントに指示する","`Stop` フックで実行の終わりに `db/migrations/` の変更を調べ、違反があればその実行を失敗として扱う","`UserPromptSubmit` フックで毎回の依頼に決まりの文言を足し、作業の前にエージェントに思い出させる","`PreToolUse` フックで書き込みの対象を調べ、既存のマイグレーションなら拒否して理由を返す"],"answer":[3],"notes":["`PostToolUse` はツールの実行後に呼ばれるので、ファイルはすでに書き換わっています。元に戻すかどうかもエージェントの判断に任され、書き換えそのものは防げません。","`Stop` はエージェントの実行が終わるときに呼ばれます。違反には気付けても、その時点で書き換えは終わっており、止める仕組みになっていません。","依頼に文言を足すのは、プロンプトで決まりを伝えることと変わりません。確率的な手で、違反をゼロにする保証にはなりません。","正解。`PreToolUse` は、ツールが実行される前の呼び出しを横取りできます。`permissionDecision: \"deny\"` と理由を返せば、書き換えを決定論的に止めたうえで、新しいマイグレーションを作る流れに導けます。"],"explanation":"フックには、送られるツール呼び出しを横取りするもの（`PreToolUse`）と、ツールの結果を横取りするもの（`PostToolUse`）があります。操作そのものを止めたいなら、実行の前に呼ばれる `PreToolUse` で方針に反する呼び出しを拒否し、理由を返します。理由はモデルに伝わるので、エージェントは代わりのやり方に進めます。`PostToolUse` や `Stop` は事後に気付く仕組みで、結果の変換や記録に向きます。なお、フックの照合はツールの名前に対して行われるので、Write と Edit だけでなく、Bash のコマンドでファイルを書き換える経路も対象に含めます。","ref":"試験ガイド タスク 1.5 ／ Agent SDK Docs: Intercept and control agent behavior with hooks"},{"id":"D1-28","domain":"D1","scenario":"S4","topic":"再開と変更の伝達","type":"single","question":"エンジニアが `claude --resume billing-analysis` で、前日に名前を付けた調査セッションを再開しようとしています。前日のセッションでは40ファイルを分析しました。その後に変わったのは、チームメイトがマージした3ファイル（`invoice.py`、`tax.py`、`rounding.py`）だけで、前日の分析の大部分はまだ有効です。最も適切な進め方はどれですか。","options":["前日の分析は使わず、新しいセッションで40ファイルすべてを最初から読み直させる","セッションを再開し、変わった3ファイルと変更の要旨を伝えて、そこだけを再分析させる","セッションを再開し、ファイルの変更には触れずに前日の分析の続きから作業させる","セッションを再開し、「最新の状態を確認して」とだけ伝えて、変更の調査も任せる"],"answer":[1],"notes":["以前の文脈の大部分が有効なのに捨てるのは無駄です。新しく始めるのは、以前のツール結果が古くなっている場合の手です。","正解。以前の文脈がおおむね有効なら再開を選び、変わったファイルを具体的に伝えて、的を絞った再分析をさせます。","3ファイルについては古い分析が残ったままになり、変更前の内容を前提にした誤った結論が出るおそれがあります。","どこが変わったかをエージェントに探させると、全体の再探索に近くなります。分かっている変更は伝えるべきです。"],"explanation":"名前を付けたセッションは `--resume <セッション名>` で再開でき、複数の作業日にまたがる調査を続けられます。コードが変わった後に再開するときは、以前に分析したファイルのどれが変わったかをエージェントに伝えることが大切です。以前の文脈がおおむね有効なら再開して変更だけを伝え、以前のツール結果の多くが古くなっているなら、構造化したサマリーを渡して新しいセッションで始めます。この問題では変更が40ファイル中3ファイルなので、前者を選びます。","ref":"試験ガイド タスク 1.7 ／ Claude Code Docs: CLI reference"},{"id":"D1-29","domain":"D1","scenario":"S4","topic":"分岐して比較する","type":"single","question":"Agent SDK で作った支援ツールで、エージェントがレガシーの注文モジュールを1時間かけて分析し、依存関係の全体像がセッションにたまりました。チームは、この共通の分析を土台に、「少しずつ置き換える案」と「一度に書き直す案」の2つを、互いの検討に影響させずに比べたいと考えています。最も適切な方法はどれですか。","options":["同じセッションの中で1つ目の案を検討させ、続けて同じ流れで2つ目の案を検討させる","新しいセッションを2つ始め、それぞれで注文モジュールの分析を最初からやり直させる","分析済みのセッションを `fork_session` で分岐させ、枝ごとに別の案を検討させる","1つ目の案を検討した後に `/compact` で要約し、その要約を土台に2つ目の案を検討させる"],"answer":[2],"notes":["1つ目の案の検討が履歴に残るので、2つ目の案がその影響を受けます。独立した比較になりません。","1時間かけた共通の分析を捨てて、同じ作業を2回繰り返すことになります。分析の結果が2つでずれるおそれもあります。","正解。`fork_session` は、元の履歴を写した独立したセッションを作ります。共通の分析を土台に、2つの方向を別々に探れます。","要約には1つ目の案の検討も含まれるので、2つ目の案が独立しません。分析の細部も要約で落ちます。"],"explanation":"`fork_session` は、共通の分析を土台にして独立した枝を作り、別々のやり方を探るための仕組みです。元のセッションは変わらず、それぞれの枝は別のセッション ID を持つので、あとで個別に再開できます。同じセッションで続けて検討すると前の検討が後の検討に混ざり、やり直すと共通の土台を捨てることになります。ただし分岐するのは会話の履歴だけで、ファイルの変更は分かれないので、各枝でファイルを書き換える場合は別の作業ツリーなどで分けます。","ref":"試験ガイド タスク 1.7 ／ Agent SDK Docs: Work with sessions"},{"id":"D1-30","domain":"D1","scenario":"S5","topic":"定型レビューの分解","type":"single","question":"すべての PR に対し、同じ4つの観点（正確性、セキュリティ、テストの有無、API 規約）でレビューするジョブを作っています。現在は1つのエージェントに「必要と思う調査を自由に進めて」と任せており、PR によって観点の抜けや実行時間のばらつきが大きく、どの段階で問題が起きたのかも追えません。観点は今後も変わる予定がありません。最も適切なタスク分解はどれですか。","options":["エージェントの自律性はそのままにし、システムプロンプトに「4つの観点を必ず網羅すること」と強い表現で追記する","中間の発見に応じてサブタスクを生成する動的な分解に切り替え、PR ごとにエージェントが調査計画を立て直せるようにする","観点ごとに決まったステップを順に実行するプロンプトチェーンにし、各ステップの出力を記録してから最後に結果をまとめる","差分の大きさを判定する分類器を前段に置き、大きい PR だけをエージェントに渡して、小さい PR はレビューを省く"],"answer":[2],"notes":["プロンプトを強めても、観点を網羅するかどうかはモデルの確率的な判断に残ります。段階ごとの記録が取れない問題も解決しません。","動的な分解は、何が必要か事前に分からないオープンエンドな調査に向く方法です。観点が決まっている定型のレビューには、ばらつきを増やすだけです。","正解。観点が予測可能で変わらない多面的なレビューには、固定の逐次パイプライン（プロンプトチェーン）が合います。各段の出力を記録でき、どこで失敗したかも追えます。","どの PR をレビューするかという別の問題を解いています。小さい PR の観点の抜けはそのまま残り、実行ごとのばらつきも解消しません。"],"explanation":"タスク分解は、ワークフローの性質で選びます。観点や手順が事前に決まっている予測可能な多面的レビューにはプロンプトチェーン、何が見つかるか分からないオープンエンドな調査には動的な分解が合います。この場面は観点が固定で、網羅性・実行時間の安定・段階ごとの追跡が求められているので、固定の逐次ステップに分けるのが最もつり合った手です。自律的なエージェントの柔軟さは、手順を前もって決められない仕事のために取っておきます。","ref":"試験ガイド タスク 1.6 ／ Anthropic Engineering: Building effective agents"},{"id":"D1-31","domain":"D1","scenario":"S5","topic":"未知の領域の分解","type":"single","question":"夜間のジョブで、テストがほとんどない決済モジュール（約120ファイル）に「包括的なテストを追加する」作業を Claude Code に任せようとしています。モジュールの内部構造や依存関係は、担当者にもまだよく分かっていません。最初の実行では、アルファベット順にファイルを1つずつ処理する固定の手順を与えたところ、重要度の低いユーティリティに時間を使い果たし、決済の中核部分にはほとんど手が付きませんでした。最も適切な分解の方法はどれですか。","options":["ファイルの処理順を、アルファベット順から更新日時の新しい順に変え、同じ固定の手順で全ファイルを処理させる","まず構造を把握して影響の大きい領域を特定し、優先順位付きの計画を立て、依存関係が見つかるたびに計画を更新させる","120ファイルを均等に6つに分けてサブエージェントに並列で渡し、それぞれに担当範囲のテストを書かせる","1回の実行で処理する量の上限をなくし、全ファイルが終わるまで同じ固定の手順を最後まで繰り返し続けさせる"],"answer":[1],"notes":["並べ方を変えても、どこが重要かを調べずに順番を決めている点は同じです。中核部分に手が届く保証はありません。","正解。オープンエンドなタスクは、まず構造を把握し、影響の大きい領域を特定してから優先順位付きの計画を作り、見つかった依存関係に応じて計画を変える形で分解します。","機械的に均等に分けると、依存関係のあるファイルが別々の担当に割れ、重要度の見極めもされません。並列にしても優先順位の問題は残ります。","量を増やすだけで、重要な部分から手を付けるという問題を解いていません。時間とコストが増えるうえ、中核部分への到達はやはり後回しになります。"],"explanation":"「レガシーコードに包括的なテストを追加する」のような、範囲や中身が事前に分からないタスクには、固定の手順ではなく、中間の発見に応じてサブタスクを作る動的な分解が合います。最初に構造を把握し、影響の大きい領域を特定し、優先順位付きの計画を立て、依存関係が見つかるたびに計画を直します。定型のレビューのように手順が決まっている仕事はプロンプトチェーン、何が出てくるか分からない仕事は適応的な計画、と使い分けるのが判断の軸です。","ref":"試験ガイド タスク 1.6"},{"id":"D1-32","domain":"D1","scenario":"S6","topic":"前提条件ゲート","type":"single","question":"抽出エージェントは、`extract_invoice` で請求書を抽出し、`validate_extraction` で合計や必須項目を検証してから、`post_to_ledger` で会計システムに登録します。システムプロンプトには「検証が合格するまで登録しない」と書いてありますが、本番のログでは約2%の請求書が検証の前に登録され、合計の合わないデータが会計に入りました。経理部門は、検証を通っていない登録を1件も認めません。最も適切な対応はどれですか。","options":["システムプロンプトの該当の指示を冒頭に移して強い言葉にし、検証してから登録する手順の few-shot の例も加える","文書ごとに検証の合格をコードで記録し、合格していない文書への `post_to_ledger` の呼び出しをフックで止める","毎晩、会計システムに登録されたデータを再検証し、合計の合わない登録を担当者が見つけて取り消す","`post_to_ledger` をエージェントのツールから外し、すべての請求書の登録を経理の担当者が手作業で行う"],"answer":[1],"notes":["プロンプトや例を強めても、確率的な誘導のままです。失敗率はゼロにならず、「1件も認めない」という要件を満たせません。","正解。前提のステップ（検証の合格）が済むまで下流のツールをプログラムで止める、前提条件ゲートです。順序を確実に守らせられます。","誤った登録が会計に入った後で見つけて直す、症状への対処です。登録の時点で止めていないので、要件に反します。","人がすべて登録すれば誤登録は防げますが、自動化の価値を捨てる両極端な手です。止めるべきなのは、検証の前の登録だけです。"],"explanation":"業務上必ず守らせたい順序は、プロンプトではなくプログラムで強制します。試験ガイドは、決定論的な遵守が求められる場面ではプロンプトの指示だけでは失敗率がゼロにならないとし、前提となるステップが完了するまで下流のツール呼び出しをブロックする前提条件ゲートを挙げています。Agent SDK では、`PreToolUse` フックでツールの呼び出しを止め、その理由をモデルに返せます。「まれに破られる」ことが許されるかどうかが、プロンプトでの誘導と仕組みでの強制を分ける軸です。","ref":"試験ガイド タスク 1.4 ／ Agent SDK Docs: Hooks"},{"id":"D2-01","domain":"D2","scenario":"S1","topic":"システムプロンプトの語","type":"single","question":"システムプロンプトに「顧客が『返金』と書いたら、まず `process_refund` で手続きを始めること」という一文があります。`lookup_order` の説明には返金の進み具合も返すことが詳しく書いてあるのに、「先週の返金はいつ口座に入りますか」という問い合わせで `process_refund` が呼ばれ、新しい返金の手続きが始まりかけています。最も適切な対応はどれですか。","options":["`process_refund` の説明に「返金の状況確認には使わない」と追記し、システムプロンプトはそのまま残す","語句で特定のツールに結び付けている一文を見直し、どのツールを使うかの判断はツールの説明に任せる","「返金はいつ」という語句が含まれたら `lookup_order` を使う、という一文をシステムプロンプトに足す","返金の前に確認の質問を必ず挟む様子を示す few-shot の例を、システムプロンプトに10件ほど加える"],"answer":[1],"notes":["説明の改善は悪くありませんが、説明を上書きしているキーワードの指示が残ります。同じ語を含む別の問い合わせで、また誤ったツールが選ばれます。","正解。キーワードに敏感な指示は、よく書かれたツールの説明を上書きして、意図しないツールとの結び付きを生みます。原因になっている指示そのものを直します。","キーワードに敏感な指示をもう1つ増やすだけです。語の組み合わせが増えるほど、指示どうしがぶつかります。","原因の指示を残したまま、例で打ち消そうとしています。トークンが増えるうえ、確率的な手当てにとどまります。"],"explanation":"ツールの選択には、ツールの説明だけでなく、システムプロンプトの文言も影響します。「この語が出たらこのツール」のような指示は、文脈を無視した結び付きを生み、適切に書かれた説明を上書きしてしまいます。ツール選択がおかしいときは、説明を足す前に、システムプロンプトにキーワードに敏感な指示がないかを見直します。","ref":"試験ガイド タスク 2.1"},{"id":"D2-02","domain":"D2","scenario":"S1","topic":"重複するツール","type":"single","question":"配送業者の追跡 API を呼ぶ MCP サーバーを自社で追加し、`track_order` というツールが使えるようになりました。説明は「注文の状況を返す」で、既存の `lookup_order` の説明とほぼ同じです。「荷物はいつ届きますか」という問い合わせに、エージェントが `lookup_order` を呼んで倉庫の状態だけを見て「出荷準備中です」と答え、配送業者の持つ到着予定を見落とす例が出ています。最も適切な対応はどれですか。","options":["機能が重なって見える `track_order` を外し、配送の状況は `lookup_order` の結果だけで答えさせる","「届く」「いつ」という語が含まれる問い合わせでは `track_order` を使うよう、システムプロンプトに書く","配送の問い合わせでは2つのツールを毎回両方呼ばせ、返ってきた結果をつなぎ合わせて答えさせる","`track_order` を配送の追跡と分かる名前に変え、両方の説明に返す内容と使い分けの境界を書く"],"answer":[3],"notes":["到着予定を知る手段がなくなり、「いつ届くか」に答えられなくなります。問題を解くのではなく、業務の一部をやめています。","キーワードに敏感な指示で、意図しないツールの結び付きを生みます。言い回しが違う問い合わせには効きません。","不要な呼び出しが毎回増え、2つの結果が食い違ったときの扱いも決まっていません。重複という原因はそのまま残ります。","正解。機能の重複は、名前の変更と説明の更新で解消します。それぞれが何を返し、どの問いにはどちらを使うのかが分かれば、選択が安定します。"],"explanation":"ツールの説明は、LLM がツールを選ぶ主要な仕組みです。説明が曖昧だったり重複していたりすると、誤ったルーティングが起きます。試験ガイドは、機能の重複をなくすためにツールの名前を変え、説明を更新するスキルを挙げています。2026年11月時点の Define tools のページも、複数のサービスにまたがるときはサービス名を接頭辞にした名前で区別するよう勧めています。","ref":"試験ガイド タスク 2.1 ／ Claude Docs: Define tools"},{"id":"D2-03","domain":"D2","scenario":"S1","topic":"入力形式と境界","type":"single","question":"`lookup_order` は、`ORD-` に8桁の数字が続く注文番号だけを受け付けます。ところが顧客は、請求メールに載っている `INV-` で始まる請求書番号を伝えてくることが多く、エージェントはそれをそのまま `lookup_order` に渡して「ご注文が見つかりません」と答えています。ツールの説明は「注文の詳細を取得する」の1文だけです。最も適切な対応はどれですか。","options":["説明に受け付ける番号の形式と例、請求書番号は注文番号ではないこと、そのときの調べ方を書く","「見つかりません」が返ったら、番号の書き方を変えて最大3回まで `lookup_order` を呼び直させる","`lookup_order` がどんな文字列も受け付け、いちばん近い番号の注文を返すように作り替える","「見つかりません」と返したときは、注文番号をもう一度確かめてもらうよう顧客に案内させる"],"answer":[0],"notes":["正解。ツールの説明には、入力の形式、例、エッジケース、境界を書きます。請求書番号を受け取ったときの扱いが分かれば、モデルは正しい手順で注文を特定できます。","形式の取り違えは、呼び直しでは直りません。無駄なツール呼び出しが増えるだけです。","あいまいな照合は、別の顧客の注文を返す危険を生みます。返金を扱うシステムで取るべき手ではありません。","エージェントは請求書番号が注文番号ではないことを知らないままなので、顧客は同じ番号を送り直しがちです。手間を顧客に回すだけで、原因は残ります。"],"explanation":"試験ガイドは、ツールの説明に入力形式、クエリの例、エッジケース、境界の説明を含めることの重要性を挙げています。説明が最小限だと、モデルは何を渡せばよいか、渡せないものが来たらどうするかを判断できません。2026年11月時点の Define tools のページも、ツールが何をするか、いつ使うか（使わないか）、各パラメータの意味、注意点まで詳しく書くことを、ツールの性能に最も効く要素としています。","ref":"試験ガイド タスク 2.1 ／ Claude Docs: Define tools"},{"id":"D2-04","domain":"D2","scenario":"S1","topic":"構造化されたエラー","type":"multi","question":"`process_refund` は、決済サービスのタイムアウトでも、返品期限切れのようなポリシー違反でも、金額の形式の誤りでも、同じ「Operation failed」という汎用のメッセージを返します。エージェントはポリシー違反の返金を何度もやり直したうえ、顧客には「システムの不具合です」と説明しています。行うべき変更はどれですか。（2つ選択）","options":["`isError` を立てた結果に、エラーの種類、リトライできるかの真偽値、人が読める説明を入れて返す","どのエラーでも、エージェント側で指数バックオフを使って最大5回まで自動でリトライさせる","ポリシー違反は、リトライできないことを示すフラグと、顧客に伝えられる分かりやすい理由を添えて返す","失敗したときは空の成功結果を返し、エージェントが顧客を混乱させる説明をしないようにする","エラーが返ったら例外でセッションを終わらせ、すべてのケースを人間の担当者に引き継ぐ"],"answer":[0,2],"notes":["正解。一時的なエラー、検証エラー、ビジネスエラー、権限エラーを区別できれば、エージェントは待ってリトライするか、入力を直すか、顧客に説明するかを選べます。","ポリシー違反は、何度リトライしても結果が変わりません。リトライできるかどうかの情報がないまま繰り返すのは、無駄なリトライそのものです。","正解。ビジネスルールの違反には、リトライ不可のフラグと顧客向けの説明を付けます。エージェントは繰り返しをやめ、断る理由を正しく伝えられます。","失敗を成功に見せかけて握りつぶすと、エージェントは何が起きたかを知る手段を失います。顧客には誤った案内が届きます。","1回の失敗で会話全体を止める、もう一方の極端です。一時的なエラーや入力の誤りのように、その場で立て直せるケースまで人に回ります。"],"explanation":"一律のエラーレスポンスでは、エージェントは適切な復旧の判断を下せません。MCP では、ツールの失敗を `isError: true` の結果で伝えます。そのうえで、エラーの種類（試験ガイドの例では `errorCategory`）、リトライの可否（`isRetryable`）、人が読める説明といった構造化されたメタデータを結果に含めます。これらのフィールド名は MCP の仕様が定めるものではなく、ツールの作り手が結果の中身として設計する項目です。","ref":"試験ガイド タスク 2.2 ／ MCP Specification: Tools（Error Handling）"},{"id":"D2-05","domain":"D2","scenario":"S1","topic":"空の結果と失敗","type":"single","question":"`get_customer` を提供する MCP サーバーは、顧客管理システムへの問い合わせがタイムアウトしたときも例外を握りつぶし、該当なしのときと同じ空の配列を返しています。障害が起きた時間帯に、エージェントが既存の顧客へ「アカウントが見つかりません。新規登録をお勧めします」と案内する例が相次ぎました。最も適切な対応はどれですか。","options":["空の配列が返ったら、どの場合でも `get_customer` を3回まで呼び直すようエージェントに指示する","空の配列が返ったケースは、該当なしの可能性も含めて、すべて人間の担当者にエスカレーションする","タイムアウトは一時的なエラーとして `isError` 付きで返し、空の配列は該当なしのときだけに使う","顧客管理システムへの問い合わせのタイムアウトを長くし、タイムアウトそのものを起きにくくする"],"answer":[2],"notes":["本当に該当がない検索まで無駄に繰り返します。原因は、失敗と空の結果の見分けがつかないことにあります。","通常の該当なしまで人に回り、初回対応での解決率が下がります。区別できないことを、量で吸収しようとしています。","正解。アクセスの失敗と、有効な空の結果を区別して返します。エージェントは、前者ならリトライや別の対応を選び、後者なら該当なしとして案内できます。","タイムアウトの回数は減っても、起きたときにはまた空の結果として伝わります。誤った案内という根本の問題は残ります。"],"explanation":"試験ガイドは、リトライの判断が必要なアクセスの失敗と、一致するものがなかった成功したクエリを表す有効な空の結果を区別するよう求めています。両者を同じ空の結果にすると、エージェントは障害を「顧客がいない」と解釈し、誤った案内をしてしまいます。失敗は `isError` とエラーの種類、リトライの可否を付けて返し、空の結果は本当に該当がなかったときだけに使います。","ref":"試験ガイド タスク 2.2 ／ MCP Specification: Tools（Error Handling）"},{"id":"D2-06","domain":"D2","scenario":"S2","topic":"MCP サーバーの置き場所","type":"multi","question":"チームで、Jira の課題を Claude Code から参照できるようにしたいと考えています。テックリードは、チームの使い方に合わせた Jira 用の MCP サーバーを社内で作ろうと提案していますが、広く使われているコミュニティ製のサーバーがあり、チームの用途（課題の検索と参照）はそれで足ります。また、メンバーの1人は、自分だけで試したい実験的な MCP サーバーを追加したがっています。取るべき対応はどれですか。（2つ選択）","options":["Jira 用の MCP サーバーを社内で新たに作り、チームの使い方に合わせてから `.mcp.json` で共有する","コミュニティ製の Jira サーバーを使い、プロジェクトの `.mcp.json` に書いてチームで共有する","Jira のサーバーは、各メンバーが自分の `~/.claude.json` にそれぞれ追加し、リポジトリには入れない","実験的なサーバーは、そのメンバーのユーザーレベルの設定（`~/.claude.json`）に追加し、リポジトリには入れない","実験的なサーバーもプロジェクトの `.mcp.json` に加え、ほかのメンバーには承認を求められたら断るよう伝える"],"answer":[1,3],"notes":["標準的な連携には、既存のコミュニティ製サーバーを選びます。用途が既存のサーバーで足りるのに自作すると、作る手間と保守の負担が増えます。自作はチーム固有のワークフローのために取っておきます。","正解。標準的な連携には、既存のコミュニティ製サーバーを選びます。チームで共有するサーバーは、プロジェクトの `.mcp.json` に書いてコミットします。","各自の設定に書くと、チームで同じ設定を共有できず、人ごとの食い違いや設定の手間が生まれます。チームで使うサーバーは、プロジェクトレベルで共有します。","正解。個人用や実験的なサーバーは、ユーザーレベルの `~/.claude.json` に置きます。チームの設定を汚さず、共有のサーバーと同時に使えます。","個人の実験をチームの共有設定に入れると、全員に承認の確認が出て、使わないサーバーの設定まで配られます。個人用のサーバーは個人のスコープに置きます。"],"explanation":"MCP サーバーの置き場所は、誰と共有するかで決めます。チームで共有するツールはプロジェクトの `.mcp.json` に書いてコミットします。個人用や実験的なサーバーはユーザーレベルの `~/.claude.json` に置きます。また、Jira のような標準的な連携には既存のコミュニティ製サーバーを使い、自作はチーム固有のワークフローに限ります。なお、2026年11月時点の Claude Code には、そのプロジェクトで自分だけが使う local スコープ（これも `~/.claude.json` に保存され、既定のスコープ）もあります。","ref":"試験ガイド タスク 2.4 ／ Claude Code Docs: MCP（スコープ）"},{"id":"D2-07","domain":"D2","scenario":"S3","topic":"isError フラグ","type":"single","question":"文書分析サブエージェントが使う MCP ツール `fetch_document` は、取得元のサーバーがエラーを返したときも、そのエラーページの文字列を通常の結果として返します。ログでは、取得元が一時的な過負荷で返した「503 Service Unavailable」のページを、エージェントが文書の本文として分析し、「この資料はサービスの停止について述べている」という要約を統合に渡していました。最も適切な改善はどれですか。","options":["文書分析サブエージェントのプロンプトに、エラーのように見える本文は分析せずに飛ばすよう書き加える","取得の失敗は `isError` を立てた結果で返し、エラーの種類とリトライの可否、人が読める説明を添える","結果の本文に「Error」「Unavailable」などの語があれば、その文書を飛ばす処理をエージェント側に加える","取得に失敗したときは空の本文を通常の結果として返し、その文書が分析の対象から外れるようにする"],"answer":[1],"notes":["確率的な手です。失敗かどうかが結果の形で示されていないので、モデルは本文の見た目から推測するしかなく、取りこぼしが残ります。","正解。失敗を `isError` で示せば、エージェントはそれを文書ではなくエラーとして扱えます。一時的なエラーでリトライできることも分かるので、あとで取り直す判断もできます。","文章の中の語で判定する、当てにならない方法です。エラーを扱った正当な資料まで飛ばし、別の言い方のエラーページは見逃します。","エラーを握りつぶす手です。取得の失敗が有効な空の結果に見えてしまい、リトライの判断もレポートの注記もできなくなります。"],"explanation":"MCP では、ツールの実行の失敗を、結果の `isError` フラグで伝えます。エラーの内容を通常の結果として返すと、エージェントはそれを正常なデータとして扱い、エラーページの文字列まで分析してしまいます。失敗を `isError` で示したうえで、一時的なエラー、検証エラー、権限エラーなどの種類とリトライの可否を構造化して返せば、エージェントはリトライするか、飛ばして注記するかを選べます。なお `errorCategory` や `isRetryable` のような項目は MCP の仕様が定めるものではなく、ツールの作り手が結果の中身として設計します。","ref":"試験ガイド タスク 2.2 ／ MCP Specification: Tools（Error Handling）"},{"id":"D2-08","domain":"D2","scenario":"S3","topic":"役割に合うツール","type":"multi","question":"設定を簡単にするため、すべてのサブエージェントに同じ18個のツールを渡しています。統合サブエージェントは、調査結果に抜けがあると気づくと自分でウェブ検索を何度も実行するようになりました。その結果、検索サブエージェントの作業と重複し、コーディネーターはどの情報がどこから来たかを追えなくなっています。取るべき対応はどれですか。（2つ選択）","options":["統合サブエージェントの `AgentDefinition` の `tools` を、統合に必要なツールだけに絞る","統合サブエージェントのシステムプロンプトに「ウェブ検索は使わないこと」と強い表現で明記しておく","18個すべてのツールの説明を詳しく書き直し、どのツールを使うべきかを判断しやすくする","新しい調査が要る抜けは、統合サブエージェントからコーディネーターに返し、検索に再委任させる","検索と統合を1つのサブエージェントにまとめ、抜けに気づいたらその場で検索して補えるようにする"],"answer":[0,3],"notes":["正解。各サブエージェントには役割に必要なツールだけを渡します。渡していないツールは使われないので、専門外のツールの誤用を確実に防げます。","確率的な手です。ツールが手元にある限り使われる可能性は残り、18個から選ぶ判断の複雑さも変わりません。","説明はツールの選び方を改善しますが、統合の役割に検索ツールがあること自体が問題です。18個という数の多さも残ります。","正解。複雑なケースはコーディネーター経由でルーティングすれば、検索の重複を避け、情報の流れをコーディネーターが追跡できます。","役割の分離をやめる手で、コーディネーターから情報の流れが見えなくなる問題はかえって悪化します。"],"explanation":"エージェントに多すぎるツールを与えると判断が複雑になり、ツール選択の信頼性が下がります。専門外のツールを持ったエージェントは、それを誤用しがちです（統合エージェントがウェブ検索を試みる、など）。各サブエージェントのツールを役割に関係するものに絞り、新しい調査が要るような複雑なケースはコーディネーター経由で再委任します。単純な事実確認が頻繁に必要なら、範囲を絞った役割横断のツールを限定的に足す、という手もあります。","ref":"試験ガイド タスク 2.3 ／ Agent SDK Docs: Subagents in the SDK（Tool restrictions）"},{"id":"D2-09","domain":"D2","scenario":"S3","topic":"制約付きのツール","type":"single","question":"文書分析サブエージェントには、任意の URL を取得できる汎用の `fetch_url` ツールを渡しています。本来の役割は、コーディネーターが URL で指定した文書を読み込んで分析することですが、ログでは、文書の中のリンクをたどって無関係なウェブページを読み込み、分析に混ぜている例が見つかりました。最も適切な対応はどれですか。","options":["システムプロンプトに「渡された文書以外の URL は開かないこと」と書き、守るべき具体例を添える","取得したページを後から監査するログを追加し、役割外の取得が見つかったらアラートを出す","`fetch_url` を、文書の URL かを検証して読み込む `load_document` に置き換える","`fetch_url` を取り上げ、文書分析サブエージェントには文書を取得するためのツールを何も渡さない"],"answer":[2],"notes":["確率的な手です。何でも取得できるツールが手元にある限り、役割外の取得は起こりえます。","起きたあとに気づくだけで、分析に無関係な情報が混ざること自体は防げません。","正解。汎用的なツールを、役割に合う制約付きのツールに置き換えれば、許された文書だけを確実に読み込めます。","両極端の手です。役割外の取得は止まりますが、URL で指定された文書を読み込むという、役割に必要な操作までできなくなります。"],"explanation":"汎用的なツールは便利ですが、役割の外の使い方もできてしまいます。試験ガイドは、`fetch_url` を、文書の URL を検証する `load_document` に置き換える例を挙げています。ツールの側で許す範囲を制約すれば、プロンプトでの指示や事後の監視に頼らず、役割に必要な操作だけを確実に許せます。","ref":"試験ガイド タスク 2.3"},{"id":"D2-10","domain":"D2","scenario":"S3","topic":"ツール選択の強制","type":"single","question":"文書分析サブエージェントは、Messages API を直接呼ぶ自前のループで動いています。各文書についてまず `extract_citation_metadata`（題名、著者、公開日）を呼び、そのあとで `summarize_findings` などのツールを使う決まりです。ところが約15%の文書で最初のツールが飛ばされ、レポートの出典に公開日が欠けていました。最も適切な対応はどれですか。","options":["`tool_choice` を `\"any\"` にして、最初の応答で必ず何らかのツールを呼ばせるようにする","すべてのターンで `tool_choice` を `{\"type\": \"tool\", \"name\": \"extract_citation_metadata\"}` に固定する","`tool_choice` は `\"auto\"` のまま、システムプロンプトでメタデータの抽出が最初だと強調する","最初の要求だけ `{\"type\": \"tool\", \"name\": \"extract_citation_metadata\"}` で強制し、続きは次のターンで扱う"],"answer":[3],"notes":["`\"any\"` はどれかのツールを必ず呼ばせますが、どのツールかはモデルが選びます。`summarize_findings` が先に呼ばれる可能性は残ります。","毎回同じツールが強制されるので、`summarize_findings` などの後続のステップに進めなくなります。","確率的な手です。今も15%で飛ばされているように、強調するだけでは毎回の実行は保証できません。","正解。特定のツールを最初に必ず呼ばせたいときは、最初の要求で強制的なツール選択を使い、後続のステップは次のターンで通常どおり扱います。"],"explanation":"`tool_choice` には、モデルに任せる `\"auto\"`、必ずどれかのツールを呼ばせる `\"any\"`、特定のツールを呼ばせる `{\"type\": \"tool\", \"name\": ...}` があります。順序を守らせたいのは最初の1回なので、最初の要求だけを強制し、残りはフォローアップのターンで処理します。なお2026年11月時点のドキュメントでは、一部の新しいモデルと手動の extended thinking では `\"any\"` と特定ツールの強制がエラーになり、代わりに `\"auto\"`（スキーマに合う入力を保証したいなら strict tool use と組み合わせる）を使い、どのツールを選ぶかはプロンプトで誘導するよう案内されています。","ref":"試験ガイド タスク 2.3 ／ Claude API Docs: Define tools（Forcing tool use）"},{"id":"D2-11","domain":"D2","scenario":"S4","topic":"返す内容を説明に書く","type":"single","question":"支援エージェントには、サービスの登録情報を返す MCP ツール `get_service` と、社内 Wiki を検索する `search_wiki` があります。`get_service` は、担当チーム、呼び出しの管理システムから取った現在のオンコール担当者、運用手順書の URL を返しますが、説明は「サービスの情報を取得する」の1文だけです。「決済サービスの今のオンコールは誰？」という質問に、エージェントは `search_wiki` だけで答えようとし、更新されていない Wiki のページにある前任者の名前を返すことがあります。最も適切な対応はどれですか。","options":["`get_service` の説明に、返す項目と情報の出どころ、Wiki の検索ではなくこのツールを使う場面を書く","`search_wiki` を外し、サービスについての質問には `get_service` しか使えないようにしておく","システムプロンプトに「『オンコール』という語があれば `get_service` を使うこと」と書き加える","Wiki のオンコールのページを毎日自動で更新する仕組みを作り、どちらでも同じ答えになるようにする"],"answer":[0],"notes":["正解。モデルはツールの説明をもとに使うツールを選びます。現在のオンコール担当者を返すこと、その値が呼び出しの管理システムから来ること、担当者の確認には Wiki よりこのツールが向くことを書けば、正しく選べるようになります。","Wiki は設計資料の検索など、ほかの質問には欠かせません。ツールを取り上げるのは極端で、説明が足りないという原因も残ります。","語に反応する指示は、「今の当番は？」のような別の言い方では効かず、意図しない結び付きも生みます。よく書いた説明による選択を上書きするおそれもあります。","Wiki の内容を新しく保つ別の仕組みを作っても、ツールの選び方は変わりません。作り込みが重く、原因であるツールの説明には手が届いていません。"],"explanation":"LLM がツールを選ぶ主な手がかりは、ツールの説明です。「情報を取得する」のような最小限の説明では、そのツールが何を返すのかが分からず、似た用途の別のツールが選ばれます。説明には、目的、想定する入力、返す内容（項目と出どころ）、似たツールではなくそれを使うべき場面を書きます。語に反応する振り分けや、ツールの取り上げは、その代わりになりません。","ref":"試験ガイド タスク 2.1 ／ Claude API Docs: Define tools（Best practices for tool definitions）"},{"id":"D2-12","domain":"D2","scenario":"S4","topic":"検証エラーの返し方","type":"single","question":"MCP ツール `query_metrics` は、期間を `2026-11-01` のような ISO 8601 の日付で受け取ります。ツールの説明には形式を書いてありますが、エージェントがユーザーの言い方のまま `先月` や `11/1` を渡す呼び出しが、全体の数%残っています。そのときツールは `isError: true` と `\"Internal error\"` だけを返し、エージェントは同じ引数でリトライを繰り返したあと「メトリクスのサービスが不調です」と報告しています。最も適切な改善はどれですか。","options":["クライアントの側で、失敗した呼び出しを指数バックオフ付きで最大5回まで自動的にリトライさせる","ツールの説明の冒頭に、日付の形式を守るよう強い言葉で書き足し、誤った形式の呼び出しを減らす","日付を解釈できないときはエラーにせず、空の結果を通常の結果として返して処理を先に進めさせる","検証エラーであることと、どの引数をどの形式で渡すべきかを、リトライの可否とあわせて返す"],"answer":[3],"notes":["同じ引数のままリトライしても、形式の誤りは直りません。無駄な呼び出しが増え、障害だという誤った報告も変わりません。","説明にはすでに形式が書かれており、残りの数%を言葉で無くせる保証はありません。誤った呼び出しが起きたときに立て直せない問題も残ります。","失敗を握りつぶす手です。エージェントは「該当するデータがない」と誤って報告することになり、今より悪くなります。","正解。入力の検証エラーだと分かり、正しい形式が示されれば、エージェントは引数を直して呼び直せます。同じ入力でのリトライが無駄だということも伝わります。"],"explanation":"ツールが失敗したときは、`isError` を立てるだけでなく、エラーの種類（一時的、検証、権限など）、リトライできるか、人が読める説明を構造化して返します。種類の分からない一律のエラーでは、エージェントは同じ入力でのリトライや、障害という誤った報告しかできません。入力の検証エラーなら、どの引数がどう違うかを返すことで、エージェントは自分で引数を直して呼び直せます。MCP の仕様も、日付の形式違いのような入力の検証エラーを `isError: true` のツール実行エラーとして返し、モデルが自分で直してリトライできる情報を含めるよう示しています。","ref":"試験ガイド タスク 2.2 ／ MCP Specification: Tools（Error Handling）"},{"id":"D2-13","domain":"D2","scenario":"S4","topic":"共有の MCP 設定","type":"multi","question":"チームは、社内のデプロイ状況を調べる MCP サーバーを、支援エージェントと Claude Code で使いたいと考えています。リポジトリをクローンしたメンバー全員が同じ設定で使えるようにしたい一方で、各自の API トークンはリポジトリに含めてはいけません。取るべき対応はどれですか。（2つ選択）","options":["各メンバーのユーザーレベルの設定（`~/.claude.json`）に、サーバーの定義を各自で追加してもらう","サーバーの定義をプロジェクトのルートにある `.mcp.json` に書き、バージョン管理に含める","トークンを `.mcp.json` に直接書いたうえで、`.mcp.json` を `.gitignore` に加えておく","サーバーへの接続方法とトークンの値を CLAUDE.md に書き、エージェントに読ませて接続させる","認証のヘッダーに `${DEPLOY_API_TOKEN}` のような環境変数の展開を使い、値は各自の環境で設定する"],"answer":[1,4],"notes":["ユーザーレベルの設定は個人用や実験用のサーバー向けで、チームに共有されません。メンバーごとに設定がずれる原因になります。","正解。チームで共有するサーバーは、プロジェクトレベルの `.mcp.json` に定義してコミットします。クローンしたメンバー全員に同じ設定が届きます。","`.mcp.json` をコミットしないと、共有というもう一つの要件を満たせません。秘密を守るために共有をあきらめる両極端の手です。","CLAUDE.md は指示と文脈を書く場所で、MCP サーバーの設定の仕組みではありません。トークンの値をリポジトリに入れることにもなります。","正解。`.mcp.json` では `${VAR}` 形式の環境変数の展開が使えます。設定は共有しながら、トークンの値は各自の環境に置けます。"],"explanation":"MCP サーバーの置き場所は、誰と共有するかで決めます。チームで使うサーバーはプロジェクトレベルの `.mcp.json`、個人用や実験用のサーバーはユーザーレベルの `~/.claude.json` です。共有する `.mcp.json` に秘密を書かないために、認証情報は `${GITHUB_TOKEN}` のような環境変数の展開で参照します。2026年11月時点のドキュメントでは、`~/.claude.json` に置くサーバーに、そのプロジェクトだけで使うローカルスコープ（既定）と、全プロジェクトで使うユーザースコープの2種類があります。どちらも共有されない点は同じです。","ref":"試験ガイド タスク 2.4 ／ Claude Code Docs: Connect Claude Code to tools via MCP"},{"id":"D2-14","domain":"D2","scenario":"S4","topic":"MCP ツールの説明","type":"single","question":"チームは、コードの依存関係を解析した索引を持つ MCP ツール `find_callers` を用意しました。このツールは、依存性注入の登録まで解決し、インターフェース経由の呼び出し元も含めて返します。しかし説明は「呼び出し元を探す」の1行だけで、エージェントはほとんどの場面で組み込みの Grep を使い、インターフェース経由の呼び出しを見落としています。最も適切な最初の対応はどれですか。","options":["エージェントから Grep を外し、呼び出し元の調査には `find_callers` しか使えないようにする","`find_callers` の説明に、追える呼び出しの種類、返す内容、Grep より向く場面を書き足す","システムプロンプトに「どんな検索でも必ず `find_callers` を使うこと」と書き加えておく","Grep と `find_callers` の両方を毎回呼ばせ、見つかった件数が多いほうの結果を採用させる"],"answer":[1],"notes":["Grep はエラーメッセージや文字列の検索に欠かせません。外すと、テキストで探すべき場面まで困ります。","正解。説明が最小限だと、モデルはより高機能な MCP ツールを選ぶ理由を持てません。機能と出力を詳しく書くのが、原因に直接効く軽い手です。","文字列の検索まで `find_callers` に回すことになり、別の誤りを生みます。説明が不十分という原因も残ります。","毎回2つ呼ぶのは無駄が多く、件数の多さは正しさの目安になりません。どちらを使うべきかを判断させる手になっていません。"],"explanation":"エージェントは、ツールの説明を手がかりに、どのツールを使うかを決めます。MCP ツールの説明が短いと、なじみのある組み込みツール（Grep など）が選ばれがちで、MCP ツールの強み（ここでは依存性注入を解決した呼び出し元の追跡）が生かされません。対策は、MCP ツールの説明に、できること、返す内容、組み込みツールではなくこのツールを使うべき場面を書くことです。ツールを取り上げたり、一律に使わせたりする手は、別の場面で誤りを生みます。","ref":"試験ガイド タスク 2.4 ／ Anthropic Engineering: Writing effective tools for agents"},{"id":"D2-15","domain":"D2","scenario":"S4","topic":"MCP リソース","type":"single","question":"社内のドキュメントポータルを、MCP サーバーで支援エージェントにつないでいます。ログを見ると、エージェントは1つの質問に答える前に `list_spaces`、`list_pages`、`get_page` を合わせて平均20回ほど呼び、どんな資料があるかを手探りで確かめています。資料の構成（スペースとページの階層、各ページの要約）は1日に数回しか変わりません。最も適切な対応はどれですか。","options":["`list_pages` が各ページの本文まで返すようにして、`get_page` を呼ぶ回数を減らす","システムプロンプトに、ポータルにある全ページの一覧と要約を書き込んで、毎回渡しておく","エージェントの反復回数の上限を下げ、手探りの呼び出しが続いたら途中で打ち切らせる","ページの階層と要約をコンテンツカタログとして MCP リソースで公開し、最初に参照させる"],"answer":[3],"notes":["関係のないページの本文まで毎回コンテキストに入り、トークンを大きく使います。どこに何があるかを知らないまま `list_spaces` から探す手探りも残ります。","構成が変わるたびにプロンプトを直す必要があり、古い一覧が残りやすくなります。全ページの要約を毎回渡すのはトークンの負担も大きいです。","手探りを打ち切っても、必要な資料にたどり着けなくなるだけです。何があるかが分からないという原因に効きません。","正解。MCP リソースでコンテンツカタログを公開すると、エージェントは探索的なツール呼び出しをせずに、使えるデータの全体を把握できます。"],"explanation":"MCP では、操作はツール、読ませたい内容はリソースとして公開します。課題のサマリー、ドキュメントの階層、データベースのスキーマのような「何があるか」の目録は、リソースとして公開するのに向いています。目録があれば、エージェントは手探りの呼び出しを重ねずに、目的の資料へ直接向かえます。Claude Code では、接続した MCP サーバーのリソースを `@` で参照でき、リソースを一覧して読むためのツールも自動で用意されます。","ref":"試験ガイド タスク 2.4 ／ Claude Code Docs: Connect Claude Code to tools via MCP（Use MCP resources）"},{"id":"D2-16","domain":"D2","scenario":"S4","topic":"Grep で内容を探す","type":"single","question":"エンジニアが、本番のログに出た「Invoice total mismatch」というエラーメッセージについて、コードのどこで出しているかを尋ねました。エージェントは Glob で `**/*invoice*` に一致するファイルを探し、見つかった30ファイルを順に Read しています。しかし、このメッセージを出しているのは、ファイル名に invoice を含まない `ledger/checks.py` でした。最初に取るべきツールの使い方として最も適切なものはどれですか。","options":["Grep でメッセージの文字列をコードベース全体から探し、一致したファイルだけを Read する","Glob のパターンを `**/*.py` に広げ、すべての Python ファイルを順に Read して確かめる","Bash で `ls -R` を実行してディレクトリの構成を出し、それらしいファイルを推測する","Glob で `**/*ledger*` や `**/*check*` も探し、見つかったファイルを追加で Read する"],"answer":[0],"notes":["正解。エラーメッセージや関数名のように、ファイルの中身にある文字列を探すときは Grep を使います。一致した場所だけを読めば済みます。","Glob はファイル名のパターンで探す道具です。範囲を広げても、全ファイルを読むことになり、時間とコンテキストを使い果たします。","ファイル名から推測する点で、今の失敗と同じです。メッセージがどのファイルにあるかは、名前からは分かりません。","答えを知った後でしか選べないパターンで、ファイル名で探すという誤りを繰り返しています。"],"explanation":"組み込みツールは、何で探すかで選びます。ファイルの中身（関数名、エラーメッセージ、import 文など）は Grep、ファイルの名前や拡張子のパターン（`**/*.test.tsx` など）は Glob です。今回は名前ではなく中身を探す場面なので、Grep で場所を絞り込んでから Read します。なお、2026年11月時点の Claude Code は、macOS・Linux では既定で Glob と Grep を外して Bash の `find`・`grep` で検索しますが、Agent SDK の許可ツールに Glob や Grep を名指しすれば使えます。","ref":"試験ガイド タスク 2.5 ／ Claude Code Docs: Tools reference"},{"id":"D2-17","domain":"D2","scenario":"S4","topic":"Edit の失敗の代替","type":"single","question":"エージェントが、自動生成された設定ファイル `workers.yaml` の3番目のワーカーだけ、タイムアウトの値を変えようとしています。このファイルはテンプレートから作られたため、5つのワーカーのブロックは中身がまったく同じで、並び順でしか区別できません。Edit は、一致するテキストが一意でないために失敗しました。最も確実な対応はどれですか。","options":["`old_string` に3番目のワーカーのブロック全体を含めて長くし、もう一度 Edit を実行する","`replace_all` を有効にして Edit を実行し、5つのブロックのタイムアウトをまとめて書き換える","Read でファイル全体を読み込み、3番目のブロックだけを変えた内容を Write で書き戻す","変更後の3番目のワーカーのブロックだけを内容にして、Write で `workers.yaml` に書き込む"],"answer":[2],"notes":["5つのブロックは中身がまったく同じなので、ブロック全体まで広げても一致は5か所のままです。目印を長くする手は、前後に違いがあるときにしか効きません。","求められているのは3番目だけの変更です。5つすべてを書き換えると、ほかのワーカーの設定を壊します。","正解。Edit が一意のアンカーを見つけられないときは、Read でファイル全体を読み、意図した変更を加えた全体を Write で書くのが確実な代替です。","Write はファイル全体を、渡した内容で置き換えます。3番目のブロックだけを書くと、ほかの4つのワーカーの設定が消えます。"],"explanation":"Edit は、ファイルの中で一度だけ現れるテキストを目印にして、的を絞った変更をする道具です。目印が一意でないと失敗するので、そのときは Read でファイル全体を読み込み、変更を加えた内容を Write で書き戻します。Write はファイル全体を置き換えるため、読み込んだ内容をもとに書くことが前提です。2026年11月時点のドキュメントでは、前後の文脈を足して目印を一意にする方法も示されていますが、今回のように前後まで同じで区別できないときは Read と Write が確実です。","ref":"試験ガイド タスク 2.5 ／ Claude Code Docs: Tools reference（Edit tool behavior）"},{"id":"D2-18","domain":"D2","scenario":"S4","topic":"入口から段階的に","type":"single","question":"エンジニアが、約3,000ファイルあるレガシーな Web アプリについて、「注文のキャンセル要求がどう処理されるか」を説明してほしいと頼みました。エージェントは Read、Grep、Glob、Bash を使えます。このアプリには設計資料がなく、エンジニアはどのファイルが関係するかを知りません。最初の調査の進め方として最も適切なものはどれですか。","options":["`src/` 配下のすべてのファイルを Read で読み込み、全体を把握してから処理の流れを説明する","Grep でキャンセルのルート定義やハンドラーを探して入口を特定し、Read で import をたどる","Glob で全ファイルの一覧を取り、ファイル名に cancel を含むものだけを読んで流れを説明する","Bash でコミット履歴を読み、キャンセルに関係するコミットの内容から処理の流れを推測する"],"answer":[1],"notes":["3,000ファイルを先に全部読むと、コンテキストが無関係な内容で埋まります。必要な部分を探してから読むのが基本です。","正解。Grep で入口を見つけ、Read で import をたどって流れを追うと、必要なファイルだけで理解を段階的に組み立てられます。","処理の流れは、名前に cancel を含まないファイル（共通の検証や状態遷移など）も通ります。名前だけで選ぶと抜けが出ます。","履歴は変更の経緯を示すもので、今のコードの流れを確かめる手段ではありません。推測が混ざります。"],"explanation":"不慣れなコードベースは、最初にすべてを読むのではなく、Grep で入口（ルート定義、ハンドラー、関数名）を見つけ、Read で import や呼び出しをたどって理解を広げます。この進め方なら、読むファイルが流れに関係するものに絞られ、コンテキストを無駄にしません。Glob はファイル名のパターンで探す道具なので、流れを追う出発点には向きません。","ref":"試験ガイド タスク 2.5 ／ Claude Code Docs: Tools reference"},{"id":"D2-19","domain":"D2","scenario":"S4","topic":"ラッパー越しの使用箇所","type":"single","question":"エージェントに「`parseLegacyDate` を使っている箇所をすべて洗い出して」と頼んだところ、Grep で見つかったのは4か所でした。実際には、`utils/dates/index.ts` がこの関数を `toDate` や `parseDate` という別の名前で再エクスポートしており、多くのコードはその名前で呼んでいます。漏れなく洗い出すための進め方として最も適切なものはどれですか。","options":["Grep の検索で大文字と小文字を区別しない設定にし、`parselegacydate` でもう一度探す","Glob で `**/*date*` に一致するファイルを探し、それらを Read して呼び出しを確かめる","見つかった4か所の周りのコードから、ほかにありそうな呼び出しをエージェントに推測させる","ラッパーモジュールが公開する名前をすべて特定し、それぞれの名前でコードベース全体を Grep する"],"answer":[3],"notes":["大文字と小文字の違いを許しても、`toDate` や `parseDate` という別の名前には一致しません。","呼び出し側のファイル名に date が入るとは限りません。ファイル名で探す点で、使用箇所の調査には向きません。","推測では漏れがないことを確かめられません。検索で確かめられることを、推測に任せる手です。","正解。まずラッパーモジュールがエクスポートする名前を洗い出し、次にその一つずつでコードベース全体を検索すると、別名での呼び出しも拾えます。"],"explanation":"関数がラッパーモジュールを通して別の名前で公開されていると、元の名前だけを Grep しても使用箇所の一部しか見つかりません。そこで、ラッパーが公開する名前を先にすべて特定し、それぞれの名前でコードベース全体を検索します。このように、検索を2段に分けて、見つかった事実をもとに次の検索を組み立てるのが、組み込みツールで依存関係を追うときの基本です。","ref":"試験ガイド タスク 2.5 ／ Claude Code Docs: Tools reference（Grep tool behavior）"},{"id":"D2-20","domain":"D2","scenario":"S5","topic":"ツールの数を絞る","type":"single","question":"CI のレビュー担当のサブエージェントには、設定を簡単にするため、GitHub、課題管理、CI の3つの MCP サーバーのツールをすべて渡しています。その数は22個ですが、レビューで実際に使うのは、差分の取得、ファイルの読み取り、カバレッジの参照、インラインコメントの投稿の4つです。ログでは、インラインコメントのつもりで PR 全体へのコメントを投稿したり、似た名前のファイル取得のツールを取り違えたりする誤りが、PR の約1割で起きています。最も適切な対応はどれですか。","options":["22個すべてのツールの説明を詳しく書き直し、似た名前のツールどうしの違いが分かるようにする","システムプロンプトに使うべき4つのツールの名前を挙げ、ほかのツールは使わないよう強く指示する","レビュー担当に渡すツールを、レビューに必要な4つに絞り、ほかのツールは渡さないようにする","より性能の高いモデルに切り替え、多くのツールの中からでも正しいツールを選べるようにする"],"answer":[2],"notes":["説明を整えるのは役に立ちますが、使わない18個が候補に残り、判断の複雑さは変わりません。役割に要らないツールを渡していることが原因です。","ツールが渡されたままなので、使うかどうかはモデルの判断に残ります。確率的な手で、取り違えをなくす保証になりません。","正解。役割に必要なツールだけを渡せば、選ぶ候補が減ってツール選択の信頼性が上がり、専門外のツールを誤って使うこともなくなります。","規模で解決しようとする手です。多すぎるツールが選択を難しくしているという原因はそのまま残り、コストも上がります。"],"explanation":"エージェントに多すぎるツール（たとえば4〜5個ではなく18個）を渡すと、判断が複雑になり、ツール選択の信頼性が下がります。サブエージェントのツールは、その役割に必要なものに絞ります。Agent SDK では、サブエージェントの定義（`AgentDefinition`）の `tools` で使えるツールを指定できます。説明の改善やプロンプトでの指示は、ツールを絞ったうえで行う補助の手です。","ref":"試験ガイド タスク 2.3 ／ Agent SDK Docs: Subagents in the SDK ／ Anthropic Engineering: Writing effective tools for agents"},{"id":"D2-21","domain":"D2","scenario":"S6","topic":"汎用ツールの分割","type":"single","question":"抽出システムでは、汎用の `process_document` ツール1つに、項目の抽出、文書の要約、台帳の記録との照合をすべて任せています。入力は文書と自由記述の指示、出力は自由形式の文章で、説明には3つの使い方がすでに詳しく書いてあります。それでも、抽出を求めた場面で要約が返ったり、照合の結果が文章で返って下流のシステムが一致か不一致かを判定できなかったりしています。最も適切な対応はどれですか。","options":["システムプロンプトに、抽出・要約・照合のそれぞれで返すべき内容と書き方を、詳しい指示として書き足す","`process_document` が返す文章を下流で解析し、一致か不一致かを正規表現で取り出す処理を加える","`process_document` を抽出・要約・照合の目的別の3つのツールに分け、それぞれの入力と出力の形を定める","依頼が抽出・要約・照合のどれにあたるかを判定する分類モデルを別に作り、ツールの前段に置く"],"answer":[2],"notes":["指示で書き方を求めても、出力が自由形式の文章であることは変わらず、確率的な誘導にとどまります。下流が頼れる入出力の決まりができません。","文章を下流で解析するのは壊れやすい後処理で、症状への対処です。抽出を求めたのに要約が返るという取り違えも直りません。","正解。目的ごとにツールを分けて入力と出力の形を決めれば、モデルは目的に合うツールを選びやすくなり、下流も決まった形で結果を受け取れます。","作り込みすぎです。前段で依頼を振り分けても、出力が自由形式の文章のままなので、下流が結果を判定できない問題は残ります。"],"explanation":"1つの汎用ツールに複数の目的を持たせ、入出力の形を決めずにおくと、モデルはどの使い方を求められているかを取り違えやすく、下流も結果を機械的に扱えません。試験ガイドは、汎用的なツールを、入出力の契約が定義された目的別のツールに分割すること（例：汎用的な `analyze_document` を `extract_data_points`、`summarize_content`、`verify_claim_against_source` に分ける）を挙げています。なお、2026年11月時点の Define tools のページは、関連する操作を `action` パラメータで1つのツールにまとめる設計も勧めていますが、目的と入出力をはっきりさせて選択のあいまいさを減らす点は同じです。選び間違いが説明の不足ではなく、ツールの境界そのもののあいまいさから来ているときは、ツールの切り分けを見直します。","ref":"試験ガイド タスク 2.1 ／ Claude Docs: Define tools（Best practices for tool definitions）"},{"id":"D2-22","domain":"D2","scenario":"S6","topic":"横断ツールを絞る","type":"single","question":"抽出サブエージェントは、請求書ごとに発行元の取引先コードを調べます。照会のたびにコーディネーターを経由する往復を減らすため、取引先担当のサブエージェントが使う取引先データベースのツール一式（検索、新規登録、更新）を、抽出サブエージェントにも渡しました。処理は速くなりましたが、表記が少し違うだけの発行元に出会うと、抽出サブエージェントが自分で取引先を新規登録してしまい、重複した取引先が月に数十件できています。照会の大半は登録番号の完全一致で済み、判断が要るのは、新しい取引先や候補が複数ある場合だけです。最も適切な対応はどれですか。","options":["抽出役のツールを、登録番号から取引先コードを引く読み取り専用の1つに絞り、判断が要る照会はコーディネーター経由に戻す","ツール一式は渡したまま、抽出役のシステムプロンプトに「取引先の新規登録と更新は行わない」と例を添えて明記する","取引先データベースのツールを抽出役からすべて外し、単純な照会も含めて、毎回コーディネーター経由の照会に戻す","ツール一式は渡したまま、抽出役が登録した取引先を毎晩洗い出し、重複を取引先担当に統合させる処理を追加する"],"answer":[0],"notes":["正解。よくある単純な照会だけを、範囲を限定した読み取り専用のツールとして渡せば、往復を減らす効果を保ったまま、役割外の登録や更新はそもそも行えなくなります。判断が要るケースは、専門の取引先担当に任せます。","役割外のツールを持たせたままでは、指示があっても誤用は確率的に残ります。使わせたくない操作は、指示で禁じるより、ツールを渡さないほうが確実です。","誤った登録は止まりますが、大半を占める単純な照会まで往復に戻り、速くした効果を捨ててしまいます。すべて渡すか、何も渡さないかの二択にする必要はありません。","重複ができたあとに片づける対処で、誤った登録そのものは続きます。原因は、抽出役が役割外の書き込みのツールを持っていることです。"],"explanation":"試験ガイドは、エージェントにはその役割に必要なツールだけを与え、頻度の高い特定のニーズにだけ、範囲を限定した役割横断のツールを与えるとしています（ガイドの例は、統合エージェントに渡す `verify_fact`）。専門外のツールを持ったエージェントは、それを誤用しがちです。横断のツールは、よく起きる単純な用途に絞り、読み取り専用のような狭い形で渡して、複雑なケースはコーディネーター経由で専門のエージェントに回します。すべてを渡すか何も渡さないかではなく、どこまでを切り出して渡すかが判断の軸です。","ref":"試験ガイド タスク 2.3"},{"id":"D3-01","domain":"D3","scenario":"S2","topic":"話題別のルール","type":"single","question":"プロジェクトの CLAUDE.md が700行になり、テスト、API の設計、ログ出力の規約を、それぞれ別のチームが書き足しています。どの規約も、どの作業でも守ってほしいものです。ところが、1つのファイルを3つのチームで編集するため、変更がぶつかりやすく、どの節をどのチームが管理しているのかも分かりにくくなっています。最も適切な対応はどれですか。","options":["規約を話題ごとに、`.claude/rules/` の `testing.md` などのファイルに分けて置く","規約を話題ごとにスキルにまとめ、テストや API の作業を始めるときに、開発者がそれぞれ呼び出す","CLAUDE.md を1つのまま保ち、節ごとに担当チームの名前と目次を付けて、誰が直すかを分かるようにする","規約を、関係の深いディレクトリ（`tests/`、`src/api/` など）に置いた CLAUDE.md に分けて移す"],"answer":[0],"notes":["正解。`.claude/rules/` に話題ごとのファイルを置けば、チームごとに自分のファイルを管理でき、変更もぶつかりにくくなります。`paths` を付けないルールは起動時に読み込まれるので、どの作業でも規約が効きます。","スキルの本文は、呼び出されたときにだけ読み込まれます。どの作業でも守ってほしい規約が、呼び出し忘れで外れる形になります。","見出しを整えても、1つのファイルを3つのチームで編集することは変わりません。変更のぶつかりやすさは残ります。","サブディレクトリの CLAUDE.md は、そのディレクトリのファイルを扱うときにだけ読み込まれます。ログ出力の規約のように、どこでも守ってほしい規約が、ほかの場所の作業では効かなくなります。"],"explanation":"大きくなった CLAUDE.md は、`.claude/rules/` の話題別のファイル（`testing.md`、`api-conventions.md` など）に分けると管理しやすくなります。`paths` のないルールは、起動時に `.claude/CLAUDE.md` と同じ優先度で読み込まれるので、1つの CLAUDE.md に書いたときと同じく、すべての作業に効きます。ファイルが分かれるので、担当ごとに編集でき、どこに何があるかも分かりやすくなります。特定のファイルだけに当てたい規約なら `paths` を付け、特定の作業のときだけ使う手順ならスキルにする、と使い分けます。","ref":"試験ガイド タスク 3.1 ／ Claude Code Docs: Memory（Organize rules with .claude/rules/）"},{"id":"D3-02","domain":"D3","scenario":"S2","topic":"/memory で診断","type":"single","question":"同じリポジトリで作業している2人の開発者から、「Claude Code が生成するコードのインデントやテストの書き方が、人によって違う」という報告がありました。2人は同じブランチを使っていて、プロジェクトの CLAUDE.md の内容も同じです。原因を突き止めるために、最初に行うべきことはどれですか。","options":["プロジェクトの CLAUDE.md の該当する規約を太字と大文字で強調し、必ず守るよう書き直す","それぞれの環境で `/memory` を実行し、どのメモリファイルが読み込まれているかを見比べる","2人の Claude Code を同じバージョンに入れ直し、設定をすべて初期化してから様子を見る","プロジェクトの CLAUDE.md を削除して書き直し、規約を1つずつ足しながら挙動を確かめる"],"answer":[1],"notes":["原因を確かめないまま、指示を強めているだけです。片方の環境に別のメモリファイルがあって食い違っているなら、強調しても解決しません。","正解。ユーザーレベルの `~/.claude/CLAUDE.md` や `CLAUDE.local.md` など、人によって違うファイルが読み込まれていないかを、まず確かめます。","設定の初期化は大がかりで、個人の設定も失います。どのファイルが効いているかを確かめる前に行う、最初の一手ではありません。","共通のファイルは2人とも同じなので、ここを書き直しても差の原因には届きません。手間も大きくなります。"],"explanation":"同じリポジトリで挙動が人によって違うときは、共有のファイルのほかに、ユーザーレベルの `~/.claude/CLAUDE.md` や `CLAUDE.local.md` など、人ごとに違うメモリファイルが効いていることが多いです。試験ガイドでは、`/memory` でどのメモリファイルが読み込まれているかを確かめ、こうした食い違いを診断します。指示を強めたり作り直したりするのは、原因が分かってからです。2026年11月時点のドキュメントでは、`/memory` はメモリファイルの一覧を出して開くためのコマンドで、起動時に読み込まれたファイルの確認には `/context all` も案内されています。","ref":"試験ガイド タスク 3.1 ／ Claude Code Docs: Memory（/memory、Troubleshoot memory issues）"},{"id":"D3-03","domain":"D3","scenario":"S2","topic":"@import で規約を選ぶ","type":"single","question":"モノレポに `packages/web`、`packages/api`、`packages/batch` の3つのパッケージがあります。規約は `docs/standards/` に、`security.md`、`api-design.md`、`frontend.md`、`data-jobs.md` と分けて管理しています。パッケージごとに必要な規約は違い、どれが必要かは各パッケージのメンテナーが分かっています。規約の写しを作らずに、各パッケージに関係する規約だけを Claude Code に渡す方法として、最も適切なものはどれですか。","options":["すべての規約ファイルの内容をルートの CLAUDE.md に貼り付け、パッケージごとの見出しで分けておく","各パッケージの CLAUDE.md に、必要な規約の内容をメンテナーがそれぞれ書き写しておく","各パッケージの CLAUDE.md で、メンテナーが選んだ規約ファイルだけを `@` のパス指定で取り込む","ルートの CLAUDE.md に「作業の前に `docs/standards/` の規約を読むこと」と1行だけ書いておく"],"answer":[2],"notes":["どのパッケージで作業しても、関係のない規約まで毎回読み込まれます。どの節が当てはまるかの判断も、モデルの推測に任せることになります。","同じ規約の写しが何か所にもでき、元のファイルを直したときに写しが古くなります。写しを作らないという要件に反します。","正解。`@import` 構文なら、規約の本体を1か所に保ったまま、パッケージごとに必要なものだけを取り込めます。相対パスは取り込みを書いたファイルから数えるので、`@../../docs/standards/security.md` のように書きます。","文章で読むよう頼むだけでは、Claude が実際にファイルを開くかどうかは確実ではありません。パッケージごとにどの規約が要るかという知識も反映されません。"],"explanation":"CLAUDE.md は `@path` の形で外部のファイルを取り込めます。取り込んだファイルは、取り込み元の CLAUDE.md と一緒に読み込まれます。規約の本体を1か所で管理し、各パッケージの CLAUDE.md がメンテナーの知見に基づいて必要なものだけを取り込めば、写しのずれも、関係のない規約の読み込みも避けられます。1つの大きなファイルに全部を書くことや、文章で「読んで」と頼むことは、その代わりになりません。","ref":"試験ガイド タスク 3.1 ／ Claude Code Docs: Memory（Import additional files）"},{"id":"D3-04","domain":"D3","scenario":"S2","topic":"探索をフォークで分離","type":"single","question":"チームは `.claude/skills/design-options/SKILL.md` に、新しい機能の設計案を5〜6個洗い出し、長所と短所を比べるスキルを置いています。開発者はこのスキルを手で呼び出しています。実行すると、比べただけで採らなかった案の議論がメインの会話に長く残り、その後の実装で Claude が、採らなかった案の書き方を混ぜることがあります。開発者に必要なのは、最後に勧められた案とその理由だけです。最も適切な対応はどれですか。","options":["フロントマターに `context: fork` を加え、案の洗い出しを分離したサブエージェントで行わせる","SKILL.md の本文の末尾に、「採らなかった案は、あとの実装で使わないこと」と書き足しておく","フロントマターに `disable-model-invocation: true` を加え、開発者が呼んだときだけ動くようにする","案を比べ終えるたびに `/clear` で会話を空にし、そのあとで実装の相談を始めるようにする"],"answer":[0],"notes":["正解。`context: fork` を付けると、案の洗い出しは会話から切り離されたサブエージェントで行われ、メインの会話には結果だけが戻ります。探索的な議論で会話が散らかりません。","採らなかった案の議論は、会話に残ったままです。指示を足すだけでは、文脈に残った案が実装に混ざる原因を取り除けません。","これは、Claude がスキルを自分の判断で読み込むのを止める設定です。開発者はすでに手で呼んでいるので、別の問題を解いています。","採らなかった案と一緒に、勧められた案とその理由や、それまでの相談の内容まで消えます。必要な結論まで捨てることになります。"],"explanation":"`context: fork` は、コードベースの分析のように冗長な出力を生むスキルだけでなく、別案のブレインストーミングのように探索的な文脈を生むスキルを、メインのセッションから切り離すためにも使います。フォークしたサブエージェントは会話履歴を見ずに SKILL.md の内容をタスクとして実行し、結果だけを会話に返すので、比べて捨てた案の議論が会話に残りません。会話履歴を見ないので、スキルの指示はそれだけで完結するように書きます。2026年11月時点のドキュメントでは、フォークしたスキルは既定でバックグラウンドで動き、`background: false` を付けると完了を待ちます。","ref":"試験ガイド タスク 3.2 ／ Claude Code Docs: Skills（Run skills in a subagent、Frontmatter reference）"},{"id":"D3-05","domain":"D3","scenario":"S2","topic":"個人用のスキル","type":"single","question":"チームはプロジェクトの `.claude/skills/review/` に、標準のレビュー手順をまとめた `/review` スキルを置いています。ある開発者は、自分のときだけ、パフォーマンスの観点を強めた版を使いたいと考えています。チームの `/review` も、場面に応じて引き続き使いたいとのことです。最も適切な方法はどれですか。","options":["プロジェクトの `.claude/skills/review/SKILL.md` に自分用の観点を書き足し、チームの版を拡張してコミットする","`~/.claude/skills/review/` に同じ名前で自分用の版を作り、自分の環境ではそちらが使われるようにする","自分の `~/.claude/CLAUDE.md` に「`/review` のときはパフォーマンスも厳しく見ること」と書き足しておく","`~/.claude/skills/` に `review-perf` のような別の名前で自分用の版を作り、2つを使い分ける"],"answer":[3],"notes":["チームで共有しているスキルを書き換えると、ほかのメンバーのレビューの手順まで変わってしまいます。","個人用とプロジェクトに同じ名前のスキルがあると、個人用が優先されます。自分の環境ではチームの `/review` が隠れて使えなくなります。","CLAUDE.md は常に読み込まれるので、`/review` 以外の作業にも影響しかねません。指示として頼むだけで、確実に使い分けられる手段でもありません。","正解。`~/.claude/skills/` の個人用スキルはバージョン管理に入らず、チームに影響しません。別の名前にすれば、チームの版と自分の版を両方呼べます。"],"explanation":"スキルを自分用に変えたいときは、チームの共有ファイルを書き換えず、`~/.claude/skills/` に別の名前で個人用の版を作ります。個人用の場所はバージョン管理に入らないので、チームメイトには影響しません。2026年11月時点のドキュメントでは、同じ名前のスキルが個人用とプロジェクトの両方にあると個人用が優先されるため、同じ名前にすると、チームの版が自分の環境から見えなくなります。両方を使い分けたいなら、名前を変えるのが確実です。","ref":"試験ガイド タスク 3.2 ／ Claude Code Docs: Skills（Choose where skills load、Resolve skills that share a name）"},{"id":"D3-06","domain":"D3","scenario":"S2","topic":"スキルか CLAUDE.md か","type":"single","question":"プロジェクトの CLAUDE.md は420行あり、そのうち180行は、週に1回のリリースのときだけ使う手順（タグ付け、変更履歴の生成、ステージングでの確認）です。残りは、どの作業でも守ってほしいコーディング規約とビルドのコマンドです。普段の作業でもリリースの手順が毎回読み込まれ、コンテキストを使っています。最も適切な対応はどれですか。","options":["リリースの手順を `.claude/rules/release.md` に移し、`paths` は付けずに、話題ごとのファイルとして管理する","リリースの手順をスキル（`.claude/skills/release/`）に移してリリースのときに呼び出し、規約は残す","リリースの手順を CLAUDE.md に残したまま、見出しに「リリースのときだけ参照すること」と書き添えておく","リリースの手順を、リリース担当者の `~/.claude/CLAUDE.md` に移し、担当者の環境だけで読み込まれるようにする"],"answer":[1],"notes":["`paths` のないルールファイルは、起動時に CLAUDE.md と同じように読み込まれます。整理にはなりますが、毎回読み込まれる問題は残ります。","正解。スキルの本文は、使うときにだけ読み込まれます。タスク固有の手順はスキルに、常に守る標準は CLAUDE.md に、と分けます。","書き添えても、ファイルは毎回まるごと読み込まれます。コンテキストを使う問題は変わりません。","担当者の環境では、リリース以外の作業でも毎回読み込まれます。担当者が替わったときに、手順がチームで共有されない問題も生まれます。"],"explanation":"CLAUDE.md は、毎回読み込まれる全体共通の標準を書く場所です。特定のタスクのときだけ使う手順はスキルにして、必要なときに呼び出します。既定では、スキルは説明だけが常にコンテキストにあり、本文は呼び出されたときに読み込まれるので、長い手順でも普段のコストはほとんどかかりません。「いつも必要か、そのタスクのときだけか」で置き場所を選びます。","ref":"試験ガイド タスク 3.2 ／ Claude Code Docs: Skills ／ Claude Code Docs: Memory"},{"id":"D3-07","domain":"D3","scenario":"S2","topic":"paths で条件付き読込","type":"single","question":"リポジトリの `terraform/` の下に、インフラの定義がまとまっています。CLAUDE.md には Terraform の命名やモジュール構成の規約が150行ありますが、開発者の多くはアプリのコードだけを触ります。Terraform の規約が毎回読み込まれてトークンを使い、アプリのコードに Terraform 流の命名が混ざることもあります。最も適切な対応はどれですか。","options":["規約をスキルにまとめ、インフラの作業を始めるときに開発者が呼び出すよう、チームに周知する","規約を `docs/terraform.md` に移し、ルートの CLAUDE.md から `@docs/terraform.md` で取り込む","規約を `.claude/rules/terraform.md` に移し、`paths: [\"terraform/**/*\"]` を指定する","CLAUDE.md の Terraform の節に「`.tf` ファイルを編集するときだけ適用すること」と目立つように書き添える"],"answer":[2],"notes":["開発者が呼び出し忘れると、規約が効きません。ファイルのパスに基づいて自動で当てる仕組みのほうが確実です。","取り込んだファイルは、取り込み元の CLAUDE.md と一緒に起動時に読み込まれます。ファイルは分かれても、毎回読み込まれる問題は残ります。","正解。`paths` を持つルールは、一致するファイルを扱うときにだけ読み込まれます。アプリの作業では読み込まれないので、トークンも混乱も減ります。","節は毎回読み込まれたままで、適用するかどうかの判断をモデルに任せています。トークンも減りません。"],"explanation":"`.claude/rules/` のファイルに YAML フロントマターの `paths` を書くと、glob パターンに一致するファイルを扱うときにだけ、そのルールが読み込まれます。特定の領域にしか関わらない規約を常に読み込むと、トークンを使ううえに、関係のない作業に規約が混ざる原因にもなります。`@` で取り込んだファイルや `paths` のないルールは起動時に読み込まれるので、ファイルを分けるだけでは条件付きになりません。試験ガイドは「一致するファイルを編集するときに」読み込まれるとしていますが、2026年11月時点のドキュメントでは、一致するファイルを読むときにも読み込まれます。","ref":"試験ガイド タスク 3.3 ／ Claude Code Docs: Memory（Path-specific rules、Import additional files）"},{"id":"D3-08","domain":"D3","scenario":"S2","topic":"ファイルの種類で当てる","type":"single","question":"gRPC のサービスを集めたリポジトリで、`.proto` ファイルの書き方の規約を `.claude/rules/proto.md` にまとめ、次のように書きました。共通の定義は `proto/` の下にありますが、各サービスの定義は `services/billing/api/invoice.proto` のようにサービスごとのディレクトリに置かれていて、こちらを編集するときには規約が読み込まれません。規約はすべての `.proto` ファイルに当てたく、それ以外の作業では読み込ませたくありません。サービスは今後も増えていきます。最も適切な修正はどれですか。","code":"---\npaths:\n  - \"proto/**/*\"\n---\n\n# .proto の規約\n- 一度使ったフィールド番号は、別の用途に使い回さない\n- フィールドを消すときは、番号を reserved にする","options":["`paths` を `**/*.proto` に変え、置き場所ではなくファイルの種類のパターンで対象を決める","`paths` に `services/billing/api/**/*` のように、定義のあるディレクトリを順に書き足す","フロントマターの `paths` を消し、このルールを起動時からどの作業でも読み込ませるようにする","各サービスの定義をすべて `proto/` の下に移し、いまの `paths` の指定に合う構成に組み替える"],"answer":[0],"notes":["正解。ファイルの種類のパターンで指定すれば、どのディレクトリにある `.proto` にも当たり、ほかのファイルでは読み込まれません。サービスが増えても書き換えは要りません。","ディレクトリ単位の指定では、同じ場所にあるほかのファイルを触るときにも規約が読み込まれます。サービスが増えるたびに書き足す手間も残ります。","`paths` のないルールは、起動時に必ず読み込まれます。`.proto` には当たりますが、関係のない作業でも読み込まれ、条件付きにした意味がなくなります。","設定に合わせてファイルの置き場所を変えるのは、手段と目的が逆です。変更が大きく、サービスごとに定義を持つ今の構成も崩れます。"],"explanation":"パス固有のルールは、`paths` の glob パターンに一致するファイルを Claude が読み書きするときにだけ読み込まれます。パターンは、ディレクトリでも、ファイルの種類でも書けます。当てたい対象が「ある場所の下のすべて」なら `terraform/**/*` のようにディレクトリで、「場所を問わず、ある種類のファイル」なら `**/*.proto` のように拡張子で指定します。対象の決め方とパターンの形を合わせることが、判断の軸です。","ref":"試験ガイド タスク 3.3 ／ Claude Code Docs: Memory（Path-specific rules）"},{"id":"D3-09","domain":"D3","scenario":"S2","topic":"ルールが常に効く原因","type":"single","question":"ある開発者が、ほかのツールの設定を参考にして、次のルールファイルを `.claude/rules/graphql.md` に作りました。`.graphql` ファイルを扱うときだけ読み込ませるつもりでしたが、React のコンポーネントを編集しているときにも、このルールが効いているようです。最も可能性の高い原因はどれですか。","code":"---\nglobs:\n  - \"**/*.graphql\"\n---\n\n# GraphQL スキーマの規約\n- 型の名前はパスカルケースにする\n- ミューテーションの名前は動詞で始める","options":["glob パターンの `**` は、`.claude/rules/` のファイルでは使えない書き方だから","ルールファイルは、対象の `.graphql` ファイルと同じディレクトリに置く必要があるから","パターンを引用符で囲んでいるため、glob ではなくただの文字列として扱われているから","ルールのフロントマターで読まれるのは `paths` だけで、`globs` は無視されるから"],"answer":[3],"notes":["`**/*.ts` のように `**` を使うパターンは、`paths` で使える書き方です。原因はパターンの書き方ではありません。","プロジェクトのルールは `.claude/rules/` に置きます。パターンは、その `.claude` フォルダがあるディレクトリを基準に数えます。","ドキュメントの例も、パターンを引用符で囲んで書いています。引用符は原因ではありません。","正解。`paths` 以外の項目は、エラーなしに無視されます。`paths` のないルールは起動時に毎回読み込まれるので、どの作業にも効いてしまいます。"],"explanation":"パス固有のルールは、YAML フロントマターの `paths` に glob パターンを書いて作ります。2026年11月時点のドキュメントでは、Claude Code がルールのフロントマターで読む項目は `paths` だけで、それ以外の項目はエラーを出さずに無視されます。その結果、このファイルは `paths` のないルールとして起動時に読み込まれ、すべての作業に効きます。ほかのツールの設定を写すときは、項目の名前が Claude Code の仕様に合っているかを確かめます。","ref":"試験ガイド タスク 3.3 ／ Claude Code Docs: Memory（Rule frontmatter reference）"},{"id":"D3-10","domain":"D3","scenario":"S2","topic":"方式の選択は計画から","type":"single","question":"動画の投稿機能に、最大2GBのファイルのアップロードを加えます。方法は、ブラウザからオブジェクトストレージへ直接アップロードする方式と、API サーバーを経由して受け取る方式の2つが考えられ、必要なインフラの設定（ストレージのアクセス方針か、API サーバーのタイムアウトとメモリ）がそれぞれ違います。変更は、フロントエンド、API、インフラの定義にまたがります。Claude Code で最も適切な進め方はどれですか。","options":["直接実行で、まず API サーバーを経由する方式を実装させ、問題が出たらストレージへ直接上げる方式に切り替える","直接実行で、2つの方式をそれぞれ別のブランチに最後まで実装させ、動かして比べてから一方を残す","Explore サブエージェントに関係するファイルを洗い出させ、その一覧をもとに直接実行で一方の方式を実装させる","プランモードで既存のコードとインフラの定義を調べさせ、2つの方式を比べて設計を決めてから実装に移る"],"answer":[3],"notes":["方式によってインフラの設定まで変わるので、途中で切り替えると、それまでのフロントエンドと API の変更が手戻りになります。複雑さは最初から分かっています。","2つとも最後まで作るのは、比べるための手間として大きすぎます。比べるのに必要なのは、実装ではなく調査と設計です。","長い調査の出力を切り離す手で、方式を比べて決めるという判断の問題を解いていません。どちらを選ぶかの根拠がないまま実装に入ります。","正解。必要なインフラが違う方式の選択は、アーキテクチャの判断です。プランモードで、ファイルを変えずに既存のコードと定義を調べ、方式を比べて決めてから実装すれば、高くつく手戻りを防げます。"],"explanation":"プランモードは、大規模な変更、複数の妥当な方法、アーキテクチャの判断、複数ファイルにまたがる修正のような、複雑なタスクのためのものです。必要なインフラが違う連携の方式を選ぶ場面はその典型で、変更を加える前に、コードベースを安全に調べ、方式を比べて設計できます。直接実行は、範囲が明確で、やり方が決まっている変更に使います。「まず作ってみて、だめなら切り替える」は、複雑さが最初から分かっている場面では、高くつく手戻りを招きます。","ref":"試験ガイド タスク 3.4 ／ Claude Code Docs: Permission modes（plan mode）"},{"id":"D3-11","domain":"D3","scenario":"S2","topic":"調査を切り離す","type":"multi","question":"共通の関数 `normalizePhone` に、国番号の扱いの誤りが見つかりました。直し方はチームで合意済みで、`src/utils/phone.ts` の1行を変えれば済みます。ただ、リリースノートに影響を書くため、修正の前に、この関数の呼び出し箇所とそのテストの一覧を把握しておきたいと考えています。コードベースは2,000ファイルを超え、洗い出しでは大量の検索結果やファイルの内容を読むことになります。取るべき対応はどれですか。（2つ選択）","options":["作業全体をプランモードで進め、1行の修正についても、調査と設計の計画を承認してから実装する","呼び出し箇所とテストの洗い出しは Explore サブエージェントに任せ、一覧の要約だけを受け取る","検索の結果とファイルの内容をメインの会話にすべて出させ、Claude に1件ずつ確かめさせる","修正の前に、見つけた呼び出し箇所を直接実行で1つずつ書き換え、新しい国番号の扱いにそろえる","1行の修正は範囲が明確なので直接実行で直させ、既存のテストと新しいテストで結果を確かめる"],"answer":[1,4],"notes":["直し方は決まっていて、設計を検討する余地がありません。1行の修正に計画と承認の手順を挟むのは、作業の大きさにつり合いません。","正解。Explore サブエージェントは別のコンテキストで読み取り専用の調査を行い、要約だけを返します。大量の検索結果で、メインの会話が埋まりません。","一度しか使わない検索結果とファイルの内容が、メインの会話に残り続けます。あとの作業でもコンテキストを使い、大事な情報が埋もれます。","必要なのは影響の一覧で、呼び出し側を書き換えることではありません。直す範囲を広げ、1行で済む修正を大きな変更にしてしまいます。","正解。内容がよく分かっていて範囲が明確な変更は、直接実行で進めます。テストで修正を確かめれば十分です。"],"explanation":"1つのタスクの中でも、段階ごとに手段を選びます。範囲が明確な修正は直接実行で進め、プランモードは、設計の判断が要る複雑な変更のために取っておきます。一方、修正の前の調査が大量の検索結果を生むなら、その段階を Explore サブエージェントに任せて要約だけを受け取り、メインの会話のコンテキストを保ちます。2026年11月時点のドキュメントでは、Claude は変更をせずにコードベースを調べる必要があるとき、自分から Explore に任せることもあります。","ref":"試験ガイド タスク 3.4 ／ Claude Code Docs: Subagents（Explore）／ Claude Code Docs: Permission modes"},{"id":"D3-12","domain":"D3","scenario":"S2","topic":"テスト駆動の反復","type":"single","question":"Claude Code に、送料を計算する関数を書かせています。送料は地域、重さ、送料無料になる金額、会員の割引の組み合わせで決まり、1回の計算は1ミリ秒以内に終える必要があります。不具合を文章で伝えて直させるたびに、以前に直したはずの組み合わせが別の形で壊れ、同じやり取りを繰り返しています。次に取るべき進め方として最も適切なものはどれですか。","options":["不具合の症状と期待する送料を、これまでより詳しい文章で伝え、1件ずつ直させて先に進む","代表的な入力と期待する送料の組を2〜3個示し、それに合うように計算のしかたを書き直させる","インタビューパターンで、送料の計算について考えるべき点を Claude に質問させてから作り直させる","期待する動作、境目の値、性能の要件を網羅するテストを先に作り、失敗の出力を渡しながら直させる"],"answer":[3],"notes":["1件ずつ直すだけでは、前に直した組み合わせが壊れても気づけません。同じ回帰を繰り返す原因が残ります。","例は変換の意図を伝えるのには効きますが、2〜3個では組み合わせを網羅できず、修正のたびに全体を確かめる仕組みにもなりません。","インタビューパターンは、不慣れな領域で、まだ気づいていない考慮点を実装の前に洗い出す手です。今回は要件が分かっていて、問題は修正のたびの回帰です。","正解。テストを先に作れば、修正のたびに全部の組み合わせと性能の要件を確かめられます。失敗したテストの出力を渡すと、Claude は何が壊れたかを具体的に知って直せます。"],"explanation":"テスト駆動の反復では、期待する動作、エッジケース、性能の要件を網羅するテストを実装の前に作り、テストの失敗を共有しながら改善を回します。合否がはっきり出るテストがあれば、Claude は変更のたびに自分で確かめ、壊れたところを出力から読み取って直せます。文章で症状を伝えて1件ずつ直すやり方では、前に直した部分が壊れても気づけず、同じ手戻りを繰り返します。入出力の例は変換の意図を伝えるのに効き、テストはその意図が守られ続けているかを確かめます。","ref":"試験ガイド タスク 3.5 ／ Claude Code Docs: Best practices（Give Claude a check to run）"},{"id":"D3-13","domain":"D3","scenario":"S2","topic":"問題の伝え方の順序","type":"multi","question":"Claude Code が生成した請求計算のモジュールをレビューし、4つの問題が見つかりました。(1) 金額を浮動小数点で持っている、(2) 端数の丸め方が仕様と違う、(3) ログのメッセージに誤字がある、(4) 公開関数の1つにドキュメントコメントがない、の4つです。(1) の型を変えると (2) の丸めの書き方も変わるため、この2つは互いに影響します。(3) と (4) は、ほかの問題と関係がありません。取るべき進め方はどれですか。（2つ選択）","options":["(3) と (4) は互いに独立しているので、それぞれ別のメッセージで順に直させ、そのつど確かめる","4つの問題をまとめて「レビューの指摘をすべて直して」とだけ伝え、直し方は Claude に任せる","(1) と (2) を、互いの関係と期待する結果を書いた1つの詳しいメッセージにまとめて直させる","モジュールを破棄し、4つの問題を避けるよう指示を足したうえで、最初から生成し直させる","(1) を直させて結果を確かめてから、次のメッセージで (2) を直させ、1つずつ順に進める"],"answer":[0,2],"notes":["正解。独立した問題は1つずつ順に直すと、どの修正で何が変わったかを確かめやすく、ほかの部分にも影響しません。","何をどう直すかが伝わらず、互いに影響する2つの問題の関係も伝わりません。修正の質が運任せになります。","正解。修正が互いに影響する問題は、関係と期待する結果を添えて、1つのメッセージで扱います。整合した形で一度に直せます。","大部分は正しいコードを捨てることになり、手間に見合いません。作り直しても、同じ種類の誤りが出ない保証はありません。","(1) を直すと (2) の前提が変わります。別々に直すと、一方の修正がもう一方を崩し、やり直しが増えます。"],"explanation":"複数の問題を伝えるときは、まず問題どうしが影響し合うかを見極めます。一方の修正がもう一方の前提を変えるなら、関係を説明した1つの詳しいメッセージにまとめて直させます。独立した問題は順番に1つずつ直し、そのつど結果を確かめます。この使い分けで、手戻りを防ぎながら段階的に改善できます。","ref":"試験ガイド タスク 3.5"},{"id":"D3-14","domain":"D3","scenario":"S4","topic":"個人の指示の置き場所","type":"single","question":"エンジニアの1人が、自分が関わるすべてのリポジトリで、Claude Code に「説明は日本語で書き、ファイルを変更する前に影響するファイルの一覧を見せる」というやり方をさせたいと考えています。チームのほかのメンバーは英語での説明を好んでいて、このやり方をほかの人に当てるつもりはありません。この指示の置き場所として、最も適切なものはどれですか。","options":["ホームディレクトリの `~/.claude/CLAUDE.md` に書き、自分のすべてのプロジェクトで読み込ませる","各リポジトリのルートの CLAUDE.md に、このエンジニアの作業のときだけ従うよう断り書きを添えて書く","各リポジトリに `CLAUDE.local.md` を作って書き、それぞれのリポジトリで `.gitignore` に加える","各リポジトリの `.claude/rules/` に自分用のファイルを作り、`paths` で自分が触る範囲に絞る"],"answer":[0],"notes":["正解。ユーザーレベルの `~/.claude/CLAUDE.md` は、自分のすべてのプロジェクトで読み込まれ、バージョン管理を通じてチームに共有されることもありません。","プロジェクトの CLAUDE.md はバージョン管理でチーム全員に共有され、全員のセッションで読み込まれます。断り書きで対象の人を分けられる保証もありません。","`CLAUDE.local.md` は自分だけに効きますが、そのプロジェクトの中だけです。すべてのリポジトリに作って管理し続ける必要があり、新しいリポジトリでは効きません。","`.claude/rules/` のファイルはリポジトリにコミットされ、チームに共有されます。`paths` はファイルの場所で絞る仕組みで、人で絞ることはできません。"],"explanation":"CLAUDE.md の置き場所は、誰に、どの範囲で効かせたいかで選びます。ユーザーレベルの `~/.claude/CLAUDE.md` は自分のすべてのプロジェクトに効き、チームには共有されません。プロジェクトレベル（ルートの CLAUDE.md か `.claude/CLAUDE.md`）と `.claude/rules/` は、バージョン管理を通じてチーム全員に共有されます。2026年11月時点のドキュメントには、そのプロジェクトで自分だけに効く `CLAUDE.local.md` もありますが、すべてのプロジェクトに当てたい個人の好みには、ユーザーレベルが向きます。","ref":"試験ガイド タスク 3.1 ／ Claude Code Docs: How Claude remembers your project"},{"id":"D3-15","domain":"D3","scenario":"S4","topic":"argument-hint","type":"single","question":"チームは `.claude/skills/new-endpoint/SKILL.md` に、API のエンドポイントの雛形を作るスキルを置いています。本文は `$ARGUMENTS` で資源の名前と HTTP メソッドを受け取る前提で、`/new-endpoint orders POST` のように呼び出す決まりです。ところが、入力の補完で選んだ `/new-endpoint` を引数なしで実行するメンバーが多く、そのたびに Claude が資源の名前を推測して、誰も意図していない名前のファイルを作っています。最も適切な対応はどれですか。","options":["CLAUDE.md に「`/new-endpoint` は資源の名前とメソッドを付けて呼ぶこと」と書き足しておく","フロントマターに `context: fork` を加え、推測した名前でのファイル作成をサブエージェントに任せる","フロントマターに `argument-hint: [resource] [method]` を加え、必要な引数を呼び出し時に示す","フロントマターに `required-arguments: true` を加え、引数がないときはスキルを実行させない"],"answer":[2],"notes":["CLAUDE.md は Claude への指示を置く場所で、スキルを呼び出す開発者の目には入りません。引数を付け忘れる人に、入力を促すことにはなりません。","`context: fork` は、スキルを分離したサブエージェントで実行し、出力がメインの会話を汚さないようにする設定です。推測した名前でファイルが作られる問題は変わりません。","正解。`argument-hint` は、スキルを呼び出すときに期待する引数を示すフロントマターです。`[resource] [method]` と書いておけば、引数なしで呼び出そうとした開発者に必要な入力を促せます。","`required-arguments` というフロントマターの項目はありません。もっともらしい名前の、存在しない設定です。"],"explanation":"スキルのフロントマターには、`context: fork`、`allowed-tools`、`argument-hint` などを書けます。試験ガイドでは、開発者が引数なしでスキルを呼び出したときに必須のパラメータの入力を促すために `argument-hint` を使います。CLAUDE.md への追記や、別の目的の設定では、呼び出す人に必要な引数は伝わりません。2026年11月時点のドキュメントでは、`argument-hint` は入力の補完のときに表示されるヒントで、引数を強制する仕組みではありません。確実にしたいときは、本文にも「引数がなければ、資源の名前とメソッドを尋ねる」と書き添えます。","ref":"試験ガイド タスク 3.2 ／ Claude Code Docs: Extend Claude with skills（Frontmatter reference）"},{"id":"D3-16","domain":"D3","scenario":"S4","topic":"大きな移行の進め方","type":"multi","question":"エンジニアが、非推奨になった社内の HTTP クライアントを新しいライブラリに置き換える作業を Claude Code に任せようとしています。影響は約50ファイルに及び、リトライやタイムアウトの扱いをどう移すかには複数のやり方が考えられます。前回の似た作業では、調査で読んだファイルの内容がメイン会話にたまり、実装の途中でコンテキストが足りなくなりました。取るべき対応はどれですか。（2つ選択）","options":["プランモードで影響範囲を調べて移行の方針を決め、計画を承認してから直接実行で実装する","50ファイルを10ファイルずつ5つのセッションに分け、それぞれのセッションで直接実行で書き換えさせる","Explore サブエージェントに、調査から50ファイルの書き換えまでを任せ、メイン会話には完了だけを返させる","冗長な調査は Explore サブエージェントに任せ、メイン会話には要約だけを返させる","見落としを防ぐため、50ファイルすべてを最初にメイン会話へ読み込ませてから計画させる"],"answer":[0,3],"notes":["正解。多数のファイルに及び、やり方が複数ある変更はプランモードで調べて設計します。計画が固まったら、直接実行で実装に移ります。","コンテキストは分けられますが、リトライやタイムアウトの扱いを決める共通の計画がないので、セッションごとに移し方がばらつくおそれがあります。","Explore は読み取り専用のサブエージェントで、Write と Edit は使えません。書き換えまでは任せられず、方針を決める過程もメイン会話から見えなくなります。","正解。Explore サブエージェントは冗長な調査の出力を分離し、要約だけを返します。複数フェーズの作業でもメインのコンテキストが枯渇しにくくなります。","前回の失敗（調査の内容でメイン会話が埋まる）をそのまま繰り返します。全部を読むより、必要な部分を探して読むべきです。"],"explanation":"プランモードは、大規模な変更、複数の有効なやり方、複数ファイルに及ぶ修正のように、変更を確定する前にコードベースを調べて設計したい作業のためのものです。調査と計画はプランモードで、実装は直接実行で、と組み合わせるのが基本です。調査のフェーズが冗長になる作業では Explore サブエージェントに調べさせ、メイン会話には要約だけを戻すと、実装のためのコンテキストを残せます。Explore は読み取り専用なので、任せるのは調査までで、書き換えは計画に沿ってメイン会話で進めます。","ref":"試験ガイド タスク 3.4 ／ Claude Code Docs: Permission modes（plan mode）、Create custom subagents"},{"id":"D3-17","domain":"D3","scenario":"S4","topic":"直接実行を選ぶ","type":"single","question":"エンジニアが、本番で出た `TypeError` のスタックトレースを Claude Code に渡しました。原因は `export/csv.py` の1つの関数で、値が `None` のときの分岐が抜けていることがはっきりしており、直す範囲もその関数の中だけです。最も適切な進め方はどれですか。","options":["プランモードに入り、コードベース全体の依存関係を調べたうえで修正の方針を計画させる","直接実行で、その関数に `None` のときの分岐を加え、テストを走らせて結果を確かめさせる","Explore サブエージェントに似た不具合を全体から探させ、その報告を待ってから修正する","インタビューパターンで、修正の前に考えるべき点を Claude から質問させてから実装する"],"answer":[1],"notes":["原因も範囲もはっきりした1つの関数の修正に、全体の調査と計画は要りません。手間に見合う効果がありません。","正解。スタックトレースで原因が分かり、範囲が明確な1ファイルの修正は、直接実行に向いています。テストで直ったことを確かめます。","似た不具合を探すのは別の作業です。今の不具合の修正を、関係のない調査の後回しにすることになります。","インタビューパターンは、不慣れな領域で設計上の考慮点を洗い出すための手です。直す内容が決まっている修正には重すぎます。"],"explanation":"直接実行は、内容がよく分かっていて範囲が明確な変更に向いています。スタックトレースで原因がはっきりした1ファイルのバグ修正や、条件分岐を1つ足すような変更がその例です。プランモードやサブエージェントでの調査、インタビューパターンは、どれも不確かさが大きい作業のための手で、今回のような変更では時間を使うだけです。作業の複雑さと不確かさに合わせて進め方を選ぶことが大切です。","ref":"試験ガイド タスク 3.4 ／ Claude Code Docs: Common workflows"},{"id":"D3-18","domain":"D3","scenario":"S4","topic":"実装前に質問させる","type":"single","question":"エンジニアが、不慣れなレガシーの在庫システムに、外部の価格 API の結果をキャッシュする層を Claude Code で追加しようとしています。本人はキャッシュの設計に詳しくなく、在庫が更新されたときにキャッシュをどう扱うか、価格 API が止まったときにどうふるまうべきかも、まだ考えていません。実装に入る前の進め方として最も適切なものはどれですか。","options":["「在庫システムに価格のキャッシュを追加して」とだけ依頼し、できた実装を動かしながら問題を直させる","一般的なキャッシュの設計指針を CLAUDE.md に書いておき、その指針に従って実装を進めさせる","実装の前に、決めておくべき点を Claude に質問させ、答えながら要件を固めてから実装させる","異なる方式でキャッシュの実装を3通り作らせ、既存のテストが通ったものから採用する案を選ぶ"],"answer":[2],"notes":["考えていない点（無効化の時期や障害時のふるまい）は、動かしてから見つかることになります。後で設計を変えると手戻りが大きくなります。","一般的な指針は、このシステムに固有の論点（在庫の更新とキャッシュの関係など）を洗い出してくれません。本人が考えていない点は決まらないままです。","正解。インタビューパターンです。開発者が想定していなかった考慮事項を、実装の前に Claude からの質問で洗い出せます。","既存のテストは新しいキャッシュの要件を確かめていないので、通っても正しさの目安になりません。何を満たすべきかが決まらないまま、数だけを増やしています。"],"explanation":"インタビューパターンは、実装の前に Claude に質問させ、開発者が想定していなかった考慮事項を洗い出す手法です。キャッシュの無効化の方針や障害時のふるまいのように、不慣れな領域で決めるべき設計上の論点に向いています。答えがまとまったら仕様として書き出し、それをもとに実装に移ります。反復的な改善の手は、期待する変換がぶれるなら入出力の例、振る舞いを確かめながら直すならテスト駆動、要件そのものが固まっていないならインタビューと、足りないものに合わせて選びます。","ref":"試験ガイド タスク 3.5 ／ Claude Code Docs: Best practices for Claude Code"},{"id":"D3-19","domain":"D3","scenario":"S5","topic":"CI に届かない指示","type":"single","question":"テックリードが手元で `claude -p` による PR のレビューを試し、期待どおりの指摘が出ることを確かめてから、同じコマンドを CI のジョブに組み込みました。ところが CI では、チームのレビュー基準（認可の確認漏れは必ず指摘する、自動生成のファイルは対象外にする、など）を無視した指摘が出ます。調べると、この基準はテックリードの `~/.claude/CLAUDE.md` だけに書かれていました。基準は、CI のレビューにも、各メンバーが手元で Claude Code を使うときにも当てたいと考えています。最も適切な対応はどれですか。","options":["CI のジョブの最初に、テックリードの `~/.claude/CLAUDE.md` をランナーのホームディレクトリへコピーする","レビュー基準を CI のジョブのプロンプトに直接書き込み、`claude -p` を呼ぶたびに毎回渡すようにする","プロジェクトの CLAUDE.md に `@~/.claude/CLAUDE.md` と書き、テックリードのファイルを取り込ませる","レビュー基準をプロジェクトの CLAUDE.md（または `.claude/rules/`）に移し、リポジトリにコミットする"],"answer":[3],"notes":["CI には効くようになりますが、基準はバージョン管理されない個人のファイルのままです。ほかのメンバーの手元には届かず、変更の履歴も追えません。","CI のレビューには届きますが、手元で Claude Code を使うメンバーには届きません。基準の写しが CI の設定とテックリードのファイルに分かれ、食い違いも生まれます。","`@` で取り込めるのは、その場所に実際にあるファイルです。CI のランナーやほかのメンバーのホームには、テックリードのファイルがありません。","正解。プロジェクトレベルの CLAUDE.md や `.claude/rules/` はリポジトリと一緒に共有され、CI から呼び出す Claude Code にも、各メンバーの手元のセッションにも読み込まれます。"],"explanation":"ユーザーレベルの `~/.claude/CLAUDE.md` は、そのユーザーの環境でだけ読み込まれ、バージョン管理を通じてチームには共有されません。手元では効くのに CI やほかのメンバーの環境では効かないときは、指示がユーザーレベルに置かれていないかを疑います。チームと CI に当てたいレビュー基準やテスト標準は、プロジェクトの CLAUDE.md（または `.claude/rules/`）に置いてコミットします。CLAUDE.md は、CI から呼び出す Claude Code にプロジェクトの文脈を渡す仕組みでもあります。","ref":"試験ガイド タスク 3.1 ／ Claude Code Docs: How Claude remembers your project"},{"id":"D3-20","domain":"D3","scenario":"S5","topic":"入出力の例で示す","type":"single","question":"Claude Code で、CI のテスト失敗ログを PR コメント用の Markdown に変換するスクリプトを作っています。「失敗をテストファイルごとにまとめ、スタックトレースはアプリのコードの最初の行だけを残す」と文章で3回説明しましたが、そのたびに解釈が変わります（テスト名ごとにまとめる、テストフレームワーク内部の行を残す、など）。スクリプトの構成に問題はなく、変換の規則が伝わっていないことが原因です。次に取るべき進め方として、最も効果的なものはどれですか。","options":["実際のログの断片と、それから作るべきコメントの組を2〜3個示し、その変換に合うように直させる","変換の規則を箇条書きでさらに細かく書き直し、「必ずこのとおりに」と強調してもう一度説明する","インタビューパターンで、変換について考えるべき点を Claude に質問させてから作り直させる","プランモードに切り替えてスクリプト全体の設計を計画し直させ、その計画に沿って書き直させる"],"answer":[0],"notes":["正解。文章の説明が毎回違う意味に読まれるときは、具体的な入力と期待する出力の例が、求める変換をいちばん確実に伝えます。まとめる単位や残す行が、例から一通りに読み取れます。","すでに3回、文章で説明してぶれています。言葉を足して強めても、同じ文章が別の意味に読まれる問題は残ります。","インタビューパターンは、自分が考えていなかった設計上の論点を、実装の前に洗い出すための手です。ここでは求める変換は決まっていて、伝わっていないだけです。","プランモードは、大きな変更や複数のやり方がある設計のための手です。スクリプトの構成には問題がなく、伝わっていないのは変換の規則です。"],"explanation":"期待する変換を文章で説明しても解釈がぶれるときは、2〜3個の具体的な入出力の例を示すのが最も効果的です。例は、まとめる単位や残す行といった細部を、言葉よりもあいまいさなく伝えます。考えるべき点がまだ分かっていないならインタビューパターン、直すたびに別のケースが壊れるならテスト駆動の反復、と症状に合わせて手を選びます。言葉を強めるだけの手は、読み違いの原因に届きません。","ref":"試験ガイド タスク 3.5"},{"id":"D3-21","domain":"D3","scenario":"S5","topic":"指摘を JSON で受ける","type":"single","question":"PR のレビュー結果をインラインコメントとして自動投稿するため、`claude -p` が出力したテキストから、正規表現でファイル名・行番号・指摘内容を取り出しています。出力の書き方が実行ごとに少しずつ変わり、約1割の実行で解析に失敗して、コメントが投稿されません。最も適切な対応はどれですか。","options":["プロンプトに出力形式の見本を追加し、正規表現も表記ゆれを吸収できるように書き直して、解析に失敗する割合を下げる","`--output-format json` と、指摘の項目を定義した `--json-schema` を付け、構造化出力から投稿する","`--output-format stream-json` に切り替え、ストリームで届く文字列をつなげてから、同じ正規表現で解析する","解析に失敗した実行だけ、同じプロンプトで `claude -p` を成功するまで繰り返し実行するようにする"],"answer":[1],"notes":["失敗の割合は下がるかもしれませんが、自由なテキストを解析する作りのままなので、形式のゆれはなくなりません。確率的な改善にとどまります。","正解。`--output-format json` と `--json-schema` を併用すると、スキーマに沿った指摘事項が結果の `structured_output` に入り、機械で確実に解析できます。","`stream-json` は出力を逐次受け取るための形式で、中身のテキストの書き方は変わりません。正規表現での解析が不安定な原因は残ります。","症状が出たら繰り返すだけで、原因に手を打っていません。実行時間とコストが増え、何度やっても解析できない出力もありえます。"],"explanation":"CI でレビューの結果を機械的に使うなら、テキストを解析するのではなく、構造化出力を強制します。Claude Code では `-p` に `--output-format json` と `--json-schema` を組み合わせると、スキーマに沿った値が JSON の `structured_output` フィールドに入るので、そのまま PR のインラインコメントにできます。2026年11月時点のドキュメントでは、要求を断ったときなど有効な構造化出力がないまま終わると、このフィールド自体が出ないとされています。スクリプトは、使う前にフィールドがあるかを確かめます。","ref":"試験ガイド タスク 3.6 ／ Claude Code Docs: Run Claude Code programmatically、CLI reference"},{"id":"D3-22","domain":"D3","scenario":"S5","topic":"再レビューの重複","type":"single","question":"PR に新しいコミットが積まれるたびに、Claude Code によるレビューを最初から実行し直しています。開発者からは「すでに修正した問題に、また同じコメントが付く」「同じ指摘が何件も重なり、どれが新しい指摘なのか分からない」という不満が出ています。修正済みの指摘は繰り返さず、まだ直っていない指摘は引き続き追えるようにしたいと考えています。最も適切な対応はどれですか。","options":["前回のレビュー以降に変わった差分だけを渡し、その範囲に絞ってレビューさせる","新しいコミットのたびに、前回 Claude が付けたコメントをすべて削除してから、全体を改めてレビューさせる","レビューを実行するのは PR を作成したときの1回だけにし、その後のコミットではレビューを行わない","前回のレビューの指摘事項を文脈に含め、新しい問題と未対応の問題だけを報告するよう指示する"],"answer":[3],"notes":["新しい差分の中でも、前回と同じ問題がまた指摘されえます。前回の指摘を知らないので重複を避ける手がかりがなく、まだ直っていない前回の指摘も追えません。","画面上の重複は消えますが、議論の履歴が失われ、どれが新しい指摘なのかは依然として分かりません。症状だけを抑える手です。","重複は出なくなりますが、後のコミットで入った問題を見逃します。レビューという業務そのものをやめる、極端な手です。","正解。前回の指摘事項を文脈として渡せば、Claude は修正済みのものを除き、新しい問題と未対応の問題だけを報告できます。"],"explanation":"新しいコミットの後にレビューをやり直すときは、前回のレビューの指摘事項をコンテキストに含め、新しい問題か、まだ対応されていない問題だけを報告するよう指示します。Claude は前回何を指摘したかを自動では知らないので、渡さなければ同じ指摘を繰り返します。差分を削る、コメントを消す、レビューをやめるといった手は、重複という症状は抑えても、見逃しや履歴の喪失という別の問題を生みます。","ref":"試験ガイド タスク 3.6"},{"id":"D3-23","domain":"D3","scenario":"S5","topic":"テスト生成の質","type":"multi","question":"CI で、変更されたモジュールのテストケースを Claude Code に生成させています。生成されたテストには、(1) 既存のテストスイートですでにカバーされているシナリオの重複が多い、(2) チームが用意している共通のフィクスチャを使わず、テストごとにデータを手書きしている、という問題が目立ちます。取るべき対応はどれですか。（2つ選択）","options":["対象モジュールの既存のテストファイルをコンテキストに渡し、すでにカバーされているシナリオは提案しないよう指示する","生成するテストの件数に上限を設け、上限を超えた分は、確信度の自己申告が低い順に捨てるようにする","生成後に、テスト関数の名前が既存のテストと一致するものを機械的に取り除く後処理を、パイプラインに追加する","テスト生成を Message Batches API に移して夜間にまとめて生成し、翌朝に人が重複を取り除く","テスト標準、価値のあるテストの基準、利用できるフィクスチャとその使い方を、プロジェクトの CLAUDE.md に書く"],"answer":[0,4],"notes":["正解。何がすでにテストされているかを知らなければ、Claude は重複を避けられません。既存のテストファイルを渡すのが、(1) の原因に直接効く手です。","件数を減らしても、重複かどうかで選んでいるわけではありません。自己申告の確信度は、重複の判定にも価値の判定にも当てになりません。","名前が違っても同じシナリオを試すテストは残ります。表面的な一致で取り除くだけで、重複を生む原因には手を打っていません。","夜間のテスト生成はバッチに向く処理ですが、コストと時間の問題を解く手です。生成の質は変わらず、人に負担を回しているだけです。","正解。CLAUDE.md は、CI から呼ばれる Claude Code にプロジェクトの文脈を渡す仕組みです。テスト標準とフィクスチャを書いておけば、(2) の価値の低い出力を減らせます。"],"explanation":"テスト生成の質は、Claude に渡す文脈で決まります。既存のテストファイルを渡せば、すでにカバーされているシナリオの重複を避けられます。テスト標準・価値のあるテストの基準・利用できるフィクスチャを CLAUDE.md に書いておけば、CI から呼ばれるたびにそれが文脈になり、チームの流儀に合ったテストが出やすくなります。2026年11月時点のドキュメントは CI で `--bare` を推奨しており、その場合 CLAUDE.md は読み込まれないので、`--append-system-prompt-file` などで同じ内容を渡します。","ref":"試験ガイド タスク 3.6 ／ Claude Code Docs: Claude Code GitHub Actions、Run Claude Code programmatically"},{"id":"D3-24","domain":"D3","scenario":"S5","topic":"レビューのセッション","type":"single","question":"CI のジョブで、まず `claude -p` に失敗したテストの修正を実装させ、そのときの `session_id` を `--resume` に渡して、同じセッションに「今の変更をレビューして」と依頼しています。レビュー段階はほぼ毎回「問題なし」と答えますが、マージ後に修正の不備が見つかることが続いています。レビュー段階の構成として最も適切なものはどれですか。","options":["生成時のセッションを引き継がない別の `claude -p` の呼び出しでレビューさせ、差分とレビュー基準だけを渡す","`--resume` に `--fork-session` を加えて新しいセッション ID に分岐させ、生成の履歴を残したままレビューさせる","同じセッションのまま、「自分が書いたコードだと思わず、厳しい第三者として見直して」とプロンプトで強く指示する","`--max-turns` を増やし、同じセッションがレビューに使える反復の回数を多くして、時間をかけて見直させる"],"answer":[0],"notes":["正解。コードを生成したセッションは自分の推論を引き継いでいるため、自分の変更を疑いにくくなります。生成の文脈を持たない独立した呼び出しでレビューさせます。","`--fork-session` はセッション ID を新しくするだけで、会話の履歴はそのまま引き継ぎます。生成時の推論を持ったままなので、セルフレビューと変わりません。","指示で立場を変えさせても、同じ推論の文脈を見ていることは変わりません。プロンプトだけで偏りを取り除こうとする確率的な手です。","反復の回数を増やしても、同じ文脈で見直す限り、自分の判断を疑いにくいという原因は変わりません。コストが増えるだけです。"],"explanation":"コードを生成したのと同じ Claude のセッションは、生成時の推論を文脈に持っているため、独立したレビューインスタンスに比べて自分の変更をレビューする効果が下がります。CI では、レビューを生成と別の呼び出しにし、差分と基準だけを渡して、生成の推論から切り離します。`--resume` や `--fork-session` は前の会話を引き継ぐための機能で、レビューの独立性を得る目的には逆効果です。「レビューは書いた本人とは別の目で」という原則は、パイプラインの組み方で守らせます。","ref":"試験ガイド タスク 3.6 ／ Claude Code Docs: CLI reference、Best practices for Claude Code"},{"id":"D4-01","domain":"D4","scenario":"S1","topic":"明示的な判定基準","type":"single","question":"エージェントは、返金の依頼に「不正の疑い」フラグを付けて、不正対策チームの確認に回します。プロンプトには「疑わしい場合は慎重に判断し、確信度の高いものだけにフラグを付けること」とあります。フラグの約40%が誤検知で、チームはフラグを読み飛ばすようになり、本物の不正まで見落とし始めました。最も適切な対応はどれですか。","options":["「さらに保守的に判断し、明らかに不正なものだけにフラグを付けること」と指示を強める","フラグごとにモデルに0から1の確信度を出させ、0.9以上のものだけをチームに回す","読み飛ばしを防ぐため、すべてのフラグを上級担当者による二重確認の対象にしておく","直近30日の返金回数や注文直後の住所変更など、フラグを付ける条件と付けない条件を書く"],"answer":[3],"notes":["「保守的に」のような一般的な指示は、具体的なカテゴリ別の基準と比べて精度の向上につながりません。何が不正の兆候かが、まだ書かれていません。","キャリブレーションしていない自己申告の確信度でふるい分けても、何を不正の兆候とみなすかという基準はあいまいなままです。確信度に頼るのではなく、報告する条件を定めます。","誤検知の多いフラグを人の手間で受け止めているだけです。誤検知率は変わらず、チームの負担が増えます。","正解。どんな兆候ならフラグを付け、どんな場合は付けないかを明示すれば、誤検知が減ります。チームのフラグへの信頼も戻ります。"],"explanation":"精度を上げて誤検知を減らすには、曖昧な指示ではなく明示的な基準を書きます。試験ガイドは、「保守的に判断する」「確信度の高い指摘事項のみを報告する」といった一般的な指示が精度の向上につながらないこと、誤検知の多いカテゴリが正確な指摘への信頼まで損なうことを挙げています。報告すべきものとスキップすべきものを、具体的な条件と例で定義するのが判断の軸です。2026年11月時点のドキュメントも、1回のパスでモデルに絞り込ませるなら、「重要な」のような質的な言葉ではなく、報告する線を具体的に書くよう勧めています。","ref":"試験ガイド タスク 4.1 ／ Claude Docs: Prompting Claude Opus 4.8（Code review harnesses）"},{"id":"D4-02","domain":"D4","scenario":"S3","topic":"推論を持たないレビュー","type":"single","question":"レポート生成サブエージェントは、レポートを書き終えたあと、同じセッションのまま見直しをしています。それでも公開前の人手の確認では、出典の内容と食い違う主張が毎回のように見つかります。見直しの段階を作り直すとき、最も効果的な構成はどれですか。","options":["生成したセッションをフォークしてレビュー用の分岐を作り、元の履歴を引き継いだまま照合させる","生成時の推論を持たない別のインスタンスに、レポートと出典の記録だけを渡して照合させる","別のインスタンスに、レポートと生成時の推論の記録を渡し、書き手の意図を理解させてから照合させる","同じセッションのまま拡張思考を有効にし、より長く考えてから見直させる"],"answer":[1],"notes":["フォークは元の会話の履歴を写して始まるので、生成時の推論もそのまま残ります。同じセッションでの見直しと同じく、自分の判断を疑いにくいままです。","正解。生成時の推論コンテキストを持たない独立したインスタンスなら、書いた側の理屈に引きずられずに、主張と出典を突き合わせられます。","別のインスタンスでも、生成時の推論を渡せば、その理屈に引きずられやすくなります。独立したレビューの利点は、推論を持たないことにあります。","考える量を増やしても、生成したときの推論の文脈は同じセッションに残ります。試験ガイドも、独立したレビューインスタンスのほうが拡張思考より微妙な問題を見つけやすいとしています。"],"explanation":"モデルは生成時の推論コンテキストを持っているため、同じセッション内では自分の判断を疑いにくくなります。レビューは、以前の推論を持たない独立したインスタンスに、成果物と照合の材料（ここではレポートと出典の記録）だけを渡して行います。会話を写すフォークや、推論の記録を添えた依頼は、別のインスタンスに見えても生成時の文脈を持ち込むので、独立したレビューになりません。Claude Code のドキュメントも、会話を見ていない新しいサブエージェントによるレビューは、元の推論に引きずられないと説明しています。","ref":"試験ガイド タスク 4.6 ／ Claude Code Docs: Best practices ／ Agent SDK Docs: Sessions"},{"id":"D4-03","domain":"D4","scenario":"S5","topic":"指摘の条件を明示","type":"single","question":"レビューの観点に「コードコメントの正確性を確認する」を入れたところ、この観点の指摘の多くが「説明がやや曖昧」「もっと詳しく書くべき」といった、開発者が対応する必要のないものでした。本当に見つけたいのは、コメントに書かれた動作が実際のコードと食い違っているケースだけです。プロンプトをどう変えるのが最も適切ですか。","options":["「コメントの正確性は保守的に判断し、自信がある場合だけ指摘する」と書き加え、指摘の数を抑える","指摘のそれぞれに 0〜1 の確信度を付けさせ、0.8 未満の指摘はパイプラインの側でまとめて捨てるようにする","観点の名前を「ドキュメント品質」に変え、ほかの観点の指摘とは別のコメントにまとめて投稿する","「コメントが主張する動作が、実際のコードの動作と矛盾する場合にのみ指摘する」と、報告する条件を明示する"],"answer":[3],"notes":["「保守的に」は何を報告し何を報告しないかを決めていない一般的な指示で、具体的な基準に比べて精度の向上につながりません。","モデルが自己申告する確信度は、報告すべきかどうかの基準の代わりになりません。曖昧な指示が原因である点は変わりません。","見せ方を変えるだけで、対応不要の指摘が出続けるという問題は解決しません。開発者の確認の手間も減りません。","正解。曖昧な「正確性を確認する」を、「主張された動作が実際のコードと矛盾するときだけ」という明示的な基準に置き換えるのが、原因に直接効く手です。"],"explanation":"誤検知を減らすには、曖昧な指示ではなく、何を指摘するかの明示的な基準を書きます。「コメントの正確性を確認する」という指示は、表現の好みまで指摘の対象に含めてしまいます。「主張されている動作が実際のコードの動作と矛盾する場合にのみ指摘する」と条件を言い切れば、モデルは何を報告すべきかを判断できます。「保守的に」や確信度での足切りは、基準のあいまいさという原因を残したままです。","ref":"試験ガイド タスク 4.1 ／ Claude Docs: Prompting best practices"},{"id":"D4-04","domain":"D4","scenario":"S5","topic":"一般的な指示の限界","type":"single","question":"自動レビューの誤検知が多く、開発者がコメントを読まなくなってきました。チームはプロンプトに「確信度の高い指摘事項のみを報告すること」「保守的に判断すること」を加えましたが、2週間たっても却下される指摘の割合はほとんど変わりません。却下された指摘を分類すると、変数名の好みや、そのファイルの中では一貫している書き方への指摘が大半でした。次に行うべき最も適切な対応はどれですか。","options":["「確信度の高い」「保守的に」という指示を、「確信度95%以上の」「極めて保守的に」とさらに強い表現に書き換える","報告すべき問題（バグ、セキュリティ）と、報告しない問題（軽微なスタイル、局所的に一貫した書き方）を具体的に定義する","毎回3回レビューを実行し、3回すべてで出た指摘だけを投稿して、偶然に出た誤検知をまとめて取り除くようにする","開発者に読んでもらえるよう、すべての指摘に重大度「高」を付け、PR の目立つ位置にまとめて表示する"],"answer":[1],"notes":["効かなかった一般的な指示を強めているだけです。何を報告しないのかが決まっていないので、スタイルへの指摘は減りません。","正解。却下の大半がスタイルや局所的なパターンへの指摘だと分かっているので、それを「報告しない」と具体的に定義するのが原因に直接効きます。","スタイルへの指摘は毎回同じように出るので、多数決では残ります。逆に、ときどきしか見つからない本物のバグを消してしまうおそれがあります。","重大度の意味が失われ、本当に重要な指摘がますます埋もれます。誤検知を減らすのではなく、目立たせているだけです。"],"explanation":"「保守的に判断する」「確信度の高い指摘事項のみを報告する」といった一般的な指示は、具体的なカテゴリ別の基準に比べて精度の向上につながりません。何を報告し、何を報告しないかという基準そのものが示されていないからです。却下された指摘を分析して誤検知の型が分かったら、報告すべき問題と報告しない問題をカテゴリごとに具体的に書きます。なお、2026年11月時点の Claude Opus 4.8 向けのドキュメントは、新しいモデルがこうした指示に忠実に従い、見つけたバグまで報告しないことがあるとし、報告の線を具体的に書くよう勧めています。確信度での足切りや多数決に頼る前に、まず基準を明示します。","ref":"試験ガイド タスク 4.1 ／ Claude Docs: Prompting Claude Opus 4.8（Code review harnesses）"},{"id":"D4-05","domain":"D4","scenario":"S5","topic":"誤検知と開発者の信頼","type":"multi","question":"レビューの指摘を観点ごとに集計したところ、セキュリティとバグの指摘は8割以上が採用されている一方、「パフォーマンス」の観点は指摘の7割が却下されていました。開発者アンケートでは、「どうせ外れが多い」とセキュリティの指摘まで読み飛ばす人が増えています。開発者の信頼を回復するために取るべき対応はどれですか。（2つ選択）","options":["すべての観点の投稿をいったん止め、レビューの仕組み全体を見直し終えるまで、どの指摘も投稿しない","パフォーマンスの観点を一時的に無効にし、採用率の高い観点の指摘だけを投稿するようにする","パフォーマンスの指摘を、ほかの観点の指摘の後ろにまとめて表示し、目立たないようにする","パフォーマンスの観点のプロンプトに、報告する条件と報告しない条件を具体例とともに明示的に書き加える","セキュリティの指摘の先頭に「この指摘は信頼度が高い」と注記を付け、読み飛ばされないようにする"],"answer":[1,3],"notes":["正確に機能している観点まで止めてしまう、極端な手です。セキュリティやバグの有用な指摘が届かなくなります。","正解。誤検知の多い観点は、正確な観点への信頼まで損ないます。その観点を一時的に止めれば、残った指摘の信頼を取り戻せます。","誤検知の指摘は出続けるので、「外れが多い」という印象は変わりません。症状を目立たなくしているだけです。","正解。誤検知の原因である曖昧な基準を、明示的な条件に直します。採用率が上がったことを確かめてから、止めていた観点を戻します。","注記を付けても、外れの多いコメントが同じ場所に並び続けます。信頼を損なっている原因に手を打っていません。"],"explanation":"誤検知の多いカテゴリは、それ自体が役に立たないだけでなく、正確なカテゴリへの開発者の信頼まで損ないます。そこで、誤検知の多いカテゴリを一時的に無効にして信頼を回復し、その間にそのカテゴリのプロンプトを明示的な基準で改善します。全体を止めるのは行き過ぎで、表示順や注記の工夫は症状を隠すだけです。観点ごとの採用率を測り、問題のある観点だけを切り分けて直すのが判断の軸です。","ref":"試験ガイド タスク 4.1"},{"id":"D4-06","domain":"D4","scenario":"S5","topic":"重大度の基準","type":"single","question":"自動レビューの指摘には「重大」「中」「軽微」の重大度を付け、「重大」が1件でもあればマージ前に人が確認する運用にしています。ところが、ほぼ同じ SQL の組み立て方が、ある PR では「重大」、別の PR では「軽微」と判定されるなど、重大度の付け方が一貫しません。プロンプトには重大度の名前だけが書かれています。最も適切な対応はどれですか。","options":["重大度の判定をやめ、すべての指摘を「要確認」の1段階にして、人がすべての指摘を確認するようにする","重大度を付けるたびに確信度も自己申告させ、確信度の低い判定は1段階上の重大度に引き上げる","重大度ごとに判定の基準を明示し、それぞれの重大度にあたる具体的なコード例を添える","重大度を5段階に細かく分けて判定の選択肢を増やし、PR ごとの判定のぶれを吸収させる"],"answer":[2],"notes":["一貫しない判定を直すのではなく、仕組みそのものを捨てています。人の確認の負担が大きく増えます。","自己申告の確信度は判定の一貫性の目安として当てになりません。基準がないという原因も残ったままです。","正解。重大度ごとに明示的な基準と具体的なコード例があれば、同じ書き方が同じ重大度に分類されるようになります。","基準がないまま段階を増やすと、境界が増えて、かえって判定がぶれやすくなります。"],"explanation":"重大度の名前だけでは、モデルは毎回その場の解釈で分類するので、同じコードでも判定がぶれます。一貫した分類には、重大度ごとの明示的な基準と、それぞれにあたる具体的なコード例を定義します。例があると、「この形のSQLの組み立ては重大」という境界がはっきりします。判定をやめる、段階を増やす、確信度で補正するといった手は、基準がないという根本の原因に届きません。","ref":"試験ガイド タスク 4.1"},{"id":"D4-07","domain":"D4","scenario":"S5","topic":"形式と許容パターンの例","type":"multi","question":"レビューの指摘の書き方がばらつき、場所（ファイルと行）が抜けていたり、修正案がなかったりします。さらに、チームが意図して使っている「例外を握りつぶさずにログを出してから既定値を返す」書き方が、毎回「例外処理の問題」として指摘されます。どちらも、プロンプトの指示文を詳しくしても改善しませんでした。取るべき対応はどれですか。（2つ選択）","options":["出力を受け取った後に、別のモデルで指摘の形式を整え直す後処理の段階をパイプラインに追加する","例外処理に関する観点そのものを恒久的に外し、例外処理についての指摘が一切出ないように設定する","場所、問題、重大度、修正案をそろえて書いた指摘の例を few-shot で示し、求める出力形式を見せる","指示文の該当部分を大文字や記号で強調し、ほかの指示より優先度が高いことをはっきり伝える","許容される書き方と本当の問題を対比した例を、指摘する・しない理由とともに few-shot に加える"],"answer":[2,4],"notes":["後から整形しても、もとの出力に場所や修正案がなければ補えません。もう1段階増える分、作り込みすぎでもあります。","本物の例外処理の問題まで見逃すようになります。誤検知を一つの書き方に限って直すべきところを、観点ごと捨てる極端な手です。","正解。詳しい指示だけでは形式がそろわないとき、求める形式（場所、問題、重大度、修正案）を示す few-shot の例が最も効果的です。","すでに指示文を詳しくしても改善していないので、同じ指示を強調しても効果は見込めません。","正解。許容されるパターンと本当の問題を対比し、理由を付けて示すと、モデルが判断を一般化でき、誤検知が減ります。"],"explanation":"詳細な指示だけでは結果が一貫しないとき、few-shot の例が最も効果的な手段になります。出力形式のばらつきには、求める形式をそろえて書いた例を示します。意図して使っている書き方への誤検知には、許容される書き方と本当の問題を対比した例を、なぜそう判断するのかの理由とともに示します。理由付きの対比例があると、モデルは例そのものに一致させるだけでなく、似た新しいケースにも判断を広げられます。","ref":"試験ガイド タスク 4.2 ／ Claude Docs: Prompting best practices"},{"id":"D4-08","domain":"D4","scenario":"S5","topic":"曖昧なケースの例","type":"single","question":"テスト生成の前段で、「テストが不足している箇所」を Claude に指摘させています。プロンプトには不足とみなすケースを規則として12個列挙していますが、モデルは列挙されたケースに字面で一致するものしか指摘しません。たとえば、関数としてはテストされているのに、エラー時の分岐が一度も通らないといった不足を見逃します。最も効果的な対応はどれですか。","options":["分岐単位でテストが足りないなど曖昧なケースの例を数個、判断の理由付きで示して一般化させる","見逃したケースを13個目、14個目の規則として追加し、規則の一覧で不足のパターンを網羅していく","「列挙した規則に限らず、テストの不足を幅広く指摘すること」と一文を加え、判断をモデルに任せる","より大きなコンテキストウィンドウを持つモデルに切り替え、モジュール全体を一度に読ませて判断させる"],"answer":[0],"notes":["正解。few-shot の例は、事前に指定したケースへの一致ではなく、新しいパターンへの判断の一般化を可能にします。曖昧なケースと理由を示すのが効果的です。","見つかるたびに規則を足す方法は、列挙に一致させるという原因をそのまま強めます。まだ見ていないパターンは引き続き見逃します。","どこまでを不足とみなすかの手がかりがない曖昧な指示で、誤検知が増えるおそれもあります。判断の境界を示せていません。","規模で解決しようとする手です。読める量の問題ではなく、どう判断するかが伝わっていないことが原因です。"],"explanation":"規則を列挙するだけでは、モデルは列挙されたケースとの一致を探すようになり、似ているが書かれていないケースを見逃します。few-shot の例は、曖昧なケース（関数単位ではテストされているのに一部の分岐が通らない、など）の扱い方を、判断の理由とともに示せます。理由が分かる例があると、モデルはその判断を新しいパターンにも広げられます。なお、試験ガイドは的を絞った例を2〜4個としていますが、2026年11月時点のドキュメントは3〜5個を目安にしています。数より、曖昧な場面に的を絞り、理由を示すことが大事です。","ref":"試験ガイド タスク 4.2 ／ Claude Docs: Prompting best practices"},{"id":"D4-09","domain":"D4","scenario":"S5","topic":"バッチとツールの往復","type":"single","question":"夜間に、変更されたモジュールごとのテスト生成を同期の API で動かしています。各リクエストでは、Claude が `read_file` ツールで関連するソースを読み、`run_tests` ツールで生成したテストを実行し、結果を見て直す、というツールの往復を1件あたり平均6回繰り返しています。結果は翌日中にそろえばよいので、コストを下げるため Message Batches API への移行を検討しています。最も適切な進め方はどれですか。","options":["処理をそのままバッチに移す。バッチの中でも、Claude が求めたツールはアプリ側で実行され、結果が戻される","必要なソースを先にリクエストへ含めてテストの生成だけをバッチに移し、実行して直す往復は同期の API に残す","ツールを使う処理はバッチでは扱えないので移行を見送り、テスト生成はすべて同期の API のまま続ける","各リクエストの `custom_id` を指定し、ツールの実行結果をあとから同じリクエストに送って続きを処理させる"],"answer":[1],"notes":["バッチの各リクエストは独立に処理され、結果は1つの応答として返ります。リクエストの途中でアプリ側がツールを実行し、結果を返す往復はできません。","正解。1回の応答で完結する部分（情報を先に渡したテストの生成）をバッチに移して割引を受け、ツールの往復が要る実行と修正は同期の API に残します。","バッチのリクエストにもツールの定義や会話の履歴は入れられます。往復が要る部分だけを切り分ければ大部分で割引を受けられるので、移行をまるごとやめるのは極端です。","`custom_id` はリクエストと結果を対応付けるためのものです。送信したバッチは後から変更できず、同じリクエストに結果を足して続きを処理させることはできません。"],"explanation":"Message Batches API は、1つのリクエストの中でアプリ側のツールを実行して結果を返す、マルチターンのツール呼び出しに対応していません。ツールの往復を前提にした処理をバッチに移すときは、必要な情報を先にリクエストへ含めて1回の応答で完結する部分を切り出し、往復が必要な部分は同期の API に残します。こうすれば、待てる処理の大部分で50%のコスト削減を受けられます。なお、2026年11月時点のドキュメントでは、Anthropic 側で実行されるサーバーツールや過去の会話の履歴はバッチのリクエストに含められますが、アプリ側で実行するツールの結果を途中で返せない点は変わりません。","ref":"試験ガイド タスク 4.5 ／ Claude Docs: Batch processing"},{"id":"D4-10","domain":"D4","scenario":"S5","topic":"SLA と送信間隔","type":"single","question":"コストを下げるため、セキュリティ監査のジョブを Message Batches API に移す計画です。要件は「コミットから30時間以内に監査結果がそろっていること」です。溜まったコミットを一定の間隔でまとめてバッチに送り、バッチの処理には最大24時間かかる前提で設計します。要件を確実に満たす方法として最も適切なものはどれですか。","options":["24時間ごとに送信する。ほとんどのバッチは1時間ほどで終わるので、通常は要件に収まる","12時間ごとに送信する。処理に24時間かかっても、平均的には要件に収まる","要件を確実に守るため、バッチをやめ、コミットごとに同期の API で監査する","4時間ごとに送信する。最悪でも待ち4時間と処理24時間の合計で、要件に収まる"],"answer":[3],"notes":["バッチはたいてい早く終わりますが、レイテンシの保証はありません。最悪の場合は待ち24時間と処理24時間で48時間になり、要件を守れません。","最悪の場合は待ち12時間と処理24時間で36時間になります。平均で収まっても、「確実に」という要件は満たせません。","要件は守れますが、バッチで50%のコストを下げるという目的を捨てています。30時間待てる処理に同期の API は必要ありません。","正解。直前の送信の直後に入ったコミットは最大4時間待ち、さらに最大24時間の処理で、合計28時間です。最悪の場合でも30時間に収まります。"],"explanation":"Message Batches API は処理に最大24時間かかり、レイテンシの SLA は保証されません。待てる処理に使うときは、最悪の場合を前提に送信の間隔を決めます。結果がそろうまでの最悪の時間は「次の送信までの待ち＋最大24時間の処理」なので、試験ガイドの例にもあるとおり、30時間の要件なら4時間ごとの送信で守れます。「たいてい早く終わる」という平均の速さに頼るのは、確実さが求められる要件では誤りです。","ref":"試験ガイド タスク 4.5 ／ Claude Docs: Batch processing"},{"id":"D4-11","domain":"D4","scenario":"S5","topic":"統合パスの追加","type":"single","question":"大きな PR のレビューを、ファイルごとに別々のレビューパスで分析する方式に変えたところ、各ファイルへの指摘の深さはそろいました。しかし、ある PR で関数の戻り値の型を変えた変更が、別のファイルにある呼び出し元を壊していたのに、どのパスもそれを指摘しませんでした。最も適切な対応はどれですか。","options":["ファイル単位のパスをやめ、元どおり PR 全体を1回のパスでまとめてレビューする方式に戻す","ファイル単位のパスは残し、ファイル間のデータフローや呼び出し関係を調べる統合パスを別に追加する","各ファイルのパスに PR のほかのすべてのファイルの全文も渡し、それぞれのパスで横断的に確認させる","型の変更を含む PR は自動レビューの対象から外し、人間によるレビューだけで確認するようにする"],"answer":[1],"notes":["1回のパスに戻すと、注意の分散で指摘の深さがばらつく、もとの問題が戻ってきます。","正解。ファイル単位の局所的な分析パスと、ファイル横断のデータフローを調べる統合パスを分けるのが、マルチパスレビューの形です。","各パスがまた全ファイルを抱えることになり、注意の分散が戻ります。同じ横断の確認がファイルの数だけ重複し、指摘が矛盾するおそれもあります。","見つけにくい問題ほど自動レビューから外すことになり、仕組みを改善していません。人に負担を回すだけです。"],"explanation":"大規模なレビューは、ファイル単位で局所的な問題を見るパスと、ファイル横断のデータフローを見る統合パスに分けます。ファイル単位のパスは深さをそろえるのに有効ですが、ファイルの境界をまたぐ問題（型の変更が呼び出し元を壊す、など）は構造上見えません。そこで、横断の観点に絞った統合パスを別に用意します。片方だけでは、注意の分散か、横断の問題の見逃しのどちらかが残ります。","ref":"試験ガイド タスク 4.6"},{"id":"D4-12","domain":"D4","scenario":"S5","topic":"確信度で振り分け","type":"single","question":"自動レビューの指摘を、すべて人が確認してから PR に投稿しています。しかし確認する担当者の時間が足りず、投稿が1日以上遅れることがあります。チームは、人の確認を本当に必要な指摘に集中させたいと考えています。最も適切な構成はどれですか。","options":["検証パスで各指摘に確信度を付けさせ、ラベル付きの過去の指摘でしきい値を調整してから、確信度の低いものを人に回す","最初のレビューのプロンプトに「確信度の高い指摘事項のみを報告すること」と加え、人に届く指摘の数そのものを減らす","同じ PR を3回レビューさせ、3回すべてに出た指摘は自動で投稿し、それ以外の指摘はすべて捨てるようにする","生成時と同じセッションで「各指摘を見直し、誤りがあれば取り下げて」と頼み、残った指摘だけを人に回す"],"answer":[0],"notes":["正解。指摘ごとに確信度を出す検証パスを置き、ラベル付きのデータでしきい値をキャリブレーションすれば、人の確認を必要な指摘に振り分けられます。","一般的な指示は精度の向上につながらず、本物の問題まで報告されなくなるおそれがあります。振り分けではなく、指摘を減らしているだけです。","ときどきしか見つからない本物のバグを捨ててしまいます。人の確認を集中させるという目的にも合いません。","生成と同じ文脈では、自分の判断を疑いにくくなります。取り下げの判断も当てになりません。"],"explanation":"限られた確認の手間を必要な指摘に集中させるには、指摘ごとにモデルが確信度を出す検証パスを設け、その値で振り分けます。ただし、自己申告の確信度はそのままでは当てにならないので、ラベル付きの検証データでしきい値をキャリブレーションしてから使います。プロンプトで「確信度の高いものだけ」と指示する方法は、振り分けではなく報告の取りこぼしを生みます。確信度は「何を報告するか」の基準ではなく、「誰が見るか」の振り分けに使うのが判断の軸です。","ref":"試験ガイド タスク 4.6、5.5"},{"id":"D4-13","domain":"D4","scenario":"S5","topic":"レビュー役に渡すもの","type":"single","question":"API で作ったテスト生成エージェントでは、生成とレビューを別の呼び出しに分けました。ただし、レビュー役には文脈として、生成役の会話の履歴（どう考えてテストを書いたかの説明と、「すべての分岐を検証済み」という自己評価を含む）をすべて渡しています。それでも、常に成り立つアサーションや、対象の関数を実際には呼んでいないテストの見逃しが減りません。最も効果的な対応はどれですか。","options":["レビュー役で拡張思考を有効にし、渡された生成役の会話を、より時間をかけて読み込んでから判断させる","レビュー役を生成役より大きなモデルに替え、同じ会話の履歴を渡したまま、より深く見直させる","生成役の会話と自己評価は渡さず、テストと対象のコード、テストの標準だけをレビュー役に渡す","生成役に自分の推論を短く要約させてレビュー役に渡し、受け取る履歴を減らしたうえで見直させる"],"answer":[2],"notes":["考える量を増やしても、生成役の推論と自己評価を前提に読むことは変わりません。拡張思考は、独立したレビューの代わりになりません。","規模で解決しようとする手です。生成役の説明を読んだうえで見直す限り、その判断に引きずられるという原因は残ります。","正解。独立したレビューの価値は、生成側の推論を持たないことにあります。成果物と判断の基準だけを渡せば、生成役の説明に引きずられずに微妙な問題を見つけられます。","量が減っても、生成役がどう考えたかを渡していることは同じです。要約は生成役の見方で書かれるので、かえってその前提を強めかねません。"],"explanation":"セルフレビューが微妙な問題を見逃すのは、生成時の推論を持ったまま見直すので、自分の判断を疑いにくいからです。呼び出しを分けても、生成役の会話や自己評価を渡せば、レビュー役は同じ推論を引き継ぐことになり、独立したレビューになりません。独立したインスタンスには、成果物（テストと対象のコード）と判断の基準だけを渡します。拡張思考や大きなモデルは、文脈の分離の代わりにはなりません。","ref":"試験ガイド タスク 4.6 ／ Claude Code Docs: Best practices for Claude Code"},{"id":"D4-14","domain":"D4","scenario":"S6","topic":"文書構造の例示","type":"single","question":"論文から `sample_size`（標本数）と `method`（研究方法）を抽出しています。指示はすでに詳しく書いてあります。独立した「方法」の節がある論文では正しく取れますが、方法の説明が本文の段落に埋め込まれた論文では、`sample_size` が null になる割合が18%あります。最も効果的な対応はどれですか。","options":["「方法の節がない論文では、本文全体から標本数を探すこと」という指示を、強調して追加する","方法の節がある論文と詳細が本文に埋め込まれた論文の両方で、どこから値を取ったかを示す抽出の例を加える","`sample_size` を null を許さない必須の項目にして、モデルが必ず値を入れるようにする","論文を節ごとに分け、「方法」という見出しの節だけを抽出の入力として渡すようにする"],"answer":[1],"notes":["指示はすでに詳しく、それでも結果がそろわない状況です。同じ種類の指示を足すだけでは、構造の違う文書の扱い方は伝わりにくいままです。","正解。few-shot の例で多様な文書構造の正しい扱いを示すと、必須の項目が空や null で抽出される問題に効きます。","本当に標本数が書かれていない論文でも値を入れさせることになり、捏造を招きます。埋め込まれた値を見つける力は上がりません。","方法の節がない論文では渡す部分がなくなり、かえって抽出できなくなります。問題の論文の構造に合っていません。"],"explanation":"詳細な指示だけでは結果が一貫しないとき、few-shot の例が最も効く手です。試験ガイドは、方法論の独立した節と本文に埋め込まれた詳細のような、多様な文書構造の正しい扱いを例で示すこと、形式の違う文書から正しく抽出する例を足して、必須の項目が空や null になる問題を直すことを挙げています。例は実際の入力に近く、構造のばらつきを覆うものを選びます。「探せ」と指示するより、「この構造ならここから取る」を見せるほうが伝わります。","ref":"試験ガイド タスク 4.2 ／ Claude Docs: Prompting best practices（Use examples effectively）"},{"id":"D4-15","domain":"D4","scenario":"S6","topic":"くだけた表現の例","type":"single","question":"料理のレシピカードから、材料ごとの分量と単位を抽出しています。「ひとつまみ」「大さじ山盛り1」「2リットル弱」のようなくだけた表現で、モデルが勝手にグラムへ換算した、根拠のない数値を出すことがあります。チームは「数値と単位がはっきり書かれたものだけを数値にし、くだけた表現は原文のまま残す」と方針を決めました。最も適切な対応はどれですか。","options":["単位の換算表をプロンプトに貼り、くだけた表現もすべてグラムかミリリットルに換算させる","抽出の後に正規表現で分量の値を検査し、規則に合わない値は捨てて空のまま下流に渡す","「推測しないこと」「正確に抽出すること」という指示を、システムプロンプトの冒頭に加える","くだけた表現の例を数個、数値にしたものと原文のまま残したものに分け、その理由と並べて示す"],"answer":[3],"notes":["決めた方針（くだけた表現は原文のまま）に反します。根拠のない換算値を、かえって増やしてしまいます。","誤った値を後から捨てるだけで、原因に届きません。原文のまま残すべき情報まで失います。","抽象的な指示では、どの表現を数値にし、どれを残すかの線引きが伝わりません。","正解。あいまいな場面に絞った例と、その扱いを選んだ理由を見せると、例にない表現にも同じ判断を広げられます。"],"explanation":"試験ガイドは、few-shot の例が抽出タスクでのハルシネーションを減らすのに効くこと（例：非公式な計量表現の処理）を挙げ、あいまいな場面に絞った少数の例で、もっともらしい別の扱いではなくその扱いを選んだ理由を示すよう求めています。理由の付いた例があると、モデルは例に一致させるだけでなく、新しい表現にも判断を一般化できます。なお、試験ガイドは2〜4個を目安とし、2026年11月時点のドキュメントは一般的な目安として3〜5個を挙げています。","ref":"試験ガイド タスク 4.2 ／ Claude Docs: Prompting best practices（Use examples effectively）"},{"id":"D4-16","domain":"D4","scenario":"S6","topic":"tool_choice の any","type":"single","question":"受信する文書は請求書・発注書・納品書のどれかですが、種類は事前に分かりません。種類ごとに `extract_invoice`、`extract_purchase_order`、`extract_delivery_note` を定義し、`tool_choice` は `auto` にしています。約5%の応答で、モデルがツールを呼ばずに「この文書は発注書のようです」と文章で答え、下流の取り込み処理が失敗します。試験ガイドの立場で、最も適切な設定はどれですか。","options":["`tool_choice` を `{\"type\": \"any\"}` にし、3つのうちどれかの抽出ツールを必ず呼ばせる","`tool_choice` で `extract_invoice` を名前で指定し、すべての文書を請求書として抽出させる","`tool_choice` は `auto` のまま、文章の応答から JSON らしい部分を取り出す後処理を加える","ツールの定義をやめ、システムプロンプトで「JSON だけを返すこと」と指示して応答を解析する"],"answer":[0],"notes":["正解。`any` では、モデルは必ずどれかのツールを呼び、どのツールかは文書に合わせて選べます。種類が分からない文書に向く設定です。","ツールを呼ぶことは保証されますが、発注書や納品書まで請求書のスキーマで抽出され、別の誤りを生みます。","文章の応答から JSON を拾うのは壊れやすい後処理です。ツールを呼ばない応答そのものは減りません。","ツール使用より信頼性の低いやり方に戻ることになり、構文の誤りや項目の抜けが起きやすくなります。"],"explanation":"`auto` ではモデルがツールを呼ばずにテキストを返すことがあり、`any` では必ずどれかのツールを呼び、強制的なツール選択では指名したツールを必ず呼びます。試験ガイドは、抽出スキーマが複数あって文書の種類が分からないときに、`tool_choice: \"any\"` で構造化出力を保証することを挙げています。なお、2026年11月時点のドキュメントでは、Claude Opus 5.5 など一部の新しいモデルで `any` と名前の指定が 400 エラーになり、代わりに `auto` と strict tool use（`strict: true`）、または structured outputs を使うよう案内されています。","ref":"試験ガイド タスク 4.3 ／ Claude Docs: Define tools（Forcing tool use）"},{"id":"D4-17","domain":"D4","scenario":"S6","topic":"書式の正規化ルール","type":"single","question":"日本と欧州の仕入先の請求書から、`total_amount` を数値の型で抽出しています。スキーマの検証はすべて通っていますが、ドイツの請求書の「1.234,50」が 1.2345 になったり 123450 になったりと、元の書式によって値の読み方がぶれています。抽出結果は、そのまま支払いの処理に使われます。最も適切な対応はどれですか。","options":["`total_amount` に最小値と最大値の制約を加え、桁違いの値をスキーマの検証で弾けるようにする","スキーマの検証で失敗した抽出に、どの項目がなぜ失敗したかを付けてリトライする仕組みを加える","スキーマはそのままに、通貨ごとの桁区切りと小数点の読み方を、正規化のルールとしてプロンプトに書く","同じ文書をもう一度抽出させて金額を読み直させ、2回の値が一致したものだけを支払いの処理に渡す"],"answer":[2],"notes":["範囲の中に収まる読み違いは弾けず、どう読むべきかという決まりもモデルに伝わりません。","値はどれもスキーマの検証を通っているので、リトライのきっかけになるエラーが出ません。読み方のぶれという原因にも届きません。","正解。厳密なスキーマは型と構造をそろえますが、元の書式をどう読むかは決めません。正規化のルールをプロンプトに書けば、書式の違う文書からも同じ基準で値をそろえられます。","同じ読み違いは2回とも起きうるので、一致しても正しいとは限りません。読み方の決まりがないという原因も残ります。"],"explanation":"ツール使用と厳密なスキーマは、出力の型と構造をそろえますが、元の文書の書式がばらばらなときに、それをどう読んで正規化するかまでは決めません。試験ガイドは、一貫しないソースの書式に対処するために、厳密な出力スキーマとあわせて形式の正規化ルールをプロンプトに含めることを挙げています。日付、金額、単位のように国や書き手によって表記が変わる項目は、スキーマで形を、プロンプトで読み方を決める、という分担で考えます。","ref":"試験ガイド タスク 4.3"},{"id":"D4-18","domain":"D4","scenario":"S6","topic":"null 許容の項目","type":"single","question":"契約書から `termination_notice_days`（解約の予告期間の日数）を抽出しています。スキーマでは、この項目を必須の整数にしています。法務のレビューで、予告期間の条項がない契約書でも、モデルが「30」と返している例が多数見つかりました。最も適切なスキーマの変更はどれですか。","options":["必須の整数のまま、項目の説明に「契約書に書かれていない値を推測しないこと」と加える","必須の整数のまま、条項がない契約書では 0 を入れるよう、プロンプトで決めておく","項目の型を自由記述の文字列に変え、予告期間についての契約書の記載を文章で返させる","項目を null を許す型にし、条項がない契約書では null を返すよう定める"],"answer":[3],"notes":["必須のままでは、何かの値を入れないとスキーマを満たせません。指示で抑えても、値を作り上げる圧力は残ります。","0日は「予告なしで解約できる」という意味にも読め、条項がないことと区別できません。下流で誤った解釈を招きます。","構造化が崩れ、下流で日数として扱えなくなります。値を作り上げる問題も解決していません。","正解。文書にない可能性がある項目を null 許容にすれば、必須を満たすための捏造を防げ、「書かれていない」ことも表せます。"],"explanation":"スキーマで必須にした項目は、元の文書に情報がなくても、モデルが何かの値で埋めようとします。試験ガイドは、ソース文書に情報が含まれていない可能性がある項目を任意（null 許容）にして、必須を満たすための捏造を防ぐことを挙げています。null と 0 のように「書かれていない」と「ゼロ」を区別できることも、下流のシステムにとって大切です。必須にするか任意にするかは、その情報が文書に必ずあるかどうかで決めます。","ref":"試験ガイド タスク 4.3"},{"id":"D4-19","domain":"D4","scenario":"S6","topic":"other と unclear","type":"multi","question":"顧客からの苦情メールを分類し、`category` を enum（`billing`、`delivery`、`quality`）で抽出しています。最近、アプリの不具合のような新しい種類の苦情が無理にどれかの値に入れられ、複数の読み方ができるメールでも1つの値に決め打ちされて、集計が歪んでいます。スキーマの設計としてとるべき対応はどれですか。（2つ選択）","options":["`category` を自由記述の文字列に変え、enum の制約をなくしてモデルに自由に名付けさせる","enum に `other` を加え、その内容を書く `category_detail` の文字列の項目を設ける","enum に `unclear` を加え、複数の読み方ができて1つに決められないメールではそれを選ばせる","`category` を任意の項目にし、どの値にも当てはまらないメールでは項目ごと省かせる","新しい種類の苦情が見つかるたびに enum の値を足し、そのつどスキーマを改訂して配布する"],"answer":[1,2],"notes":["値の表記がばらばらになり、集計できなくなります。一貫性を保ったまま広げるには、enum を残して受け皿を足します。","正解。`other` と詳細の文字列の組み合わせで、決めた分類を保ったまま新しい種類を拾い、後から分析できます。","正解。あいまいなケース用の値があれば無理な決め打ちを避けられ、人の確認に回す対象としても拾えます。","項目がないことが「新しい種類」なのか「判断できない」のか「抽出の失敗」なのか区別できず、分析に使えません。","次の改訂までは無理な分類が続き、まだ見つかっていない種類には備えられません。受け皿がない問題は残ります。"],"explanation":"enum は値をそろえて集計しやすくしますが、受け皿がないと、当てはまらない入力も既存の値に押し込まれます。試験ガイドは、拡張可能な分類のための `other`＋詳細の文字列のパターンと、あいまいなケース用の `unclear` などの値を enum に加えることを挙げています。分類の一貫性を保ちながら、「新しい種類」と「判断できない」をそれぞれはっきり表せるのが、この設計の利点です。","ref":"試験ガイド タスク 4.3"},{"id":"D4-20","domain":"D4","scenario":"S6","topic":"エラーを伝えるリトライ","type":"single","question":"抽出結果は、下流に渡す前に Pydantic のモデルで検証しています。`issue_date` が「2026年3月5日」のような形で返り、ISO 8601 の日付を求める検証で失敗することがあります。今は失敗すると同じリクエストをそのまま送り直していますが、3回送り直しても同じ形で返ることがあります。リトライの仕組みとして最も適切なものはどれですか。","options":["送り直しの上限を10回に増やし、正しい形が返るまで同じリクエストを繰り返す","送り直すリクエストに、元の文書、失敗した抽出結果、どの項目がなぜ検証に失敗したかを含める","検証に失敗した文書は送り直さず、すべて人間によるレビューの待ち行列に回して担当者に直させる","送り直すたびにより大きいモデルに切り替え、2回目以降は最も大きいモデルで抽出させる"],"answer":[1],"notes":["何が違ったかを伝えないまま繰り返しても、同じ出力が返りやすいままです。コストと時間だけが増えます。","正解。具体的な検証エラーを付けてリトライすると、モデルは何をどう直せばよいかが分かり、自分で修正できます。","書式の食い違いはリトライで直せる種類の誤りです。限られたレビューの人手を、自動で直せる誤りに使うことになります。","規模で解決しようとする手です。モデルが誤りの中身を知らないという原因は、そのまま残ります。"],"explanation":"試験ガイドは、エラーフィードバック付きリトライ、つまりリトライ時に具体的な検証エラーをプロンプトに加えてモデルを修正へ導くことを挙げ、元の文書、失敗した抽出結果、具体的な検証エラーを含むフォローアップのリクエストを求めています。書式の不一致や構造の誤りは、この方法で直る典型です。同じリクエストを繰り返すだけのリトライは、失敗の理由をモデルに伝えていない点で効き目が薄くなります。","ref":"試験ガイド タスク 4.4"},{"id":"D4-21","domain":"D4","scenario":"S6","topic":"リトライの限界","type":"single","question":"検証で失敗した抽出のログを分類すると、主に2種類ありました。1つは、`currency` に ISO 4217 のコード（`JPY`）ではなく「円」が入っているものです。もう1つは、発注書に「支払条件は基本契約書第5条による」とだけあり、基本契約書は入力に含まれていないため、`payment_terms` が埋まらないものです。リトライの方針として最も適切なものはどれですか。","options":["どちらも具体的な検証エラーを付けて最大3回までリトライし、それでも直らなければ人間によるレビューに回す","通貨はコード表をプロンプトに加えてリトライし、支払条件は「必ず値を入れること」と加えてリトライする","通貨はエラーを付けてリトライし、支払条件はリトライせず外部文書の参照として記録して人の確認に回す","どちらもリトライせず、検証に失敗した抽出はすべて人間によるレビューに回し、担当者が元の文書を見て直す"],"answer":[2],"notes":["支払条件は入力にない文書にしか情報がないため、何回リトライしても埋まりません。無駄な呼び出しが増えるだけです。","通貨の扱いは妥当ですが、支払条件に値を強いると、文書にない条件を作り上げる捏造を招きます。","正解。書式の不一致はリトライで直り、情報が入力にない場合はリトライが効きません。種類を見分けて扱いを変えます。","通貨のような書式の誤りは自動で直せるのに、限られたレビューの人手を使ってしまいます。"],"explanation":"試験ガイドは、リトライが効かない場合（例：提供されていない外部文書にしか情報が存在しない）と、効く場合（形式の不一致、構造的な出力エラー）を見極めることを求めています。情報がそもそも入力にないなら、何度頼んでも正しい値は出せず、捏造の危険だけが増えます。そうした項目は null にして外部文書を参照していると記録し、その文書を入力に加えるか、人の確認に回します。リトライの前に「その情報は入力の中にあるか」を問うのが判断の軸です。","ref":"試験ガイド タスク 4.4"},{"id":"D4-22","domain":"D4","scenario":"S6","topic":"合計の突き合わせ","type":"multi","question":"請求書の抽出結果は、スキーマの検証をすべて通っています。それでも経理部門から、明細の合計と請求総額が合わないデータがあると指摘されました。調べると、明細の一部を取りこぼした抽出の誤りと、請求書そのものの記載の誤りの両方が混ざっていました。この2つを見分けて処理できるようにするために、とるべき対応はどれですか。（2つ選択）","options":["書かれた総額を `stated_total`、明細を足した合計を `calculated_total` として並べて出させる","型の指定や必須の項目を増やしてスキーマの検証を厳しくし、合計の不一致を構文エラーとして弾く","総額と明細の合計が合わないときは、明細から計算した合計で総額を上書きし、そろった値を下流に渡す","請求書の記載そのものが食い違っているときに立てる `conflict_detected` の真偽値をスキーマに加える","総額だけを抽出するようにスキーマを変え、明細の抽出をやめて、合計の不一致そのものが起きないようにする"],"answer":[0,3],"notes":["正解。2つの合計を並べて出させれば、食い違いをプログラムで見つけられます。抽出の誤りなら、エラーを付けてリトライできます。","スキーマは構文や型の誤りを防げても、合計が合わないという意味の誤りは扱えません。","請求書の記載の誤りを、抽出の段階で黙って直してしまいます。元の書類の問題が経理に伝わりません。","正解。元の書類が矛盾しているという事実を明示できるため、リトライで直すべき抽出の誤りと区別して扱えます。","問題を見えなくするだけで、明細を必要とする下流の処理も成り立たなくなります。"],"explanation":"ツール使用による厳密なスキーマは構文の誤りをなくしますが、合計と一致しない明細や、誤った項目に入った値のような意味の誤りは防げません。試験ガイドは、自己修正のための検証の流れとして、`stated_total` とあわせて `calculated_total` を抽出して不一致を見つけること、整合しないソースデータに `conflict_detected` の真偽値を付けることを挙げています。食い違いを見つける材料と、原因が元の書類にあることを示す印をそろえると、「リトライで直す誤り」と「報告すべき矛盾」を分けて処理できます。","ref":"試験ガイド タスク 4.4"},{"id":"D4-23","domain":"D4","scenario":"S6","topic":"detected_pattern","type":"single","question":"抽出システムは、元の文書に疑わしい点（手書きの訂正、金額の書き換えの跡など）を見つけると「要確認」のフラグを付けて担当者に送ります。担当者はフラグの6割を「問題なし」として却下しており、どのような文書の特徴が無駄なフラグを生んでいるのかを分析したいと考えています。最も適切な対応はどれですか。","options":["各フラグに、きっかけの特徴を示す `detected_pattern` を持たせ、却下の結果と突き合わせて集計する","システムプロンプトに「確信度の高い疑いだけを報告すること」と加え、担当者に届くフラグの数を減らす","却下するときに担当者が自由記述で理由を書く欄を設け、月に一度まとめて読み返して傾向をつかむ","フラグの確信度のしきい値を一律に引き上げ、却下の割合が十分に下がるまで少しずつ調整を続ける"],"answer":[0],"notes":["正解。何がフラグを生んだかを構造化して残せば、却下されやすいパターンを体系的に分析し、そのパターンの基準を直せます。","「確信度の高いものだけ」という大まかな指示は精度を上げにくく、どの特徴が誤検知を生んでいるかも分かりません。","理由の記録にはなりますが、表記がそろわず集計しにくい方法です。フラグの側に原因のパターンが残らないので、結び付けにくいままです。","全体の数を減らすだけで、本物の疑いも一緒に落ちます。どのパターンが問題なのかは分からないままです。"],"explanation":"試験ガイドは、どの構造が指摘事項を引き起こしたかを `detected_pattern` の項目で追跡し、却下されたパターンを体系的に分析できるようにするフィードバックループを挙げています（ガイドの例はコードレビューの指摘）。指摘の側に原因のパターンを構造化して残すと、却下の結果と突き合わせて、誤検知の多いパターンだけを狙って基準を直せます。全体のしきい値や大まかな指示で数を減らすのは、原因を特定しないまま症状を抑える手です。","ref":"試験ガイド タスク 4.4"},{"id":"D4-24","domain":"D4","scenario":"S6","topic":"サンプルで事前に改良","type":"single","question":"過去5年分、約8万件の請求書を、新しいプロンプトとスキーマで、Message Batches API を使って抽出し直す計画です。新しいプロンプトは、まだ十数件でしか試していません。前回の同じような作業では、全件を流した後に約3割が検証で失敗し、原因を直して失敗分を出し直す作業を4回繰り返しました。急ぎの処理ではありません。最も適切な進め方はどれですか。","options":["全件をバッチで送り、失敗した分を `custom_id` で特定しては、直して出し直すことを繰り返す","失敗にすぐ気づいて直せるよう、8万件すべてをバッチではなく同期の API で1件ずつ処理する","文書の種類や仕入先が偏らないサンプルでプロンプトを磨き、検証の合格率を確かめてから全件を送る","1回目で成功する割合を上げるため、プロンプトは今のまま、全件をより大きいモデルでバッチに送る"],"answer":[2],"notes":["失敗の扱いとしては正しい手順ですが、失敗が多いまま全件を流すので、出し直しの回数と時間がかさみます。前回と同じことが起きやすい進め方です。","急がない処理で、バッチの50%の割引を捨てることになります。プロンプトの問題そのものも直りません。","正解。大量に流す前に、ばらつきを覆うサンプルでプロンプトを改良すれば、1回目の成功率が上がり、出し直しのコストを減らせます。","規模で解決しようとする手です。プロンプトやスキーマに原因がある失敗はモデルを大きくしても残り、費用だけが増えます。"],"explanation":"試験ガイドは、大量のバッチ処理を行う前にサンプルセットでプロンプトを改良し、初回の成功率を最大化して、反復的な再送信のコストを削減することを挙げています。バッチは1回の処理に最大24時間かかりうるため、全件を流してから直す進め方では、出し直しのたびに時間もかかります。サンプルは、文書の種類や書式のばらつきを覆うように選びます。それでも残った失敗は、`custom_id` で特定し、直したものだけを送り直します。","ref":"試験ガイド タスク 4.5 ／ Claude Docs: Batch processing"},{"id":"D5-01","domain":"D5","scenario":"S1","topic":"ケースの事実情報","type":"single","question":"長い会話では、古いやり取りを段階的に要約して文脈を保つ仕組みにしています。ところが40往復を超えた会話で、エージェントが「返金額は約1万円です」「お届けは先月の中ごろでした」と答える例がありました。実際の返金額12,480円や配送日、顧客が求めた「今週中の返金」という期待が、要約の中でぼやけていました。最も適切な対応はどれですか。","options":["要約の頻度を上げ、10往復ごとに会話全体をあらためて最初から要約し直すようにする","コンテキストウィンドウの大きいモデルに替え、要約をやめて会話の履歴をすべて持たせる","金額・日付・注文番号・状態・顧客の期待を「ケースの事実情報」ブロックにし、毎回入れる","要約を作るプロンプトに「数字と日付は省略せずにそのまま残すこと」という一文を加える"],"answer":[2],"notes":["要約を重ねるほど、細かな数値や日付はさらに丸められます。段階的な要約のリスクを強めてしまいます。","長い入力では中間部分の情報を見落とす「lost in the middle」効果があり、履歴を全部持たせても重要な事実が確実に使われるとは限りません。規模で解決しようとする手です。","正解。取引に関する事実を要約された履歴の外に置き、毎回のプロンプトに含めます。要約がどれだけ進んでも、正確な値が失われません。","要約に任せる限り、何をどこまで残すかはモデル次第です。顧客の期待のような事実は、指示があっても圧縮されがちです。"],"explanation":"段階的な要約には、数値、パーセンテージ、日付、顧客が述べた期待があいまいな要約に圧縮されるリスクがあります。試験ガイドは、金額、日付、注文番号、ステータスといった取引の事実を、要約された履歴の外に置く永続的な「ケースの事実情報」ブロックに抜き出し、各プロンプトに含めるスキルを挙げています。要約は会話の流れを保つために使い、正確さが要る事実は別の層で保持します。","ref":"試験ガイド タスク 5.1"},{"id":"D5-02","domain":"D5","scenario":"S1","topic":"ポリシーの空白","type":"single","question":"返品ポリシーには「配送完了から30日以内なら返品できる」とありますが、定期購入を途中で解約したときに残りの期間分を返金するかどうかは何も定めていません。この依頼に対し、エージェントは返品ポリシーを当てはめて日割りの返金を約束することもあれば、断ることもあります。最も適切な対応はどれですか。","options":["ポリシーが何も定めていない依頼であることをきっかけに、人間の担当者へエスカレーションさせる","いちばん近い返品ポリシーを類推で当てはめ、30日以内の分だけ日割りで返金するよう対応を統一する","ポリシーに書かれていない依頼は対応範囲外とみなし、すべてお断りするよう指示する","エージェントに確信度を自己申告させ、高いときは自分で判断し、低いときだけ人に引き継がせる"],"answer":[0],"notes":["正解。ポリシーの例外や空白は、複雑さとは別の、エスカレーションの適切なトリガーです。会社として決めていない約束を、エージェントが代わりに決めずに済みます。","決まっていない方針をエージェントが類推で作ることになります。対応はそろっても、会社が認めていない返金を約束するおそれがあります。","空白を一律の拒否で埋めるのは、もう一方の極端です。本来は認められるかもしれない依頼まで断り、顧客の不満を生みます。","自己申告の確信度は、実際のケースの複雑さを示す指標として当てになりません。誤った判断に自信を持つこともあります。"],"explanation":"試験ガイドは、エスカレーションの適切なトリガーとして、顧客による人間の担当者の要求、ポリシーの例外や空白、有意義な進展が得られない状況を挙げ、「複雑なケースだけではない」としています。顧客の具体的な要求についてポリシーが曖昧か、何も定めていないときは、エージェントが推測で方針を作らず、人に判断を委ねます。こうした基準は、例とともにシステムプロンプトに明示しておきます。","ref":"試験ガイド タスク 5.2"},{"id":"D5-03","domain":"D5","scenario":"S1","topic":"人間の担当者の要求","type":"multi","question":"次の2つのケースへの対応を見直しています。ケース1では、顧客が最初のメッセージで「人間の担当者につないでください」と書いています。用件は配送状況の確認で、エージェントでも解決できる内容です。ケース2では、顧客が「3回目の問い合わせです。いい加減にしてください」と怒っていますが、人間の担当者は求めておらず、用件は配送の遅れでエージェントの対応範囲内です。取るべき対応はどれですか。（2つ選択）","options":["ケース1は単純な用件なので、先に `lookup_order` で調べて解決策を示し、それでも望まれたら引き継ぐ","ケース2は否定的な感情が強いので、感情分析のスコアがしきい値を超えた時点で自動的に引き継ぐ","ケース2は怒りの強さが複雑なケースであることを示すので、調査せずにすぐ人間の担当者へ引き継ぐ","ケース1は、調査を始めずに、ただちに人間の担当者へ引き継ぐ","ケース2は不満を受け止めたうえで解決を申し出て、顧客が重ねて人を求めたときに引き継ぐ"],"answer":[3,4],"notes":["顧客の明示的な要求を後回しにしています。人間の担当者を求められたら、先に調査を試みずに応じます。","感情に基づくエスカレーションは、実際のケースの複雑さを示す指標として当てになりません。対応範囲内の用件まで人に回り、解決率が下がります。","怒りの強さと用件の複雑さは別のものです。エージェントで解決できる用件を、本人が求めていないのに引き継いでいます。","正解。顧客が人間の担当者を明示的に求めたら、用件が単純でも、調査を試みずにすぐ応じます。","正解。対応範囲内の用件では、不満を受け止めつつ解決を申し出ます。顧客が希望を重ねて伝えたときにだけ、エスカレーションします。"],"explanation":"試験ガイドは、顧客が明示的に人間の担当者を求めた場合にただちにエスカレーションすることと、問題が単純な場合に解決を申し出ることを区別しています。判断の軸は、顧客が何を求めたかと、用件が対応範囲内かどうかです。感情の強さは複雑さの指標にならないので、エスカレーションの条件にはしません。","ref":"試験ガイド タスク 5.2"},{"id":"D5-04","domain":"D5","scenario":"S1","topic":"複数の一致","type":"single","question":"顧客が名前と郵便番号を伝え、エージェントが `get_customer` で検索すると、3件の顧客が一致しました。いまのエージェントは、直近に注文がある顧客を本人とみなして、返金の話を進めています。最も適切な対応はどれですか。","options":["3件の顧客の名前と注文の一覧を示し、どれが自分のアカウントかを顧客に選んでもらう","推測で選ばず、メールアドレスや注文番号など、本人を特定できる情報を追加で尋ねる","直近の注文に加えて住所の一致度も点数にし、最も点数の高い顧客を本人として選ぶ","複数の顧客が一致したケースは本人確認の問題とみなし、すべて人間の担当者に引き継ぐ"],"answer":[1],"notes":["別の顧客の個人情報や注文の内容を、本人か分からない相手に見せることになります。本人確認にもなっていません。","正解。複数の一致が返ったときは、ヒューリスティックで選ばず、追加の識別情報を求めて確認します。エージェントのまま本人を特定できます。","手がかりを増やしても、推測で1人を選ぶことに変わりはありません。外れたときは、別人のアカウントで返金が進みます。","追加の情報を尋ねれば解決できるケースまで人に回り、初回対応での解決率が下がります。"],"explanation":"試験ガイドは、複数の顧客が一致した場合には、ヒューリスティックによる選択ではなく、追加の識別情報を求める確認が必要だとしています。金銭が動く手続きで本人を取り違えると、誤った返金や情報の漏えいにつながります。ツールの結果が複数の候補を返したら、推測で絞らず、1人に決まる情報を尋ねるようエージェントに指示します。","ref":"試験ガイド タスク 5.2"},{"id":"D5-05","domain":"D5","scenario":"S2","topic":"要約で消える事実","type":"single","question":"Claude Code で、API のレート制限の機能を数時間かけて実装しています。最初に会話で「1分あたり120リクエスト、バーストは20、超えたら `429` と `Retry-After` を返す、管理者のキーは対象外」と伝えました。自動のコンパクトが何度か起きたあと、Claude は「適切な上限」「一部のキーは除外」のようなあいまいな言い方をするようになり、管理者のキーも制限するコードを書きました。最も適切な対応はどれですか。","options":["数値と決定事項を事実の一覧としてプロジェクトの CLAUDE.md に書き、会話の外に置く","以前の会話のログを丸ごと貼り直し、最初に伝えた要件をもう一度読ませてから作業を続けさせる","「最初に伝えた数値と条件は忘れないこと」と Claude に伝え、以後の作業で十分に気をつけてもらう","自動のコンパクトが起きないよう、より大きいコンテキストウィンドウのモデルに替えて続ける"],"answer":[0],"notes":["正解。会話の要約では、数値や条件があいまいになります。プロジェクトのルートの CLAUDE.md は、コンパクトのあとにディスクから読み直されるので、事実が要約で崩れません。","長い履歴をそのまま足すとコンテキストをさらに使い、次のコンパクトでまた要約されます。大事な事実を要約の外に置く手当てになっていません。","頼むだけでは、要約で数値が失われる仕組みは変わりません。会話の中の指示は、次のコンパクトでまた要約されます。","規模で解決しようとしています。長いセッションでは、いずれ要約が起き、同じ問題が繰り返されます。"],"explanation":"長いやり取りを段階的に要約すると、数値、条件、例外のような具体的な事実が、あいまいな言い方に圧縮されがちです。こうした事実は、要約される履歴の外に構造化して置き、毎回のコンテキストに入るようにします。Claude Code では、プロジェクトのルートの CLAUDE.md がコンパクトのあとにディスクから読み直されるので、その置き場所に使えます。会話だけで伝えた指示は、コンパクトで失われうると考えておきます。","ref":"試験ガイド タスク 5.1 ／ Claude Code Docs: Memory（Instructions seem lost after /compact）／ Claude Code Docs: Context window"},{"id":"D5-06","domain":"D5","scenario":"S2","topic":"ツール出力を削る","type":"single","question":"Claude Code で、E2E テストの失敗を直しています。テストを実行するたびに、成功したテストの詳細やブラウザのデバッグ出力を含む長いログが返りますが、必要なのは失敗したテストの名前とエラーの数行だけです。何回か実行すると、コンテキストの大半がログで占められ、Claude は少し前に決めた修正の方針に触れなくなってきました。最も適切な対応はどれですか。","options":["ログを毎回ファイルに保存させ、次の修正に入る前に、そのファイルを Claude に全部読み直させる","「成功したテストのログは読み飛ばすこと」と Claude に伝え、同じコマンドのまま実行を続けさせる","テストを走らせる回数を減らし、修正をいくつもまとめてから、ときどきだけ実行して確かめるようにする","テストの出力を、失敗したテストとエラーの要点だけに絞ってから会話に入るよう、実行のしかたを変える"],"answer":[3],"notes":["ファイルを全部読ませれば、同じ量のログがやはり会話に入ります。置き場所を変えても、たまる量は減りません。","読み飛ばすよう頼んでも、ログはすでにコンテキストに入っていて、トークンを使い続けます。たまる前に削る手当てになっていません。","確かめる回数が減るだけで、1回ごとのログの量は変わりません。修正をまとめると、どの変更で何が壊れたかも分かりにくくなります。","正解。ツールの出力は、関係のある部分だけに削ってから会話に入れます。テストのレポーターの設定や、出力を絞り込むフックを使えば、ログがたまる前にコンテキストを守れます。"],"explanation":"ツールの結果は、関係の深さに見合わない量のトークンを使いながら、コンテキストにたまっていきます。必要なのが一部の行や項目だけなら、たまる前に、その部分だけに削ります。Claude Code では、テストのレポーターを失敗だけを出す設定にする、フックでコマンドの出力を絞り込む、といった方法があり、そのコマンドを CLAUDE.md に書いておけば、毎回同じ形で実行されます。2026年11月時点のドキュメントでは、テストの実行のような冗長な操作をサブエージェントに任せ、要約だけを受け取る方法も案内されています。","ref":"試験ガイド タスク 5.1 ／ Claude Code Docs: Manage costs（Reduce token usage）"},{"id":"D5-07","domain":"D5","scenario":"S2","topic":"/compact で減らす","type":"single","question":"Claude Code で、モノレポの認証の流れを2時間ほど調べています。序盤に広い検索や長いログを何度も読ませたため、`/context` で見ると、コンテキストの大半を、もう参照しない検索結果とログが占めています。ここまでの結論（トークンの検証は `AuthGateway` が行う、など）は数行にまとまっており、このまま同じ調査を続けたいと考えています。最も適切な対応はどれですか。","options":["`/clear` で会話を空にし、ここまでの結論を思い出しながら、認証の流れの調査を最初から進め直す","残したい結論と次に調べることを指示として添えて `/compact` を実行し、使用量を減らしてから続ける","「前に読んだ検索結果とログは、もう気にしなくてよい」と伝え、そのまま同じ会話で調査を続けさせる","より大きいコンテキストウィンドウのモデルに切り替え、検索結果とログも残したまま調査を続ける"],"answer":[1],"notes":["`/clear` は、関係のない別の作業に移るときの手です。同じ調査を続けるのに会話を空にすると、ここまでの結論や経緯まで失います。","正解。`/compact` は会話を要約して、コンテキストの使用量を減らします。残したいことを指示として添えれば、要約で何を残すかを自分で決められます。","伝えても、検索結果とログはコンテキストに残ったままで、毎回のリクエストで送られ続けます。使用量は減りません。","規模で解決しようとしています。もう参照しない出力を抱えたまま続けることになり、関係のない情報がたまる問題は残ります。"],"explanation":"長い探索のセッションで、冗長な調査の出力がコンテキストを埋めてきたら、`/compact` で会話を要約して使用量を減らします。`/compact` に指示を添えると、自動の要約に任せるのではなく、残す内容を自分で選べます。要約では細かい数値や条件があいまいになりうるので、崩したくない事実は、コンパクトのあとにディスクから読み直される CLAUDE.md などに書いておきます。関係のない作業に移るなら `/clear`、同じ作業を続けるなら `/compact`、と使い分けます。","ref":"試験ガイド タスク 5.4 ／ Claude Code Docs: Context window（What survives compaction、When your context fills up）／ Claude Code Docs: Commands"},{"id":"D5-08","domain":"D5","scenario":"S2","topic":"フェーズ間の引き継ぎ","type":"single","question":"大規模なコードベースにテストを追加する作業を、2つのフェーズに分けています。第1フェーズでは、サブエージェントたちが各モジュールの依存関係を調べ、メインのエージェントがその報告を受け取りました。第2フェーズで、テストの不足を調べるサブエージェントを起動したところ、どれも依存関係を最初から調べ直し、時間とトークンを使っています。最も適切な対応はどれですか。","options":["第2フェーズのサブエージェントに、第1フェーズのサブエージェントの作業記録をそのまま全部渡す","サブエージェントを使うのをやめ、第2フェーズの調査はメインのエージェントが自分の会話の中で行う","第1フェーズの主な発見を要約し、第2フェーズのサブエージェントの最初のプロンプトに入れる","第2フェーズのサブエージェントに「第1フェーズの結果は共有されているので参照すること」と指示する"],"answer":[2],"notes":["作業記録には冗長な探索の出力が多く含まれ、サブエージェントのコンテキストを圧迫します。必要なのは要点です。","冗長な調査の出力がメインの会話にたまり、全体を調整するためのコンテキストが失われます。","正解。前のフェーズの要点を要約して、次のフェーズの初期コンテキストに入れます。調べ直しを防ぎつつ、サブエージェントの文脈を小さく保てます。","通常のサブエージェントは、ほかのサブエージェントの作業やメインの会話の内容を、自動では受け取りません。渡していない情報は参照できません。"],"explanation":"サブエージェントは分離されたコンテキストで動き、前のフェーズの発見を自動では引き継ぎません。次のフェーズのサブエージェントを起動する前に、前のフェーズの主な発見を要約し、その要約を初期コンテキストとして渡します。作業記録を全部渡すと冗長になり、何も渡さなければ調べ直しが起きます。なお、2026年11月時点の Claude Code には会話を丸ごと引き継ぐフォークのサブエージェントもありますが、通常のサブエージェントは引き継ぎません。","ref":"試験ガイド タスク 5.4 ／ Claude Code Docs: Subagents"},{"id":"D5-09","domain":"D5","scenario":"S3","topic":"エラーの文脈を返す","type":"single","question":"文書分析サブエージェントは、処理に失敗すると、原因にかかわらず「分析できませんでした」とだけ返します。12本の文書のうち3本のファイルが破損していて開けなかったときも同じ返事だったため、コーディネーターは9本の分析が済んでいたことも分からないまま、12本すべての分析を同じ指示でやり直させ、同じ失敗を繰り返しました。最も適切な対応はどれですか。","options":["失敗の種類、試した処理、済んだ9本の結果、別の版を探すなどの代替案を構造化して返す","失敗した3本を除いた9本の分析を、全件の分析が完了した結果として返すようにする","コーディネーターのプロンプトに、失敗の報告を受けたら別の方法を考えてから再委任するよう書く","失敗の詳細をログファイルに書き出し、運用担当者があとで原因を確かめられるようにする"],"answer":[0],"notes":["正解。失敗の種類、試した内容、部分的な結果、考えられる代替案を返せば、コーディネーターは済んだ9本を生かし、破損した3本だけを別の手段で取りに行く、と判断できます。","エラーを黙って握りつぶす手です。3本が抜けていることが、コーディネーターにもレポートの読者にも伝わりません。","汎用の「分析できませんでした」には判断の材料がないので、別の方法を考えるよう指示しても、何が失敗し何が済んだのかは分かりません。","あとで人が原因を調べるのには役立ちますが、実行中のコーディネーターには何も伝わらず、同じやり直しが続きます。"],"explanation":"「分析できませんでした」のような汎用的なエラーステータスは、何が失敗し、何が済んでいるかをコーディネーターから隠します。サブエージェントは、失敗の種類、試した内容、部分的な結果、考えられる代替案を構造化して返し、コーディネーターがリトライ、別の手段、部分的な結果での続行のどれを選ぶかを判断できるようにします。成功したように見せかける握りつぶしも、ログに残すだけで実行中の判断に使わないのも、復旧の材料を渡していない点で同じです。","ref":"試験ガイド タスク 5.3"},{"id":"D5-10","domain":"D5","scenario":"S3","topic":"部分的な失敗の扱い","type":"multi","question":"6つのサブトピックのうち2つは、契約していない有料データベースにしか資料がなく、検索サブエージェントは権限エラーで取得できません。ほかのサブトピックでも、ときどき一時的なタイムアウトが起きます。チームは、1つの失敗で調査全体を止めず、読者がどこまで裏付けがあるかを分かるレポートにしたいと考えています。取るべき対応はどれですか。（2つ選択）","options":["権限エラーが起きた時点で調査全体を中止し、データベースの契約が済むまで待つようユーザーに伝える","タイムアウトが起きるたびに、サブエージェントから直ちにコーディネーターへそのまま伝え、リトライの判断を任せる","一時的なタイムアウトはサブエージェント内でリトライし、解決できない失敗だけを、試した内容と部分的な結果とともに伝える","統合の出力に、十分に裏付けられた指摘事項と、情報源が得られず不足している領域を示すカバレッジの注記を付ける","取得できなかった2つのサブトピックは最初から対象外だったものとして扱い、残りの4つで一貫した構成にまとめる"],"answer":[2,3],"notes":["1つの失敗でワークフロー全体を終了させるアンチパターンです。残りの4つは調べられるのに、成果がゼロになります。","一時的な失敗まですべて上げると、コーディネーターの負担と往復が増えます。ローカルで直せるものはサブエージェント内で直します。","正解。一時的な障害はローカルで復旧し、解決できないエラーだけを、試した内容と部分的な結果を含めて伝播させます。","正解。どの指摘事項が十分に裏付けられ、どのテーマに情報源がなく不足があるかを注記すれば、全体を止めずに欠落を正直に伝えられます。","欠落を握りつぶすアンチパターンです。読者は2つのテーマが調べられていないことを知らないまま結論を読みます。"],"explanation":"マルチエージェントのエラー伝播では、黙って握りつぶすことも、1つの失敗で全体を止めることも避けます。サブエージェントは一時的な障害を自分でリトライして直し、直らないもの（ここでは権限エラー）だけを、試した内容と部分的な結果を付けてコーディネーターに伝えます。最終の出力では、カバレッジの注記で裏付けの強さと欠落を示します。Anthropic のリサーチシステムの記事も、ツールが失敗していることをエージェントに知らせて適応させるやり方がよく効くと述べています。","ref":"試験ガイド タスク 5.3 ／ Anthropic Engineering: How we built our multi-agent research system"},{"id":"D5-11","domain":"D5","scenario":"S3","topic":"確立と異論の区別","type":"single","question":"「リモートワークが生産性に与える影響」のレポートで、統合サブエージェントは、大規模な追跡調査2件が支持する知見と、小規模な研究1件だけが示す知見を、どちらも「〜であることが分かっている」という同じ書き方で並べていました。後者は、元の論文の著者自身が「予備的な結果」と書いており、別の研究では逆の結果も報告されています。最も適切な対応はどれですか。","options":["裏付けとなる研究が複数ある知見だけをレポートに残し、1件の研究しかない知見は載せないようにする","確立した知見と異論のある知見を節で分け、元の情報源での位置付けと研究の方法を添えて書かせる","各知見にモデル自身が0〜100の確信度を付け、数値の高い順に並べて読者が判断できるようにする","レポートの末尾に「研究によって結論が異なる場合があります」という一般的な注意書きを加える"],"answer":[1],"notes":["両極端の手です。予備的でも読者に役立つ知見を捨ててしまいます。研究の数だけで確からしさを決めることにもなります。","正解。十分に確立した知見と異論のある知見を節で分け、元の情報源での位置付け（「予備的な結果」など）と方法論上の文脈を保てば、読者は裏付けの強さを正しく読み取れます。","モデルの自己申告の確信度は、裏付けの強さの目安として当てになりません。元の論文が「予備的」と書いたという事実も伝わりません。","どの知見が確立していて、どれに異論があるのかが分からないままです。一般的な注意書きでは、本文の断定的な書き方は直りません。"],"explanation":"複数の情報源をまとめるときは、十分に確立した発見事項と異論のある発見事項を明示的な節で分け、元の情報源での特徴付け（「予備的な結果」など）と方法論上の文脈（研究の規模や設計）を保ちます。統合の段階で同じ断定の書き方にそろえると、裏付けの強さの違いが読者から見えなくなります。知見を捨てる、自己申告の確信度で並べる、一般的な注意書きで済ませる、といった手は、どれもその違いを正確に伝えません。","ref":"試験ガイド タスク 5.6"},{"id":"D5-12","domain":"D5","scenario":"S4","topic":"長い探索での劣化","type":"multi","question":"エンジニアが、支援エージェントと3時間にわたって、レガシーな在庫システムを調べています。序盤に `StockLedger` クラスが二重計上の原因だと特定していましたが、最近の回答では「この種のシステムでは一般に〜」と典型的なパターンを述べるだけで、特定済みのクラス名が出てこなくなりました。調査はまだ続きます。取るべき対応はどれですか。（2つ選択）","options":["より大きなコンテキストウィンドウを持つモデルに切り替え、会話の履歴をすべて保てるようにする","回答のたびに「これまでの発見と矛盾しないように」と指示し、一貫性を意識させるようにする","主要な発見を記録するスクラッチパッドファイルをエージェントに保たせ、以降はそれを参照させる","会話の最初から調査をやり直し、序盤に特定したことをもう一度たどって確かめさせるようにする","個別の問い（引き当ての依存関係をたどる、など）はサブエージェントに調べさせ、要約だけを返させる"],"answer":[2,4],"notes":["規模で解決しようとする手です。コンテキストを広げても、冗長な探索の出力で埋まった会話の中で発見が埋もれる問題は残ります。","モデルに頼んで済ませる手です。序盤の発見がコンテキストの中で薄れていることが原因なので、指示だけでは戻りません。","正解。スクラッチパッドファイルに主要な発見を書き出しておけば、コンテキストの境界を越えて保たれ、以降の質問で参照できます。","3時間分の調査を捨てて同じことを繰り返します。時間がかかるうえ、長く続ければ同じ劣化がまた起きます。","正解。冗長な探索をサブエージェントに分離すると、メインのエージェントは高いレベルの理解を保ったまま調整役に専念できます。"],"explanation":"長い探索のセッションでは、コンテキストの劣化が起きます。回答が一貫しなくなり、以前に見つけた具体的なクラスではなく「典型的なパターン」を語りはじめるのがその兆しです。対策は、主要な発見をスクラッチパッドファイルに書き出して参照させること、個別の問いの冗長な探索をサブエージェントに任せることです。冗長な出力でコンテキストが埋まったときは、`/compact` で使用量を減らす手もあります。","ref":"試験ガイド タスク 5.4 ／ Claude Code Docs: Best practices、Create custom subagents"},{"id":"D5-13","domain":"D5","scenario":"S6","topic":"上流は構造化して返す","type":"single","question":"数百ページの契約書を章ごとに抽出サブエージェントに渡し、まとめ役のエージェントが各章の結果を統合してリスクの評価を作っています。各サブエージェントは、条項の原文の長い引用と、どう判断したかの過程を文章で返しており、まとめ役のコンテキストの大半がそれで埋まっています。最近は、後半の章の結果が入りきらずに切り捨てられる例が出ています。最も適切な対応はどれですか。","options":["まとめ役を、より長いコンテキストを扱えるモデルに替え、各章の結果を省かずにすべて入力に入れる","サブエージェントに、条項の種類・要点・該当箇所・短い引用・重要度を構造化データとして返させる","各章の結果を、まとめ役に渡す前に別の呼び出しで数行の文章に要約させ、その要約だけを入れる","各章の結果を同じ文字数で一律に切り詰め、すべての章の結果がまとめ役の入力に収まるようにする"],"answer":[1],"notes":["規模で解決しようとする手です。冗長な文章でコンテキストを埋めるという原因は残り、長い入力の中で重要な条項が埋もれやすいままです。","正解。下流のコンテキストが限られるときは、冗長な文章や推論の過程ではなく、要点・引用・重要度などの構造化データを返させます。統合に要る情報を少ない量で渡せます。","文章に要約すると、金額や日付、該当箇所のような細部があいまいになりがちで、統合に要る情報が失われるおそれがあります。","一律に切り詰めると、重要な条項が各章の後ろのほうにあれば落ちます。何を残すかを、中身ではなく長さで決めています。"],"explanation":"試験ガイドは、下流のエージェントのコンテキスト予算が限られている場合に、冗長なコンテンツや推論チェーンではなく、構造化データ（主要な事実、引用、関連性スコア）を返すように上流のエージェントを変えることを挙げています。上流が何をどの形で返すかを決めれば、下流は少ない量で必要な情報だけを受け取れます。段階的な要約や機械的な切り詰めは、量は減らせても、数値や出典のような統合に要る細部を落とします。モデルやコンテキストを大きくする前に、渡すものの中身と形を見直します。","ref":"試験ガイド タスク 5.1"},{"id":"D5-14","domain":"D5","scenario":"S6","topic":"区分ごとの精度","type":"single","question":"抽出システムの精度は、直近3か月の検証で全体97%でした。チームは「目標の95%を超えたので、人間によるレビューをやめて全件を自動で下流に流そう」と提案しています。検証の結果は全件をまとめて集計しただけで、内訳は見ていません。最初に行うべきことはどれですか。","options":["全体の精度が目標を上回っているので、提案どおり人間によるレビューをやめて全件を自動化する","モデルが自己申告する確信度が高い抽出だけを自動化し、それ以外はこれまでどおりレビューする","文書の種類と項目ごとに精度を集計し、どの区分でも安定して目標を満たしているかを確かめる","全体の精度をさらに上げるため、より大きいモデルに替えてから、あらためて全体の精度を測る"],"answer":[2],"notes":["全体の97%は、特定の文書の種類や項目での低い精度を覆い隠すことがあります。内訳を見ないまま自動化するのは危険です。","キャリブレーションされていない自己申告の確信度は、当てにならない目安です。区分ごとの精度も確かめていません。","正解。人間によるレビューを減らす前に、文書の種類と項目の区分ごとに精度を分析し、一貫した性能を確認します。","全体の数字を追うだけで、弱い区分があるかどうかという問いに答えていません。"],"explanation":"試験ガイドは、集計された精度（例：全体で97%）が、特定の文書の種類やフィールドでの低い性能を覆い隠すリスクを挙げ、人間によるレビューを減らす前に、文書の種類およびフィールドごとに精度を分析して、すべての区分で一貫した性能を確認するよう求めています。件数の多い区分が全体の数字を押し上げ、件数の少ない区分の誤りが埋もれるからです。自動化の判断は、全体の平均ではなく、最も弱い区分を見て下します。","ref":"試験ガイド タスク 5.5"},{"id":"D5-15","domain":"D5","scenario":"S6","topic":"レビューの振り分け","type":"multi","question":"抽出は1日に約5,000件ありますが、レビュー担当者が確認できるのは1日300件までです。どの抽出を人間によるレビューに回すかを設計しています。限られた人手を最も効果的に使うために、とるべき対応はどれですか。（2つ選択）","options":["その日に処理した順に先頭から300件をレビューし、残りの抽出は確認せずに自動で下流に流す","モデルが出す確信度をそのまま使い、0.9 を下回った抽出だけをレビューに回すと決めて運用を始める","モデルに項目ごとの確信度を出させ、ラベル付きの検証セットで決めたしきい値を下回る抽出をレビューに回す","抽出結果の記述が長く詳しいものほど正確とみなし、記述の短い抽出を優先してレビューに回す","元の文書の記載があいまいだったり矛盾していたりする抽出を、優先してレビューに回す"],"answer":[2,4],"notes":["処理の順番は誤りの起きやすさと関係がありません。誤りの多い抽出にレビューの人手が向かいません。","キャリブレーションしていない確信度の値は当てになりません。0.9 という線が誤りの多さと対応している根拠がありません。","正解。ラベル付きの検証セットでしきい値をキャリブレーションすると、確信度を振り分けの目安として使えるようになります。","記述の長さや流ちょうさは、抽出の正しさの目安になりません。","正解。元の文書があいまい・矛盾している抽出は誤りが起きやすく、人の判断が要るので、優先して回す価値があります。"],"explanation":"試験ガイドは、モデルにフィールドレベルの確信度スコアを出力させ、ラベル付き検証セットでレビューのしきい値をキャリブレーションすること、確信度の低い抽出やソース文書が曖昧または矛盾している抽出を人間によるレビューに回して、限られたレビュー担当者のキャパシティに優先順位を付けることを挙げています。確信度は、正解の分かっているデータで「この値ならどれだけ当たるか」を確かめて初めて、振り分けの目安になります。処理の順番や文章の長さは、誤りの起きやすさと関係のない目安です。","ref":"試験ガイド タスク 5.5"},{"id":"D5-16","domain":"D5","scenario":"S6","topic":"層化無作為抽出","type":"single","question":"確信度が高いと判定された抽出は、人が確認せずに下流の会計システムへ流しています。半年後、ある取引先が請求書の書式を変えたことで誤りが増えていたことが、顧客からの問い合わせで初めて分かりました。確信度の高い抽出の誤りを継続して測り、新しい誤りのパターンを早く見つけるための対応として、最も適切なものはどれですか。","options":["確信度のしきい値を引き上げて、人が確認せずに下流へ流す抽出の件数そのものを減らす","問い合わせのあった取引先の請求書だけを、今後はすべて人がレビューしてから流すようにする","下流に流す前に、同じモデルに自分の抽出結果をもう一度見直させて、誤りがあれば直させる","確信度の高い抽出から、文書の種類や取引先の区分ごとに無作為に抜き、定期的に人が確かめる"],"answer":[3],"notes":["自動化を減らすだけで、確信度の高い抽出の誤り率は測れません。新しいパターンを見つける仕組みにもなりません。","すでに分かった1社への後追いです。ほかの取引先で起きる新しいパターンは見つけられません。","同じモデルによるセルフレビューは自分の判断を疑いにくく、確信度の高い誤りほど見逃しがちです。誤り率の測定にもなりません。","正解。層化無作為抽出で、確信度の高い抽出の誤り率を区分ごとに測り続け、新しい誤りのパターンを早く見つけられます。"],"explanation":"確信度の高い抽出をまったく見ないと、書式の変更などで生まれた新しい誤りに気づけません。試験ガイドは、確信度の高い抽出に層化無作為抽出をかけて、継続的にエラー率を測定し、新しいパターンを検出することを挙げています。区分ごとに抜き出すのは、件数の少ない文書の種類や取引先の誤りも、標本に確実に入るようにするためです。自動化した後も、測り続ける仕組みを残しておくことが信頼性を支えます。","ref":"試験ガイド タスク 5.5"},{"id":"D5-17","domain":"D5","scenario":"S6","topic":"数値の出所の保持","type":"single","question":"年次報告書、決算短信、プレスリリースなど複数の文書から企業の財務数値を抽出し、まとめ役のエージェントが1つの要約にして分析システムへ渡しています。監査の担当者から、要約の各数値がどの文書のどこから取られたのかを追えない、と指摘されました。最も適切な対応はどれですか。","options":["抽出の段階で数値ごとに文書名・ページ・抜粋を出させ、まとめ役にもその対応を保って統合させる","要約の末尾に、参照したすべての文書の名前と公表日を一覧にした「参考資料」の節を付け加える","要約を作った後で、別の呼び出しでモデルに各数値の出典を思い出させ、要約に書き加えさせる","監査の担当者には、要約とあわせて元の文書一式を渡し、必要に応じて数値を照合してもらう"],"answer":[0],"notes":["正解。主張と情報源の対応付けを抽出の段階から構造化して持たせ、統合の段階でも落とさないことで、各数値の出所を追えます。","文書の一覧だけでは、どの数値がどの文書から来たかが分かりません。値ごとの帰属は失われたままです。","元の文書との対応を失った後で出典を推測させることになり、誤った出典を付けるおそれがあります。","追跡の作業を人に押し付けるだけで、要約の段階で出所が失われる原因は直りません。"],"explanation":"主張と情報源の対応付けを保持せずに発見事項を圧縮すると、要約のステップで情報源の帰属が失われます。試験ガイドは、上流の担当に構造化された主張と情報源の対応付け（情報源の URL、文書名、関連する抜粋）を出力させ、下流のエージェントが統合を通じてそれを保持することを挙げています。出所の情報は後から付け足すものではなく、値と一緒に最初から運ぶものとして設計します。","ref":"試験ガイド タスク 5.6"},{"id":"D5-18","domain":"D5","scenario":"S6","topic":"食い違う値の注記","type":"single","question":"同じ企業の2025年度の売上高として、統合報告書からは1,240億円、決算説明会の資料からは1,180億円が抽出されました。対象の期間は同じで、どちらの文書にも訂正の記載はなく、どちらが正しいかは文書からは判断できません。抽出エージェントは今、こうした食い違いを見つけるとその文書の処理を止めてエラーを返すため、ほかの数値も下流に届きません。整合の方針は、統合の前にコーディネーターが決める運用です。最も適切な対応はどれですか。","options":["処理は止めずに、2つの値の平均をとって1つの値にまとめ、ほかの項目と一緒にコーディネーターに渡す","処理は止めずに、統合報告書のように信頼度が高いと決めた種類の文書の値を採用し、もう一方は捨てる","処理は止めずに、食い違った売上高の項目だけを空にして、ほかの項目と一緒にコーディネーターに渡す","処理は止めずに、2つの値を出典付きで両方残して食い違いを注記し、文書の残りの抽出も終えて渡す"],"answer":[3],"notes":["どの文書にも書かれていない値を作ることになります。食い違いがあったという事実も、コーディネーターに伝わりません。","信頼できる情報源どうしでも値は食い違いえます。一方を機械的に選ぶと、コーディネーターが決めるはずの整合の判断を先取りしてしまいます。","食い違いを黙って消す、握りつぶしの手です。コーディネーターは、整合を判断すべき項目があったことを知れません。","正解。矛盾する値を出典付きで残して注記したまま分析を終えれば、ほかの数値も届き、整合の方針はコーディネーターが判断できます。"],"explanation":"試験ガイドは、信頼できる情報源の間で統計が矛盾するときに、一方の値を恣意的に選ぶのではなく、情報源の帰属を付けて矛盾に注記すること、矛盾する値を含めて明示的に注記したうえで文書の分析を完了し、どう整合させるかは統合に渡す前にコーディネーターに判断させることを挙げています。1つの食い違いで文書全体の処理を止めるのも、値を選ぶ・平均する・消すのも、判断の材料を失わせる点で劣ります。抽出の段階では、「決める」より「残して印を付ける」が基本です。","ref":"試験ガイド タスク 5.6"}];
+
+/* 試験ごとの設定（exam.json）。ビルド時に埋め込まれる */
+const EXAM = {"code":"CCAR-F","name":"Claude Certified Architect – Foundations","storage":"ccarf","questions":60,"minutes":120,"passScore":720,"scaleMin":100,"scaleMax":1000,"passRate":0.72,"format":"単一・複数","types":["single","multi"],"weightNote":"配点は公式試験ガイド v1.1（2026年11月発効。配点は v1.0 と同じ）の比率です。","domains":[{"code":"D1","name":"エージェントアーキテクチャとオーケストレーション","en":"Agentic Architecture & Orchestration","weight":27},{"code":"D2","name":"ツール設計と MCP 統合","en":"Tool Design & MCP Integration","weight":18},{"code":"D3","name":"Claude Code の設定とワークフロー","en":"Claude Code Configuration & Workflows","weight":20},{"code":"D4","name":"プロンプトエンジニアリングと構造化出力","en":"Prompt Engineering & Structured Output","weight":20},{"code":"D5","name":"コンテキスト管理と信頼性","en":"Context Management & Reliability","weight":15}],"scenarioPick":4,"scenarioNote":"本番では、試験ガイドにある6つのシナリオのうち4つが無作為に選ばれ、それぞれが一連の問題の前提になります。模擬試験でも4つを無作為に選びます（分野の配点を保てない組み合わせは、選び直します）。","scenarios":[{"id":"S1","name":"カスタマーサポート解決エージェント","summary":"Claude Agent SDK で、返品・請求の異議・アカウントの問題などを扱うサポートエージェントを構築しています。バックエンドには自作の MCP ツール（`get_customer`、`lookup_order`、`process_refund`、`escalate_to_human`）でつながります。エスカレーションすべき場面を見極めながら、初回解決率 80% 以上を目指します。"},{"id":"S2","name":"Claude Code によるコード生成","summary":"チームの開発に Claude Code を使っています。コード生成、リファクタリング、デバッグ、ドキュメント作成が対象です。カスタムスラッシュコマンドと CLAUDE.md で開発フローに組み込み、プランモードと直接実行を使い分けます。"},{"id":"S3","name":"マルチエージェントリサーチシステム","summary":"Claude Agent SDK でリサーチシステムを構築しています。コーディネーターが、Web 検索、文書分析、調査結果の統合、レポート生成の各サブエージェントに作業を委任し、出典付きの包括的なレポートを作ります。"},{"id":"S4","name":"Claude による開発者の生産性向上","summary":"Claude Agent SDK で開発者向けの支援ツールを構築しています。不慣れなコードベースの探索、レガシーシステムの理解、ボイラープレートの生成、繰り返し作業の自動化を支援します。組み込みツール（Read、Write、Bash、Grep、Glob）と MCP サーバーを使います。"},{"id":"S5","name":"継続的インテグレーションのための Claude Code","summary":"CI/CD パイプラインに Claude Code を組み込み、コードレビューの自動化、テストケースの生成、プルリクエストへのフィードバックを行います。実行可能なフィードバックを返し、誤検知を最小限に抑えるプロンプトを設計します。"},{"id":"S6","name":"構造化データ抽出","summary":"非構造化の文書から情報を抽出し、JSON スキーマで検証して高い精度を保つシステムを構築しています。エッジケースを適切に扱い、下流のシステムと連携します。"}]};
+const DOMAINS = EXAM.domains;
+const SCENARIOS = EXAM.scenarios || [];
+const SKILLS = EXAM.skills || [];
+const SCN = Object.fromEntries(SCENARIOS.map(s => [s.id, s]));
+const DOM = Object.fromEntries(DOMAINS.map(d => [d.code, d]));
+const BY_ID = Object.fromEntries(QUESTIONS.map(q => [q.id, q]));
+const EXAM_COUNT = EXAM.questions;
+const EXAM_MINUTES = EXAM.minutes;
+const PASS_RATE = EXAM.passRate;
+const PASS_PCT = Math.round(PASS_RATE * 100);
+const MAX_WEIGHT = Math.max(...DOMAINS.map(d => d.weight));
+const LETTERS = 'ABCDE';
+const KEY = { stats: `${EXAM.storage}.stats.v1`, session: `${EXAM.storage}.session.v1`, prefs: `${EXAM.storage}.prefs.v1` };
+const DOMAIN_LABEL = EXAM.domainLabel || '分野'; // 公式の日本語版ガイドの呼び方は「分野」
+const WEIGHT_DP = DOMAINS.some(d => !Number.isInteger(d.weight)) ? 1 : 0;
+const fmtWeight = w => w.toFixed(WEIGHT_DP);
+
+const PEN_CIRCLE = '<svg class="pen" viewBox="0 0 60 70" aria-hidden="true"><path d="M34 5C16 3 5 19 6 37c1 17 12 29 27 28 15-1 23-16 22-32C54 16 45 6 27 9"/></svg>';
+const PEN_CHECK = '<svg class="pen pen-check" viewBox="0 0 60 64" aria-hidden="true"><path d="M6 30l16 24L56 6"/></svg>';
+const MARK_OK = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M35 6C17 5 6 18 6 33s12 26 27 25c15-1 25-12 25-27C58 16 47 6 29 9"/></svg>';
+const MARK_NG = '<svg class="vmark" viewBox="0 0 64 64" aria-hidden="true"><path d="M14 14L50 50M50 14L14 50"/></svg>';
+
+/* ---------- 保存（このブラウザだけ） ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* 保存できない環境では記録なしで動く */ } },
+};
+
+let stats = store.get(KEY.stats, {}) || {};
+let prefs = Object.assign(
+  { domains: DOMAINS.map(d => d.code), count: '20', filter: 'all', order: 'random' },
+  store.get(KEY.prefs, {}) || {}
+);
+prefs.domains = (Array.isArray(prefs.domains) ? prefs.domains : []).filter(c => DOM[c]);
+let session = sanitizeSession(store.get(KEY.session, null));
+let view = 'home';
+let ui = { confirmReset: false, confirmFinish: false, confirmDiscard: false, hint: '', reviewIdx: 0 };
+let lastScrollKey = '';
+
+const saveStats = () => store.set(KEY.stats, stats);
+const saveSession = () => store.set(KEY.session, session);
+const savePrefs = () => store.set(KEY.prefs, prefs);
+
+function sanitizeSession(s) {
+  if (!s || !Array.isArray(s.ids)) return null;
+  s.ids = s.ids.filter(id => BY_ID[id]);
+  if (!s.ids.length) return null;
+  s.order = s.order || {}; s.answers = s.answers || {}; s.submitted = s.submitted || {}; s.flags = s.flags || {};
+  for (const id of s.ids) {
+    const n = BY_ID[id].options.length;
+    const o = s.order[id];
+    const valid = Array.isArray(o) && o.length === n && [...o].sort((a, b) => a - b).every((v, i) => v === i);
+    if (!valid) { s.order[id] = shuffle([...Array(n).keys()]); delete s.answers[id]; delete s.submitted[id]; }
+  }
+  s.idx = Math.min(Math.max(0, s.idx | 0), s.ids.length - 1);
+  return s;
+}
+
+/* ---------- ユーティリティ ---------- */
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(s) {
+  return esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
+}
+function fmtTime(ms) {
+  const t = Math.max(0, Math.round(ms / 1000));
+  const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+function isCorrect(q, sel) {
+  return !!sel && sel.length === q.answer.length && q.answer.every(a => sel.includes(a));
+}
+const modeName = m => (m === 'exam' ? '模擬試験' : '練習');
+const st = id => stats[id] || {};
+
+function record(id, ok) {
+  const s = st(id);
+  stats[id] = { ...s, a: (s.a || 0) + 1, c: (s.c || 0) + (ok ? 1 : 0), last: ok };
+}
+
+/* ---------- 出題の組み立て ---------- */
+function matchesFilter(q, filter) {
+  const s = st(q.id);
+  if (filter === 'new') return !s.a;
+  if (filter === 'wrong') return !!s.a && !s.last;
+  if (filter === 'bookmark') return !!s.bm;
+  return true;
+}
+function practicePool() {
+  return QUESTIONS.filter(q => prefs.domains.includes(q.domain) && matchesFilter(q, prefs.filter));
+}
+function practiceCount(pool) {
+  return prefs.count === 'all' ? pool.length : Math.min(Number(prefs.count) || 20, pool.length);
+}
+function makeSession(mode, ids) {
+  const now = Date.now();
+  return {
+    mode, ids, idx: 0, answers: {}, submitted: {}, flags: {}, finished: false,
+    order: Object.fromEntries(ids.map(id => [id, shuffle([...Array(BY_ID[id].options.length).keys()])])),
+    startedAt: now, deadline: mode === 'exam' ? now + EXAM_MINUTES * 60000 : null,
+  };
+}
+function startPractice(ids) {
+  if (!ids) {
+    const pool = practicePool();
+    const list = prefs.order === 'seq' ? pool : shuffle([...pool]);
+    ids = list.slice(0, practiceCount(pool)).map(q => q.id);
+  }
+  if (!ids.length) return;
+  session = makeSession('practice', ids);
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+// total 問を、重み（weight）の比で各単位に割り振る。cap は、その単位に収録されている問題数。
+// 端数は、余りの大きさに比例した確率で切り上げる。毎回同じ単位が切り捨てられると、配点の小さい単位が
+// 一度も出題されなくなるため（平均すると、どの単位も配点どおりの問題数になる）
+function apportion(total, units) {
+  const sum = units.reduce((a, u) => a + u.weight, 0) || 1;
+  const rows = units.map(u => {
+    const exact = total * u.weight / sum;
+    return { code: u.code, exact, cap: u.cap, n: Math.min(Math.floor(exact), u.cap) };
+  });
+  let left = Math.min(total, units.reduce((a, u) => a + u.cap, 0)) - rows.reduce((a, r) => a + r.n, 0);
+  const cands = rows.filter(r => r.n < r.cap && r.exact % 1 > 1e-9).map(r => ({ r, w: r.exact % 1 }));
+  while (left > 0 && cands.length) {
+    let x = Math.random() * cands.reduce((a, c) => a + c.w, 0);
+    let i = 0;
+    while (i < cands.length - 1 && (x -= cands[i].w) > 0) i++;
+    cands[i].r.n++; left--;
+    cands.splice(i, 1);
+  }
+  // 収録数が足りない単位があって余ったぶんは、余りの大きい順にほかの単位へ回す
+  const byRemainder = [...rows].sort((a, b) => (b.exact % 1) - (a.exact % 1));
+  while (left > 0) {
+    let moved = false;
+    for (const r of byRemainder) {
+      if (left > 0 && r.n < r.cap) { r.n++; left--; moved = true; }
+    }
+    if (!moved) break;
+  }
+  return Object.fromEntries(rows.map(r => [r.code, r.n]));
+}
+
+function examPick() {
+  // シナリオ形式の試験（scenarioPick あり）は、本番と同じ数のシナリオを先に選び、その問題だけから出す
+  let bank = QUESTIONS;
+  let chosen = [];
+  if (EXAM.scenarioPick && SCENARIOS.length) {
+    // 分野によっては、問題が特定のシナリオに集まっている。そのシナリオが1つも選ばれないと、その分野を配点どおりに
+    // 出せない（例: 配点20%の分野が2問だけになる）。どれかの分野が配点より大きく不足する組み合わせは引き直す。
+    // 何度引いても不足するときは、不足がいちばん小さい組み合わせを使う
+    const want = Math.min(EXAM_COUNT, QUESTIONS.length);
+    const sumW = DOMAINS.reduce((a, d) => a + d.weight, 0) || 1;
+    const tolerance = Math.max(1, Math.round(want * 0.05));
+    let best = null;
+    for (let t = 0; t < 40 && !(best && best.short <= tolerance); t++) {
+      const ids = shuffle(SCENARIOS.map(s => s.id)).slice(0, EXAM.scenarioPick);
+      const pool = QUESTIONS.filter(q => ids.includes(q.scenario));
+      if (pool.length < want) continue;
+      const short = Math.max(...DOMAINS.map(d => Math.round(want * d.weight / sumW) - pool.filter(q => q.domain === d.code).length));
+      if (!best || short < best.short) best = { ids, pool, short };
+    }
+    if (best) { chosen = best.ids; bank = best.pool; }
+  }
+  const total = Math.min(EXAM_COUNT, bank.length);
+  // 配点に沿って問題数を割り振る。まず分野ごとに割り振り、試験ガイドがスキルごとの配点も示している試験
+  // （exam.json の skills）では、分野の中でさらにスキルごとに割り振る。分野の比率を崩さないため、2段にしている
+  const domainOf = k => 'D' + String(k.code).split('.')[0];
+  const bySkill = SKILLS.length > 0 && bank.every(q => q.skill);
+  const perDomain = apportion(total, DOMAINS.map(d => ({ code: d.code, weight: d.weight, cap: bank.filter(q => q.domain === d.code).length })));
+  const picked = shuffle(DOMAINS.flatMap(d => {
+    const inDomain = shuffle(bank.filter(q => q.domain === d.code));
+    if (!bySkill) return inDomain.slice(0, perDomain[d.code]);
+    const skills = SKILLS.filter(k => domainOf(k) === d.code);
+    const perSkill = apportion(perDomain[d.code], skills.map(k => ({ code: k.code, weight: k.weight, cap: inDomain.filter(q => q.skill === k.code).length })));
+    return skills.flatMap(k => inDomain.filter(q => q.skill === k.code).slice(0, perSkill[k.code]));
+  }));
+  // 本番と同じく、同じシナリオの問題をまとめて出す
+  if (chosen.length) picked.sort((a, b) => chosen.indexOf(a.scenario) - chosen.indexOf(b.scenario));
+  return picked.map(q => q.id);
+}
+function startExam() {
+  session = makeSession('exam', examPick());
+  ui = { ...ui, hint: '', confirmFinish: false, confirmDiscard: false };
+  view = 'quiz'; saveSession(); render();
+}
+function finishSession() {
+  const s = session;
+  if (!s || s.finished) return;
+  s.finished = true;
+  s.endedAt = s.deadline ? Math.min(Date.now(), s.deadline) : Date.now();
+  if (s.mode === 'exam') s.ids.forEach(id => record(id, isCorrect(BY_ID[id], s.answers[id])));
+  ui.confirmFinish = false;
+  saveStats(); saveSession();
+  view = 'result';
+}
+function reviewList(s) {
+  return s.mode === 'exam' ? s.ids : s.ids.filter(id => s.submitted[id]);
+}
+
+/* ---------- 画面：ホーム ---------- */
+function viewHome() {
+  const total = QUESTIONS.length;
+  const tried = QUESTIONS.filter(q => st(q.id).a).length;
+  const okLast = QUESTIONS.filter(q => st(q.id).a && st(q.id).last).length;
+  const wrong = QUESTIONS.filter(q => st(q.id).a && !st(q.id).last).length;
+  const inDomains = QUESTIONS.filter(q => prefs.domains.includes(q.domain));
+  const countOf = f => inDomains.filter(q => matchesFilter(q, f)).length;
+  const pool = practicePool();
+  const n = practiceCount(pool);
+  const allOn = prefs.domains.length === DOMAINS.length;
+
+  const chips = DOMAINS.map(d => {
+    const on = prefs.domains.includes(d.code);
+    return `<button type="button" class="chip-btn" id="chip-${d.code}" data-action="toggle-domain" data-domain="${d.code}" aria-pressed="${on}" title="${esc(d.en)}"><b>${d.code}</b>${esc(d.name)}</button>`;
+  }).join('');
+
+  const opt = (v, label, cur) => `<option value="${v}"${String(cur) === v ? ' selected' : ''}>${label}</option>`;
+
+  const rows = DOMAINS.map(d => {
+    const qs = QUESTIONS.filter(q => q.domain === d.code);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    const acc = t ? Math.round(ok / t * 100) : null;
+    return `<div class="bp-row">
+      <span class="bp-code">${d.code}</span>
+      <span class="bp-name"><b>${esc(d.name)}</b><small>${esc(d.en)}・収録 ${qs.length}問</small></span>
+      <span class="meter"><span>配点 <span class="num">${fmtWeight(d.weight)}%</span></span><span class="meter-track"><span style="width:${(d.weight / MAX_WEIGHT * 100).toFixed(1)}%"></span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${acc || 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="dom-go-${d.code}" data-action="domain-practice" data-domain="${d.code}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  const scnRows = SCENARIOS.map(sc => {
+    const qs = QUESTIONS.filter(q => q.scenario === sc.id);
+    const t = qs.filter(q => st(q.id).a).length;
+    const ok = qs.filter(q => st(q.id).a && st(q.id).last).length;
+    return `<div class="bp-row">
+      <span class="bp-code">${esc(sc.id)}</span>
+      <span class="bp-name"><b>${esc(sc.name)}</b><small>${fmt(sc.summary)}</small></span>
+      <span class="meter"><span>収録 <span class="num">${qs.length}問</span></span></span>
+      <span class="meter"><span>正答 <span class="num">${t ? `${ok}/${t}` : '—'}</span></span><span class="meter-track acc"><span style="width:${t ? Math.round(ok / t * 100) : 0}%"></span></span></span>
+      <span class="bp-go"><button type="button" class="btn btn-small" id="scn-go-${esc(sc.id)}" data-action="scenario-practice" data-scenario="${esc(sc.id)}" ${qs.length ? '' : 'disabled'}>練習</button></span>
+    </div>`;
+  }).join('');
+
+  return `<div class="wrap wrap-wide">
+    ${resumeBanner()}
+    <header class="hero">
+      <p class="eyebrow">${esc(EXAM.name)}</p>
+      <h1>${esc(EXAM.code)} 問題集</h1>
+      <p class="lead">試験ガイドの配点に合わせて作った全${total}問の練習問題です。練習モードでは1問ごとに正解と解説を確認できます。模擬試験では本番と同じ${EXAM_COUNT}問・${EXAM_MINUTES}分を通して解けます。</p>
+    </header>
+
+    <dl class="spec">
+      <div><dt>問題数</dt><dd>${EXAM_COUNT}<small> 問</small></dd></div>
+      <div><dt>試験時間</dt><dd>${EXAM_MINUTES}<small> 分</small></dd></div>
+      <div><dt>合格ライン</dt><dd>${EXAM.passScore}<small> / ${EXAM.scaleMax}</small></dd></div>
+      <div><dt>出題形式</dt><dd>選択式<small> ${esc(EXAM.format)}</small></dd></div>
+    </dl>
+
+    <section class="modes">
+      <div class="panel">
+        <div class="panel-head"><h2>練習モード</h2><p>1問ずつ解いて、その場で正解と解説を確認します。</p></div>
+        <div class="field">
+          <span class="field-label">${esc(DOMAIN_LABEL)}<button type="button" id="btn-all-dom" data-action="all-domains">${allOn ? 'すべて外す' : 'すべて選ぶ'}</button></span>
+          <div class="chips">${chips}</div>
+        </div>
+        <div class="field-row">
+          <label class="field" for="pref-filter"><span class="field-label">対象</span>
+            <select id="pref-filter" data-pref="filter">
+              ${opt('all', `すべて（${countOf('all')}）`, prefs.filter)}
+              ${opt('new', `未回答（${countOf('new')}）`, prefs.filter)}
+              ${opt('wrong', `間違えた問題（${countOf('wrong')}）`, prefs.filter)}
+              ${opt('bookmark', `ブックマーク（${countOf('bookmark')}）`, prefs.filter)}
+            </select></label>
+          <label class="field" for="pref-count"><span class="field-label">出題数</span>
+            <select id="pref-count" data-pref="count">
+              ${opt('10', '10問', prefs.count)}${opt('20', '20問', prefs.count)}${opt('50', '50問', prefs.count)}${opt('all', 'すべて', prefs.count)}
+            </select></label>
+          <label class="field" for="pref-order"><span class="field-label">順番</span>
+            <select id="pref-order" data-pref="order">
+              ${opt('random', 'ランダム', prefs.order)}${opt('seq', '番号順', prefs.order)}
+            </select></label>
+        </div>
+        <div class="panel-foot">
+          <span class="count">対象 <b>${pool.length}</b> 問から <b>${n}</b> 問を出題</span>
+          <button type="button" class="btn btn-primary" id="btn-practice" data-action="start-practice" ${n ? '' : 'disabled'}>練習を始める</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h2>模擬試験</h2><p>本番と同じ形式で、時間を計って通しで解きます。</p></div>
+        <ul class="ticks">
+          <li>${EXAM.scenarioPick && SCENARIOS.length ? `${SCENARIOS.length}つのシナリオから${EXAM.scenarioPick}つを無作為に選び、` : ''}${SKILLS.length ? `${esc(DOMAIN_LABEL)}とスキル` : esc(DOMAIN_LABEL)}の配点に沿って${Math.min(EXAM_COUNT, total)}問を抽出します</li>
+          <li>制限時間は${EXAM_MINUTES}分です。ページを閉じてもタイマーは進みます</li>
+          <li>採点するまで正誤は表示されません</li>
+          <li>見直し用のマークと問題一覧で、好きな問題に戻れます</li>
+        </ul>
+        <div class="panel-foot">
+          <span class="count">合格の目安は正答率 <b>${PASS_PCT}%</b></span>
+          <button type="button" class="btn btn-primary" id="btn-exam" data-action="start-exam" ${total ? '' : 'disabled'}>模擬試験を始める</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>出題範囲と学習状況</h2>
+        <p>${esc(EXAM.weightNote || '配点は試験ガイド（公開情報）の比率です。')}正答は各問題の最新の回答で数えます。</p>
+      </div>
+      <div class="bp">${rows}</div>
+    </section>
+    ${SCENARIOS.length ? `<section>
+      <div class="section-head">
+        <h2>シナリオ別に練習する</h2>
+        <p>${esc(EXAM.scenarioNote || '問題は、場面設定（シナリオ）ごとにまとまっています。')}</p>
+      </div>
+      <div class="bp">${scnRows}</div>
+    </section>` : ''}
+
+    <footer class="foot">
+      <div class="foot-stats">
+        <span>解いた問題 <b>${tried}</b> / ${total}</span>
+        <span>最新の回答で正解 <b>${okLast}</b></span>
+        <span>要復習 <b>${wrong}</b></span>
+        <span class="spacer"></span>
+        ${ui.confirmReset
+          ? `<span class="confirm">学習記録とブックマークを消しますか？
+              <button type="button" class="btn btn-small btn-danger" id="btn-reset-yes" data-action="reset-yes">消去する</button>
+              <button type="button" class="btn btn-small" id="btn-reset-no" data-action="reset-no">やめる</button></span>`
+          : `<button type="button" class="btn btn-small btn-ghost" id="btn-reset" data-action="reset" ${tried || QUESTIONS.some(q => st(q.id).bm) ? '' : 'disabled'}>学習記録をリセット</button>`}
+      </div>
+      <p>非公式の学習用問題集です。Anthropic の公式問題ではありません。出題範囲と配点は公開情報をもとにしているので、受験前に公式の試験ガイドで最新の内容を確認してください。学習記録はこのブラウザの中にだけ保存されます。</p>
+    </footer>
+  </div>`;
+}
+
+function resumeBanner() {
+  if (!session) return '';
+  if (session.finished) {
+    return `<div class="banner"><span>前回の${modeName(session.mode)}の結果が残っています。</span>
+      <div class="banner-actions"><button type="button" class="btn btn-small" id="btn-last" data-action="last-result">結果を見る</button></div></div>`;
+  }
+  const done = session.mode === 'exam'
+    ? session.ids.filter(id => (session.answers[id] || []).length).length
+    : Object.keys(session.submitted).length;
+  const left = session.mode === 'exam' ? `・残り ${fmtTime(session.deadline - Date.now())}` : '';
+  const actions = ui.confirmDiscard
+    ? `<span>途中の${modeName(session.mode)}を破棄しますか？</span>
+       <button type="button" class="btn btn-small btn-danger" id="btn-discard-yes" data-action="discard-yes">破棄する</button>
+       <button type="button" class="btn btn-small" id="btn-discard-no" data-action="discard-no">やめる</button>`
+    : `<button type="button" class="btn btn-small btn-primary" id="btn-resume" data-action="resume">続きから再開</button>
+       <button type="button" class="btn btn-small" id="btn-discard" data-action="discard">破棄</button>`;
+  return `<div class="banner"><span>${modeName(session.mode)}の途中です（${done} / ${session.ids.length}問 回答済み${left}）</span>
+    <div class="banner-actions">${actions}</div></div>`;
+}
+
+/* ---------- 画面：問題 ---------- */
+function topBar(left, mid, right, progress) {
+  return `<div class="bar"><div class="bar-inner">${left}<div class="bar-mid">${mid}</div>${right}</div>
+    ${progress == null ? '' : `<div class="bar-progress"><span style="width:${progress.toFixed(1)}%"></span></div>`}</div>`;
+}
+function bookmarkBtn(id) {
+  const on = !!st(id).bm;
+  return `<button type="button" class="icon-btn" id="btn-bm" data-action="bookmark" aria-pressed="${on}" aria-label="ブックマーク" title="ブックマーク">${on ? '★' : '☆'}</button>`;
+}
+
+function questionCard(q, o) {
+  const d = DOM[q.domain];
+  const need = q.answer.length;
+  const sel = o.sel || [];
+  const items = o.order.map((orig, i) => {
+    const chosen = sel.includes(orig);
+    const right = q.answer.includes(orig);
+    let cls = 'opt';
+    if (chosen) cls += ' is-chosen';
+    if (o.reveal) cls += right ? ' is-right' : (chosen ? ' is-wrong' : '');
+    const marks = o.reveal ? (right ? PEN_CIRCLE : (chosen ? PEN_CHECK : '')) : '';
+    const note = o.reveal
+      ? `<span class="opt-note">${right ? '<b class="tag tag-right">正解</b>' : ''}${chosen && !right ? '<b class="tag tag-wrong">あなたの回答</b>' : ''}${fmt(q.notes[orig])}</span>`
+      : '';
+    return `<li role="presentation"><button type="button" class="${cls}" id="opt-${i}" data-action="pick" data-opt="${orig}"
+      role="${need > 1 ? 'checkbox' : 'radio'}" aria-checked="${chosen}"${o.reveal ? ' aria-disabled="true"' : ''}>
+      <span class="bubble" aria-hidden="true">${LETTERS[i]}${marks}</span>
+      <span class="opt-body"><span class="opt-text">${fmt(q.options[orig])}</span>${note}</span></button></li>`;
+  }).join('');
+
+  const instr = need > 1
+    ? `<span>${need}つ選んでください</span><span class="num">${sel.length} / ${need} 選択中</span>`
+    : '<span>最も適切なものを1つ選んでください</span>';
+
+  let after = '';
+  if (o.reveal) {
+    const ok = isCorrect(q, sel);
+    const letters = o.order.map((orig, i) => (q.answer.includes(orig) ? LETTERS[i] : null)).filter(Boolean).join('・');
+    after = `<div class="verdict ${ok ? 'ok' : 'ng'}" role="status">${ok ? MARK_OK : MARK_NG}
+        <div><p class="verdict-title">${ok ? '正解' : (sel.length ? '不正解' : '未回答')}</p><p class="verdict-sub">正解は ${letters}</p></div></div>
+      <div class="explain"><h3>解説</h3><p>${fmt(q.explanation)}</p>${q.ref ? `<p class="ref">参考：${fmt(q.ref)}</p>` : ''}</div>`;
+  }
+
+  // 回答の前に見せる情報は、本番で見えるものに近づける。論点名（topic）は正解の言い回しと重なることが多く、
+  // 手がかりになるので、正解を表示するまで出さない。模擬試験では、分野と問題番号（分野が分かる）も採点まで出さない
+  const meta = o.reveal
+    ? `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-topic">${esc(q.topic)}</span><span class="q-id">${q.id}</span>`
+    : (o.exam ? '' : `<span class="q-dom"><b>${d.code}</b>${esc(d.name)}</span><span class="q-id">${q.id}</span>`);
+
+  return `<article class="sheet" aria-labelledby="q-title">
+    <div class="q-meta">
+      <span class="q-num" id="q-title"><small>問</small>${o.number}</span>
+      ${meta}
+    </div>
+    ${SCN[q.scenario] ? `<div class="scn"><b>シナリオ：${esc(SCN[q.scenario].name)}</b>${fmt(SCN[q.scenario].summary)}</div>` : ''}
+    <div class="q-text">${fmt(q.question)}</div>
+    ${q.code ? `<pre class="code"><code>${esc(q.code)}</code></pre>` : ''}
+    ${o.reveal ? '' : `<div class="q-instr">${instr}</div>${ui.hint ? `<p class="hint" role="alert">${esc(ui.hint)}</p>` : ''}`}
+    <ul class="opts" role="${need > 1 ? 'group' : 'radiogroup'}" aria-label="選択肢">${items}</ul>
+    ${after}
+  </article>`;
+}
+
+function viewQuiz() {
+  const s = session;
+  const id = s.ids[s.idx];
+  const q = BY_ID[id];
+  const exam = s.mode === 'exam';
+  const sel = s.answers[id] || [];
+  const revealed = !exam && !!s.submitted[id];
+  const last = s.idx === s.ids.length - 1;
+  const answeredCount = s.ids.filter(x => (s.answers[x] || []).length).length;
+  const progress = exam ? answeredCount / s.ids.length * 100 : (Object.keys(s.submitted).length / s.ids.length) * 100;
+
+  const bar = topBar(
+    `<button type="button" class="btn btn-ghost btn-small" id="btn-home" data-action="home">← ${exam ? '中断' : 'ホーム'}</button>`,
+    `<span class="bar-mode">${modeName(s.mode)}</span><span class="bar-count"><b>${s.idx + 1}</b> / ${s.ids.length}</span>`,
+    `<div class="bar-right">${exam ? '<span class="timer" id="timer"></span>' : ''}${bookmarkBtn(id)}</div>`,
+    progress
+  );
+
+  const card = questionCard(q, { sel, order: s.order[id], reveal: revealed, exam, number: s.idx + 1 });
+
+  let actions;
+  if (!exam) {
+    const doneCount = Object.keys(s.submitted).length;
+    actions = revealed
+      ? `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-next" data-action="next">${last ? '結果を見る' : '次の問題へ →'}</button>
+        </div>`
+      : `<div class="actions">
+          <button type="button" class="btn btn-ghost btn-small" id="btn-quit" data-action="finish" ${doneCount ? '' : 'disabled'}>ここで終了して結果を見る</button>
+          <button type="button" class="btn btn-primary" id="btn-submit" data-action="submit" ${sel.length === q.answer.length ? '' : 'disabled'}>回答する</button>
+        </div>`;
+    actions += '<p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>Enter</kbd> で回答／次へ</p>';
+  } else {
+    const flagged = !!s.flags[id];
+    const flags = s.ids.filter(x => s.flags[x]).length;
+    const nav = s.ids.map((x, i) => {
+      const cls = [(s.answers[x] || []).length ? 'answered' : '', s.flags[x] ? 'flagged' : '', i === s.idx ? 'current' : ''].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" id="nav-${i}" data-action="goto" data-idx="${i}" aria-label="問${i + 1}${(s.answers[x] || []).length ? ' 回答済み' : ''}${s.flags[x] ? ' マークあり' : ''}">${i + 1}</button>`;
+    }).join('');
+    const unanswered = s.ids.length - answeredCount;
+    actions = `<div class="actions">
+        <button type="button" class="btn" id="btn-prev" data-action="prev" ${s.idx ? '' : 'disabled'}>← 前へ</button>
+        <button type="button" class="btn btn-ghost" id="btn-flag" data-action="flag" aria-pressed="${flagged}">${flagged ? '● 見直しマーク中' : '○ 見直しマーク'}</button>
+        <button type="button" class="btn ${last ? '' : 'btn-primary'}" id="btn-next" data-action="next" ${last ? 'disabled' : ''}>次へ →</button>
+      </div>
+      <details class="navbox" open>
+        <summary>問題一覧 <span>回答済み ${answeredCount} / ${s.ids.length}・マーク ${flags}</span></summary>
+        <div class="nav">${nav}</div>
+        <div class="legend"><span><i class="l-ans"></i>回答済み</span><span><i class="l-flag"></i>見直しマーク</span><span><i></i>未回答</span></div>
+      </details>
+      ${ui.confirmFinish
+        ? `<div class="finish-box" role="alert"><span>${unanswered ? `未回答が <b>${unanswered}</b> 問あります。` : 'すべての問題に回答しました。'}採点すると回答は変更できません。</span>
+            <span class="banner-actions"><button type="button" class="btn btn-danger" id="btn-finish-yes" data-action="finish-yes">採点する</button>
+            <button type="button" class="btn" id="btn-finish-no" data-action="finish-no">戻る</button></span></div>`
+        : `<div class="actions"><span class="grow"></span><button type="button" class="btn ${last ? 'btn-primary' : ''}" id="btn-finish" data-action="finish">試験を終了して採点</button></div>`}
+      <p class="keys"><kbd>1</kbd>〜<kbd>5</kbd> で選択・<kbd>←</kbd><kbd>→</kbd> で移動</p>`;
+  }
+
+  return `${bar}<div class="wrap">${card}${actions}</div>`;
+}
+
+/* ---------- 画面：結果と解説 ---------- */
+function resultOf(s) {
+  const rows = reviewList(s).map(id => {
+    const q = BY_ID[id];
+    const sel = s.answers[id] || [];
+    return { id, q, answered: sel.length > 0, correct: isCorrect(q, sel) };
+  });
+  return { rows, ok: rows.filter(r => r.correct).length, total: rows.length };
+}
+
+function viewResult() {
+  const s = session;
+  const r = resultOf(s);
+  const rate = r.total ? r.ok / r.total : 0;
+  const pct = Math.round(rate * 100);
+  const need = Math.max(0, Math.ceil(PASS_RATE * r.total - 1e-9) - r.ok);
+  const wrongIds = r.rows.filter(x => !x.correct).map(x => x.id);
+  const unanswered = r.rows.filter(x => !x.answered).length;
+
+  const doms = DOMAINS.map(d => {
+    const rows = r.rows.filter(x => x.q.domain === d.code);
+    if (!rows.length) return '';
+    const ok = rows.filter(x => x.correct).length;
+    return `<div class="dom-row"><span class="bp-code">${d.code}</span><span>${esc(d.name)}</span><span class="num">${ok} / ${rows.length}</span>
+      <span class="meter-track acc"><span style="width:${(ok / rows.length * 100).toFixed(1)}%"></span></span></div>`;
+  }).join('');
+
+  const list = r.rows.map((x, i) => `<li><button type="button" id="res-${i}" data-action="review" data-idx="${i}">
+      <span class="res-mark ${x.correct ? 'ok' : 'ng'}" aria-label="${x.correct ? '正解' : '不正解'}">${x.correct ? '○' : '×'}</span>
+      <span class="num">問${s.ids.indexOf(x.id) + 1}</span><span class="bp-code">${x.q.domain}</span>
+      <span class="res-topic">${esc(x.q.topic)}${x.answered ? '' : '（未回答）'}</span><span class="res-go">解説 →</span></button></li>`).join('');
+
+  const timeLine = s.mode === 'exam'
+    ? `<span>所要時間 <b>${fmtTime((s.endedAt || Date.now()) - s.startedAt)}</b> / ${fmtTime(EXAM_MINUTES * 60000)}</span>` : '';
+
+  return `<div class="wrap">
+    <header class="score-head">
+      <p class="eyebrow">${modeName(s.mode)}の結果</p>
+      <div class="score-row">
+        <span class="score num">${pct}<small>%</small></span>
+        <span class="score-sub"><span>正解 <b>${r.ok}</b> / ${r.total}問</span>${timeLine}${unanswered ? `<span>未回答 <b>${unanswered}</b>問</span>` : ''}</span>
+      </div>
+      <div class="gauge" role="img" aria-label="正答率 ${pct}%、合格目安 ${PASS_PCT}%"><span style="width:${pct}%"></span><i class="mark" style="left:${PASS_RATE * 100}%" data-label="合格目安 ${PASS_PCT}%"></i></div>
+      <p class="score-msg">${rate >= PASS_RATE ? `合格目安の正答率${PASS_PCT}%を上回りました。` : `合格目安の正答率${PASS_PCT}%まで、あと${need}問です。`}</p>
+      <p class="score-note">本番は${EXAM.scaleMin}〜${EXAM.scaleMax}のスケールスコアで、${EXAM.passScore}以上が合格です。換算式は公開されていないので、ここでは正答率${PASS_PCT}%を目安にしています。</p>
+    </header>
+
+    <section class="sheet">
+      <h2 style="font-size:18px">${esc(DOMAIN_LABEL)}別の正答</h2>
+      <div class="dom-list">${doms}</div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>問題ごとの結果</h2><p>行を選ぶと、正解と解説を確認できます。</p></div>
+      <ul class="res-list">${list}</ul>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn" id="btn-res-home" data-action="home">ホームへ</button>
+      <button type="button" class="btn btn-primary" id="btn-retry" data-action="retry-wrong" ${wrongIds.length ? '' : 'disabled'}>間違えた${wrongIds.length}問を解き直す</button>
+    </div>
+  </div>`;
+}
+
+function viewReview() {
+  const s = session;
+  const list = reviewList(s);
+  const i = Math.min(Math.max(0, ui.reviewIdx), list.length - 1);
+  const id = list[i];
+  const q = BY_ID[id];
+  const bar = topBar(
+    '<button type="button" class="btn btn-ghost btn-small" id="btn-back" data-action="back-result">← 結果へ</button>',
+    `<span class="bar-mode">解説</span><span class="bar-count"><b>${i + 1}</b> / ${list.length}</span>`,
+    `<div class="bar-right">${bookmarkBtn(id)}</div>`,
+    null
+  );
+  const card = questionCard(q, { sel: s.answers[id] || [], order: s.order[id], reveal: true, number: s.ids.indexOf(id) + 1 });
+  return `${bar}<div class="wrap">${card}
+    <div class="actions">
+      <button type="button" class="btn" id="btn-rprev" data-action="review-prev" ${i ? '' : 'disabled'}>← 前の問題</button>
+      <button type="button" class="btn btn-primary" id="btn-rnext" data-action="review-next" ${i < list.length - 1 ? '' : 'disabled'}>次の問題 →</button>
+    </div></div>`;
+}
+
+/* ---------- 描画 ---------- */
+const app = document.getElementById('app');
+function render() {
+  if (view !== 'home' && !session) view = 'home';
+  const activeId = document.activeElement && document.activeElement.id;
+  if (view === 'quiz') app.innerHTML = viewQuiz();
+  else if (view === 'result') app.innerHTML = viewResult();
+  else if (view === 'review') app.innerHTML = viewReview();
+  else app.innerHTML = viewHome();
+
+  const scrollKey = view + ':' + (view === 'quiz' ? session.idx : view === 'review' ? ui.reviewIdx : '');
+  if (scrollKey !== lastScrollKey) { window.scrollTo(0, 0); lastScrollKey = scrollKey; }
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el && !el.disabled) el.focus({ preventScroll: true });
+  }
+  tick();
+}
+
+/* ---------- 操作 ---------- */
+function currentQ() { return BY_ID[session.ids[session.idx]]; }
+
+function pick(orig) {
+  const s = session;
+  const q = currentQ();
+  if (s.mode !== 'exam' && s.submitted[q.id]) return;
+  const need = q.answer.length;
+  let sel = [...(s.answers[q.id] || [])];
+  ui.hint = '';
+  if (need === 1) sel = [orig];
+  else if (sel.includes(orig)) sel = sel.filter(x => x !== orig);
+  else if (sel.length >= need) ui.hint = `選べるのは${need}つまでです。ほかの選択肢を選ぶ前に、どれかを外してください。`;
+  else sel.push(orig);
+  s.answers[q.id] = sel;
+  saveSession(); render();
+}
+function submit() {
+  const s = session;
+  const q = currentQ();
+  const sel = s.answers[q.id] || [];
+  if (s.mode === 'exam' || s.submitted[q.id] || sel.length !== q.answer.length) return;
+  s.submitted[q.id] = true;
+  record(q.id, isCorrect(q, sel));
+  saveStats(); saveSession(); render();
+}
+function go(delta) {
+  const s = session;
+  const n = s.idx + delta;
+  if (n < 0 || n >= s.ids.length) return;
+  s.idx = n; ui.hint = ''; ui.confirmFinish = false;
+  saveSession(); render();
+}
+function next() {
+  const s = session;
+  if (s.mode !== 'exam' && s.idx === s.ids.length - 1) { finishSession(); render(); return; }
+  go(1);
+}
+
+// 模擬試験の途中で別の出題を始めようとしたら、先に破棄するかを確かめる（黙って消さない）
+function examInProgress() {
+  if (!session || session.finished || session.mode !== 'exam') return false;
+  ui.confirmDiscard = true;
+  render();
+  window.scrollTo(0, 0);
+  return true;
+}
+
+const actions = {
+  'start-practice': () => { if (!examInProgress()) startPractice(); },
+  'start-exam': () => { if (!examInProgress()) startExam(); },
+  'domain-practice': el => { if (examInProgress()) return; prefs.domains = [el.dataset.domain]; prefs.filter = 'all'; savePrefs(); startPractice(); },
+  'scenario-practice': el => {
+    if (examInProgress()) return;
+    const qs = QUESTIONS.filter(q => q.scenario === el.dataset.scenario);
+    startPractice((prefs.order === 'seq' ? qs : shuffle([...qs])).map(q => q.id));
+  },
+  'toggle-domain': el => {
+    const c = el.dataset.domain;
+    prefs.domains = prefs.domains.includes(c) ? prefs.domains.filter(x => x !== c) : [...prefs.domains, c];
+    savePrefs(); render();
+  },
+  'all-domains': () => {
+    prefs.domains = prefs.domains.length === DOMAINS.length ? [] : DOMAINS.map(d => d.code);
+    savePrefs(); render();
+  },
+  'resume': () => { view = session.finished ? 'result' : 'quiz'; ui.confirmDiscard = false; render(); },
+  'last-result': () => { view = 'result'; render(); },
+  'discard': () => { ui.confirmDiscard = true; render(); },
+  'discard-no': () => { ui.confirmDiscard = false; render(); },
+  'discard-yes': () => { session = null; ui.confirmDiscard = false; saveSession(); render(); },
+  'reset': () => { ui.confirmReset = true; render(); },
+  'reset-no': () => { ui.confirmReset = false; render(); },
+  'reset-yes': () => { stats = {}; ui.confirmReset = false; saveStats(); render(); },
+  'home': () => { view = 'home'; ui.confirmFinish = false; ui.hint = ''; render(); },
+  'pick': el => pick(Number(el.dataset.opt)),
+  'submit': () => submit(),
+  'next': () => next(),
+  'prev': () => go(-1),
+  'goto': el => go(Number(el.dataset.idx) - session.idx),
+  'flag': () => { const id = currentQ().id; session.flags[id] = !session.flags[id]; saveSession(); render(); },
+  'bookmark': () => {
+    const id = view === 'review' ? reviewList(session)[ui.reviewIdx] : currentQ().id;
+    stats[id] = { ...st(id), bm: !st(id).bm }; saveStats(); render();
+  },
+  'finish': () => {
+    if (session.mode === 'exam') { ui.confirmFinish = true; render(); }
+    else { finishSession(); render(); }
+  },
+  'finish-no': () => { ui.confirmFinish = false; render(); },
+  'finish-yes': () => { finishSession(); render(); },
+  'review': el => { ui.reviewIdx = Number(el.dataset.idx); view = 'review'; render(); },
+  'review-prev': () => { ui.reviewIdx = Math.max(0, ui.reviewIdx - 1); render(); },
+  'review-next': () => { ui.reviewIdx = Math.min(reviewList(session).length - 1, ui.reviewIdx + 1); render(); },
+  'back-result': () => { view = 'result'; render(); },
+  'retry-wrong': () => {
+    const ids = resultOf(session).rows.filter(x => !x.correct).map(x => x.id);
+    startPractice(shuffle(ids));
+  },
+};
+
+app.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
+  const fn = actions[el.dataset.action];
+  if (fn) fn(el, e);
+});
+app.addEventListener('change', e => {
+  const el = e.target.closest('[data-pref]');
+  if (!el) return;
+  prefs[el.dataset.pref] = el.value;
+  savePrefs(); render();
+});
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.closest && e.target.closest('input, select, textarea, summary')) return;
+  if (view === 'quiz' && session) {
+    const k = e.key.toLowerCase();
+    const map = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, a: 0, b: 1, c: 2, d: 3, e: 4 };
+    const q = currentQ();
+    if (k in map) {
+      const order = session.order[q.id];
+      if (map[k] < order.length) { e.preventDefault(); pick(order[map[k]]); }
+      return;
+    }
+    if (e.key === 'Enter') {
+      const onOther = e.target.closest('button') && !e.target.closest('.opt');
+      if (onOther) return;
+      e.preventDefault();
+      if (session.mode === 'exam') { if (session.idx < session.ids.length - 1) go(1); }
+      else if (session.submitted[q.id]) next();
+      else submit();
+      return;
+    }
+    if (session.mode === 'exam') {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    }
+  } else if (view === 'review' && session) {
+    if (e.key === 'ArrowRight') { e.preventDefault(); actions['review-next'](); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); actions['review-prev'](); }
+  }
+});
+
+/* ---------- タイマー ---------- */
+function tick() {
+  if (!session || session.mode !== 'exam' || session.finished) return;
+  const ms = session.deadline - Date.now();
+  if (ms <= 0) {
+    const wasInQuiz = view === 'quiz';
+    finishSession();
+    if (!wasInQuiz) view = 'home';
+    render();
+    return;
+  }
+  const el = document.getElementById('timer');
+  if (el) {
+    el.textContent = '残り ' + fmtTime(ms);
+    el.classList.toggle('is-low', ms < 10 * 60000);
+  }
+}
+setInterval(tick, 1000);
+
+render();
+})();
+</script>
+
+</html>
